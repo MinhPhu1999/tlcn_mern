@@ -11,8 +11,10 @@ const productRouter = require('./api/routers/product.router');
 const brandRouter = require('./api/routers/brand.router');
 const cartRouter = require('./api/routers/cart.router');
 const orderRouter = require('./api/routers/order.router');
+
 mongoose.Promise = global.Promise;
-const mongoURL='mongodb://localhost/e_db';
+//const mongoURL='mongodb://localhost/e_db';
+const {mongoURL} = require('./mongo')
 mongoose.connect(mongoURL,{
     useNewUrlParser: true,
     useFindAndModify: false,
