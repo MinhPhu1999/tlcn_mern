@@ -29,15 +29,6 @@ module.exports = (app) => {
    app.route('/user/updatepassword')
       .post(user_controller.updatePassword)
 
-   app.route('/user/adduser')
-      .post(user_controller.addUser);
-
-   app.route('/user/getAllUser/:page')
-      .get(user_controller.getAllUser);
-
-   app.route('/admin/getuser')
-      .get(user_controller.getUser);
-
    app.route('/admin/login')
       .post(user_controller.login);
 }

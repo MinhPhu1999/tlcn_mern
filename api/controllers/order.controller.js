@@ -62,10 +62,66 @@ exports.addOrder = async (req, res) => {
 		new_order.save();
 	} catch (err) {
 	  res.status(500).json({ msg: err });
-	  console.log("save bill fail");
+	  console.log("save order fail");
 	  return;
 	}
 	res.status(201).json({ msg: "success" });
 };
 
-exports
+exports.deleteOrder = async(req,res)=>{
+	if (typeof req.params.id === "undefined") {
+		res.status(402).json({ msg: "data invalid" });
+		return;
+	  }
+	  let orderFind = null;
+	  try {
+		orderFind = await order.findOne({ _id: req.params.id, issend: false, order_status: true });
+	  } catch (err) {
+		console.log(err);
+		res.status(500).json({ msg: "server found" });
+		return;
+	  }
+	  if (orderFind === null) {
+		res.status(400).json({ msg: "order not found" });
+		return;
+	  }
+	  orderFind.order_status = false;
+	  try {
+		orderFind.save();
+	  } catch (err) {
+		console.log(err);
+		res.status(500).json({ msg: "server found" });
+		return;
+	  }
+	  res.status(200).json({ msg: "delete order success" });
+}
+
+exports.verifyPayment = async (req, res) => {
+	if (typeof req.params.token === "undefined") {
+	  res.status(402).json({ msg: "!invalid" });
+	  return;
+	}
+	let token = req.params.token;
+	let tokenFind = null;
+	try {
+	  tokenFind = await order.findOne({ token: token });
+	} catch (err) {
+	  res.status(500).json({ msg: err });
+	  return;
+	}
+	if (tokenFind == null) {
+	  res.status(404).json({ msg: "order not found!!!" });
+	  return;
+	}
+	try {
+	  await order.findByIdAndUpdate(
+		tokenFind._id,
+		{ $set: { issend: true } },
+		{ new: true }
+	  );
+	} catch (err) {
+	  res.status(500).json({ msg: err });
+	  return;
+	}
+	res.status(200).json({ msg: "success!" });
+  };

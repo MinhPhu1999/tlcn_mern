@@ -11,11 +11,6 @@ module.exports = (app) => {
         .get(brand_controller.getBrand);
     app.route('/brand/name/:id')
         .get(brand_controller.getNameByID);
-    app.route('/brand/addbrand')
-        .post(brand_controller.addBrand);
-    app.route('/brand/updatebrand')
-        .post(brand_controller.updateBrand);
-    app.route('/brand/delete/:id')
-        .post(brand_controller.deleteBrand);
+
         
 }

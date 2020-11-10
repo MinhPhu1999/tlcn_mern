@@ -30,8 +30,7 @@ const order=new Schema({
     },
     order_date:{
         type: Date,
-        $dateToString: { format: "%Y-%m-%d", date: "$date" },
-        default: new Date()
+        default: Date.now
     },
     city:{
         type: String,
@@ -56,6 +55,10 @@ const order=new Schema({
     email:{
         type: String,
         required:[true,"Không được bỏ trống"]
+    },
+    is_send: {
+        type: Boolean,
+        default: false
     }
 });
 
