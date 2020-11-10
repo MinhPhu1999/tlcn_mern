@@ -16,15 +16,11 @@ const cart = new Schema ({
                 img: String,
                 description: String,
                 count: Number,
-                _id: String,
+                _id: String
             }
         ],
         required : true,
         minlength: 1,
-    },
-    date: {
-        type: Date,
-        default: new Date()
     },
     status:{
         type:Boolean

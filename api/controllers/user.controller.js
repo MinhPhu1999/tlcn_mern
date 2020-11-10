@@ -383,7 +383,6 @@ exports.addUser = async (req, res) => {
         return;
     }
     password = bcrypt.hashSync(password, 10);
-    //console.log(password);
     const newUser = new user({
         email: email,
         name: name,
@@ -411,6 +410,7 @@ exports.getUser = async(req,res)=>{
         res.status(200).json({data:docs});
     })
 }
+
 exports.getAllUser = async(req, res) => {
     if(typeof req.params.page === 'undefined') {
         res.status(402).json({msg: 'Data invalid'});
@@ -443,39 +443,19 @@ exports.getAllUser = async(req, res) => {
         res.status(200).json({ data: docs, totalPage });
     })
 }
-// exports.login = async (req, res) => {
-//     if(typeof req.body.email === 'undefined'
-//     || typeof req.body.password == 'undefined'){
-//         res.status(402).json({msg: "Invalid data"});
-//         return;
-//     }
-//     let { email, password } = req.body;
-//     let userFind = null;
-//     try{
-//         userFind = await user.findOne({'email': email, 'is_admin': true});
-//     }
-//     catch(err){
-//         res.json({msg: err});
-//         return;
-//     }
-//     if(userFind == null){
-//         res.status(422).json({msg: "Invalid data"});
-//         return;
-//     }
 
-//     if(!userFind.is_verify){
-//         res.status(401).json({msg: 'no_registration_confirmation'});
-//         return;
-//     }
-    
-//     if(!bcrypt.compareSync(password, userFind.password)){
-//         res.status(422).json({msg: 'Invalid data'});
-//         return;
-//     }
-//     let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, 'shhhhh');
-//     res.status(200).json({msg: 'success', token: token, user: {
-//         email: userFind.email,
-//         name: userFind.name,
-//         id: userFind._id
-//     }});
-// }
+exports.getDataByID = async(id_user,res)=>{
+    let result = null;
+    try {
+        result = await user.findById(id_user);
+    }
+    catch(err) {
+        console.log(err);
+        return;
+    }
+    if(result === null){
+        console.log("user not found");
+        return;
+    }
+    return [result.name, result.email];
+}

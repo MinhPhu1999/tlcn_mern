@@ -8,13 +8,14 @@ const order=new Schema({
     cart:{
         type:[
             {
-                _id:String,
-                name:String,
-                price:Number,
-                id_category:String,
-                img:String,
-                id_brand:String,
-                count:Number
+                id_category: String,
+                name: String,
+                price: Number,
+                id_brand: String,
+                img: String,
+                description: String,
+                count: Number,
+                _id: String
             }
         ],
         required:true,
@@ -36,16 +37,16 @@ const order=new Schema({
         type: String,
         required:[true,"Không được bỏ trống"]
     },
-    country:{
-        type:String,
-        required:[true,"Không được bỏ trống"]
-    },
     posteCode:{
         type: Number,
         required:[true,"Không được bỏ trống"]
     },
     phone:{
         type:String,
+        required:[true,"Không được bỏ trống"]
+    },
+    name:{
+        type: String,
         required:[true,"Không được bỏ trống"]
     },
     address:{
@@ -55,10 +56,7 @@ const order=new Schema({
     email:{
         type: String,
         required:[true,"Không được bỏ trống"]
-    },
-    // status:{
-    //     type:Boolean
-    // }
+    }
 });
 
 module.exports = mongoose.model('order', order);

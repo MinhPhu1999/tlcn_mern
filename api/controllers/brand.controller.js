@@ -5,8 +5,7 @@ exports.getBrand = async (req, res) => {
         if(err) {
             res.status(422).json({msg:err});
             return;
-        } 
-        //console.log(typeof docs);
+        }
         res.status(200).json({data:docs});
     })
 }

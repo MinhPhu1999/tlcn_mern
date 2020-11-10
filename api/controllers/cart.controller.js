@@ -19,7 +19,7 @@ exports.addToCart = async (req, res) => {
     });
     try {
       await cart_new.save();
-      console.log("thanh cong");
+      //console.log("thanh cong");
     } catch (err) {
       res.status(500).json({ msg: err });
       return;
