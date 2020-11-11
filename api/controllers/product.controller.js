@@ -3,18 +3,6 @@ const product = require('../models/product.model');
 const brandController = require('../controllers/brand.controller');
 const categoryController = require('../controllers/category.controller');
 
-
-
-exports.getProduct = async(req,res)=>{
-    product.find({status:true}, (err, docs) => {
-        if(err) {
-            res.status(422).json({msg:err});
-            return;
-        } 
-        res.status(200).json({data:docs});
-    })
-}
-
 exports.getAllProduct=async(req,res)=>{
     // if(typeof req.params.page === 'undefined') {
     //     res.status(402).json({msg: 'Data invalid'});

@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const user = new Schema({
     is_admin:{
         type:Boolean,
-        required:true
+        default: false
     },
     name:{
         type:String,

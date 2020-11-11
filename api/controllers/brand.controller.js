@@ -1,14 +1,6 @@
 'use strict'
 const brand = require('../models/brand.model');
-exports.getBrand = async (req, res) => {
-    brand.find({status:true}, (err, docs) => {
-        if(err) {
-            res.status(422).json({msg:err});
-            return;
-        }
-        res.status(200).json({data:docs});
-    })
-}
+
 
 exports.getAll = async (req, res) => {
 

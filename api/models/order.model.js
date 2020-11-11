@@ -52,9 +52,12 @@ const order=new Schema({
         type: String,
         required:[true,"Không được bỏ trống"]
     },
-    email:{
+    email: {
         type: String,
-        required:[true,"Không được bỏ trống"]
+        required: [true, "Không được bỏ trống"],
+        index: true,
+        lowercase: true,
+        match: [/\S+@\S+\.\S+/, 'is invalid'],
     },
     is_send: {
         type: Boolean,

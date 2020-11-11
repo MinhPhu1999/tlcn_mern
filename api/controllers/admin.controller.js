@@ -149,6 +149,16 @@ exports.deleteProduct = async (req, res) => {
     res.status(200).json({ msg: 'delete product success', });
 }
 
+exports.getProduct = async(req,res)=>{
+    product.find({status:true}, (err, docs) => {
+        if(err) {
+            res.status(422).json({msg:err});
+            return;
+        } 
+        res.status(200).json({data:docs});
+    })
+}
+
 //brand
 exports.addBrand = async (req, res) => {
     if (typeof req.body.name === 'undefined') {
@@ -242,6 +252,16 @@ exports.deleteBrand = async(req,res)=>{
         return;
     }
     res.status(200).json({ msg: "success" });
+}
+
+exports.getBrand = async (req, res) => {
+    brand.find({status:true}, (err, docs) => {
+        if(err) {
+            res.status(422).json({msg:err});
+            return;
+        }
+        res.status(200).json({data:docs});
+    })
 }
 
 
@@ -341,6 +361,16 @@ exports.deleteCategory = async(req,res)=>{
         return;
     }
     res.status(200).json({ msg: "delete success" });
+}
+
+exports.getCategory=(req,res)=>{
+    category.find({status:true},(err,res)=>{
+        if(err){
+            res.status(422).json({msg:err});
+            return;
+        }
+        res.status(200).json({data:docs});
+    })
 }
 
 // user

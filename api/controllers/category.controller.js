@@ -1,14 +1,6 @@
 'use strict'
 const category = require('../models/category.model');
-exports.getCategory=(req,res)=>{
-    category.find({status:true},(err,res)=>{
-        if(err){
-            res.status(422).json({msg:err});
-            return;
-        }
-        res.status(200).json({data:docs});
-    })
-}
+
 
 
 exports.getAll=async(req,res)=>{
