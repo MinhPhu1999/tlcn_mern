@@ -5,8 +5,6 @@ const brand = require('../models/brand.model');
 const user = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 var cloudinary = require('cloudinary').v2;
 
 
@@ -137,7 +135,7 @@ exports.deleteProduct = async (req, res) => {
         res.status(404).json({ msg: "not found product" });
         return;
     }
-    productFind.status=false;
+    productFind.status = false;
     try {
         productFind.save();
     }
@@ -161,10 +159,10 @@ exports.getProduct = async(req,res)=>{
 
 //brand
 exports.addBrand = async (req, res) => {
-    if (typeof req.body.name === 'undefined') {
-        res.status(422).json({ msg: 'Invalid data' });
-        return;
-    }
+    // if (typeof req.body.name === 'undefined') {
+    //     res.status(422).json({ msg: 'Invalid data' });
+    //     return;
+    // }
     let { name } = req.body;
     let brandFind = null;
     try {
@@ -189,13 +187,12 @@ exports.addBrand = async (req, res) => {
         res.status(500).json({ msg: err });
         return;
     }
-    res.status(201).json({ msg: 'success', data:newBrand });
+    res.status(201).json({ msg: 'add brand success', data:newBrand });
 }
 
 exports.updateBrand = async (req, res) => {
     if (typeof req.body.id === 'undefined'
-        || typeof req.body.name === 'undefined'
-    ) {
+        || typeof req.body.name === 'undefined') {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
@@ -209,7 +206,7 @@ exports.updateBrand = async (req, res) => {
         return;
     }
     if (brandFind === null) {
-        res.status(422).json({ msg: "not found" });
+        res.status(422).json({ msg: "brand not found" });
         return;
     }
     brandFind.name = name;
@@ -221,7 +218,7 @@ exports.updateBrand = async (req, res) => {
         res.status(500).json({ msg: err });
         return;
     }
-    res.status(201).json({ msg: 'success', brand: { name: name } });
+    res.status(201).json({ msg: 'update brand success', brand: { name: name } });
 }
 
 exports.deleteBrand = async(req,res)=>{
@@ -239,7 +236,7 @@ exports.deleteBrand = async(req,res)=>{
         return;
     }
     if (brandFind === null) {
-        res.status(400).json({ msg: "Not Found" });
+        res.status(400).json({ msg: "brand ot found" });
         return;
     }
     brandFind.status = false;
@@ -251,7 +248,7 @@ exports.deleteBrand = async(req,res)=>{
         res.status(500).json({ msg: err });
         return;
     }
-    res.status(200).json({ msg: "success" });
+    res.status(200).json({ msg: "delete brand success" });
 }
 
 exports.getBrand = async (req, res) => {
@@ -263,7 +260,6 @@ exports.getBrand = async (req, res) => {
         res.status(200).json({data:docs});
     })
 }
-
 
 
 // category
@@ -360,7 +356,7 @@ exports.deleteCategory = async(req,res)=>{
         res.status(500).json({ msg: err });
         return;
     }
-    res.status(200).json({ msg: "delete success" });
+    res.status(200).json({ msg: "delete category success" });
 }
 
 exports.getCategory=(req,res)=>{
@@ -392,7 +388,7 @@ exports.updateUser = async (req, res) => {
         return;
     }
     if (userFind === null) {
-        res.status(422).json({ msg: "not found" });
+        res.status(422).json({ msg: "user not found" });
         return;
     }
     userFind.firstName = name;
@@ -405,7 +401,7 @@ exports.updateUser = async (req, res) => {
         return;
     }
     res.status(200).json({
-        msg: 'success', user: {
+        msg: 'update user success', user: {
             email: userFind.email,
             name: userFind.name,
             is_admin: userFind.is_admin
@@ -435,7 +431,7 @@ exports.deleteUser = async (req, res) => {
         res.status(500).json({ msg: err });
         return;
     }
-    res.status(200).json({ msg: 'success'});
+    res.status(200).json({ msg: 'delete user success'});
 }
 
 exports.addUser = async (req, res) => {
@@ -478,7 +474,7 @@ exports.addUser = async (req, res) => {
         res.status(500).json({ msg: err });
         return;
     }
-    res.status(201).json({ msg: 'success' });
+    res.status(201).json({ msg: 'add user success' });
 }
 
 exports.login = async (req, res) => {
@@ -497,7 +493,7 @@ exports.login = async (req, res) => {
         return;
     }
     if(userFind == null){
-        res.status(422).json({msg: "Invalid data"});
+        res.status(422).json({msg: "user not found"});
         return;
     }
 
@@ -507,16 +503,14 @@ exports.login = async (req, res) => {
     }
     
     if(!bcrypt.compareSync(password, userFind.password)){
-        res.status(422).json({msg: 'Invalid data'});
+        res.status(422).json({msg: 'wrong password'});
         return;
     }
     let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, 'shhhhh');
     res.status(200).json({msg: 'success', token: token, user: {
         email: userFind.email,
-        firstName: userFind.firstName,
-        lastName: userFind.lastName,
-        address: userFind.address,
-        phone_number: userFind.phone_number,
+        name: userFind.name,
+        phone: userFind.phone,
         id: userFind._id
     }});
 }
@@ -537,7 +531,7 @@ exports.getAllUser = async(req, res) => {
     }
     let count = null;
     try { 
-        count = await user.count({});
+        count = await user.countDocuments({});
     }
     catch(err) {
         console.log(err);

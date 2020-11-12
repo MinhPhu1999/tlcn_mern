@@ -6,6 +6,9 @@ const user = new Schema({
         type:Boolean,
         default: false
     },
+    phone:{
+        type: String
+    },
     name:{
         type:String,
         required:[true,"Không được bỏ trống"]

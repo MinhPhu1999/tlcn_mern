@@ -9,7 +9,6 @@ exports.addOrder = async (req, res) => {
 	if (typeof req.body.id_user === "undefined" ||
 		typeof req.body.city === "undefined" ||
 		typeof req.body.order_subtotal === 'undefined' ||
-		typeof req.body.order_date === "undefined" ||
 		typeof req.body.posteCode === "undefined" ||
 		typeof req.body.address === "undefined" ||
 		typeof req.body.phone === "undefined" ) {
@@ -17,7 +16,7 @@ exports.addOrder = async (req, res) => {
 	  return;
 	}
 
-	const {id_user,city,order_subtotal,order_date,posteCode,address,phone} = req.body;
+	const {id_user,city,order_subtotal,posteCode,address,phone} = req.body;
 	const getDataUser = await userController.getDataByID(id_user);
 	var cartFind = null;
 	try {
@@ -41,7 +40,7 @@ exports.addOrder = async (req, res) => {
 	  id_user: id_user,
 	  cart: cartFind.products,
 	  city: city,
-	  order_date: order_date,
+	  order_date: Date.now(),
 	  order_subtotal: order_subtotal,
 	  posteCode: posteCode,
 	  address: address,
@@ -94,7 +93,7 @@ exports.deleteOrder = async(req,res)=>{
 		return;
 	  }
 	  res.status(200).json({ msg: "delete order success" });
-}
+};
 
 exports.verifyPayment = async (req, res) => {
 	if (typeof req.params.token === "undefined") {
@@ -123,5 +122,61 @@ exports.verifyPayment = async (req, res) => {
 	  res.status(500).json({ msg: err });
 	  return;
 	}
-	res.status(200).json({ msg: "success!" });
-  };
+	res.status(200).json({ msg: "verify payment success!" });
+};
+
+exports.getOrderNoVerify = async (req, res) => {
+  let count = null;
+  try {
+    count = await order.countDocuments({ issend: false });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: err });
+    return;
+  }
+  let totalPage = parseInt((count - 1) / 9 + 1);
+  let { page } = req.params;
+  if (parseInt(page) < 1 || parseInt(page) > totalPage) {
+    res.status(200).json({ data: [], msg: "Invalid page", totalPage });
+    return;
+  }
+  order.find({issend: false})
+    .skip(9 * (parseInt(page) - 1))
+    .limit(9)
+    .exec((err, docs) => {
+        if(err) {
+            console.log(err);
+                    res.status(500).json({ msg: err });
+                    return;
+        }
+        res.status(200).json({ data: docs, totalPage });
+    })
+};
+
+exports.getOrderVerify = async (req, res) => {
+  let count = null;
+  try {
+    count = await order.countDocuments({ issend: true });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: err });
+    return;
+  }
+  let totalPage = parseInt((count - 1) / 9 + 1);
+  let { page } = req.params;
+  if (parseInt(page) < 1 || parseInt(page) > totalPage) {
+    res.status(200).json({ data: [], msg: "Invalid page", totalPage });
+    return;
+  }
+  order.find({issend: true})
+    .skip(9 * (parseInt(page) - 1))
+    .limit(9)
+    .exec((err, docs) => {
+        if(err) {
+            console.log(err);
+                    res.status(500).json({ msg: err });
+                    return;
+        }
+        res.status(200).json({ data: docs, totalPage });
+    })
+};

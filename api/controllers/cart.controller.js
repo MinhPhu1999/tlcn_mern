@@ -2,8 +2,7 @@
 const cart = require("../models/cart.model");
 exports.addToCart = async (req, res) => {
   if (typeof req.body.id_user === 'undefined'
-    || typeof req.body.products === 'undefined'
-    || typeof req.body.date === 'undefined') {
+    || typeof req.body.products === 'undefined') {
       res.status(422).json({ msg: "invalid data" });
     return;
   }
@@ -14,7 +13,6 @@ exports.addToCart = async (req, res) => {
     const cart_new = new cart({
       id_user: id_user,
       products: products,
-      date: date,
       status: true
     });
     try {
@@ -111,7 +109,7 @@ exports.updateCart = async (req, res) => {
     res.status(500).json({ msg: err });
     return;
   }
-  res.status(200).json({ msg: "success" });
+  res.status(200).json({ msg: "update cart success" });
 };
 
 exports.deleteCart = async (req, res) => {
@@ -141,7 +139,7 @@ exports.deleteCart = async (req, res) => {
       return;
   }
 
-  res.status(200).json({ msg: "success" });
+  res.status(200).json({ msg: "delete cart success" });
 }
 
 exports.deleteProductInCart = async (req, res) => {
@@ -180,5 +178,5 @@ exports.deleteProductInCart = async (req, res) => {
     res.status(500).json({ msg: err });
     return;
   }
-  res.status(200).json({ msg: "success" });
+  res.status(200).json({ msg: "delete success" });
 };

@@ -2,12 +2,13 @@
 const admin_controller = require('../controllers/admin.controller');
 const multer = require('multer')
 const storage = multer.diskStorage({
-    destination: './files',
-    filename(req, file, cb) {
-      cb(null, `${new Date()}-${file.originalname}`);
-    },
-});
-const upload = multer({ storage });
+  destination: './files/',
+  filename: (req, file, cb) =>{
+      let filename=`${Date.now()}-${file.originalname}`;
+     cb(null,filename);
+  }
+})
+const upload = multer({ storage:storage });
 
 module.exports = (app) => {
   //product
@@ -45,10 +46,10 @@ module.exports = (app) => {
         .post(admin_controller.addUser);
     app.route('/admin/deleteuser/:id')
         .put(admin_controller.deleteUser);
-    app.route('/user/getAllUser/:page')
-        .get(user_controller.getAllUser);
+    app.route('/admin/getAllUser/:page')
+        .get(admin_controller.getAllUser);
     app.route('/admin/getuser')
-        .get(user_controller.getUser);
+        .get(admin_controller.getUser);
     app.route('/admin/login')
         .post(admin_controller.login);
 }

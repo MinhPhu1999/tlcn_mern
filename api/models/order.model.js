@@ -30,7 +30,7 @@ const order=new Schema({
     },
     order_date:{
         type: Date,
-        default: Date.now
+        default: Date.now()
     },
     city:{
         type: String,

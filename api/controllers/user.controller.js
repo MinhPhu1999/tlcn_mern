@@ -10,11 +10,12 @@ exports.register = async (req, res) => {
     if ((typeof req.body.email === 'undefined')
         || (typeof req.body.password === 'undefined')
         || typeof req.body.name === 'undefined'
+        || typeof req.body.phone === 'undefined'
     ) {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let { email, password, name} = req.body;
+    let { email, password, name, phone} = req.body;
     if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
         || password.length < 6 ){
         res.status(422).json({ msg: 'Invalid data' });
@@ -43,6 +44,7 @@ exports.register = async (req, res) => {
         email: email,
         firstName: name,
         password: password,
+        phone: phone,
         token: token
     });
     try {
@@ -71,7 +73,7 @@ exports.verifyAccount = async (req, res) => {
         return;
     }
     if(tokenFind == null){
-        res.status(404).json({msg: "not found!!!"});
+        res.status(404).json({msg: "user not found!!!"});
         return;
     }
     try{
@@ -82,7 +84,7 @@ exports.verifyAccount = async (req, res) => {
         res.status(500).json({msg: err});
         return;
     }
-    res.status(200).json({msg:"success!"});
+    res.status(200).json({msg:"verify account success!"});
 }
 
 exports.login = async (req, res) => {
@@ -114,7 +116,7 @@ exports.login = async (req, res) => {
         return;
     }
     let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, 'shhhhh');
-    res.status(200).json({msg: 'success', token: token, user: {
+    res.status(200).json({msg: 'login success', token: token, user: {
         email: userFind.email,
         name: userFind.name,
         id: userFind._id

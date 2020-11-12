@@ -12,7 +12,7 @@ exports.getAll = async (req, res) => {
     // }
     // let count = null;
     // try { 
-    //     count = await brand.count({})
+    //     count = await brand.countDocuments({})
     // }
     // catch(err) {
     //     console.log(err);

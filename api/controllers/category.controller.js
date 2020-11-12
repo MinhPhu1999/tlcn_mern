@@ -1,8 +1,6 @@
 'use strict'
 const category = require('../models/category.model');
 
-
-
 exports.getAll=async(req,res)=>{
     // if(typeof req.params.page === 'undefined'){
     //     res.status(402).json({msg:'Data Invalid'});
@@ -10,7 +8,7 @@ exports.getAll=async(req,res)=>{
     // }
     let count = null;
     try{
-        count = await category.count({});
+        count = await category.countDocuments({});
     }
     catch(err){
         console.log(err);
@@ -69,99 +67,99 @@ exports.getIDBySearchText = async (searchText) => {
     return arr.map(i => i.id);
 }
 
-exports.addCategory = async (req, res) => {
-    if (typeof req.body.name === 'undefined'
-        || typeof req.body.path === 'undefined') {
-        res.status(422).json({ msg: 'Invalid data' });
-        return;
-    }
-    let { name, path } = req.body;
-    let categoryFind;
-    try {
-        categoryFind = await category.find({ 'name': name });
-    }
-    catch (err) {
-        res.status(500).json({ msg: err });
-        return;
-    }
-    if (categoryFind.length > 0) {
-        res.status(409).json({ msg: 'category already exist' });
-        return;
-    }
-    const newCategory = new category({ 
-        name: name,
-        path:path,
-        status:true });
-    try {
-        await newCategory.save();
-    }
-    catch (err) {
-        console.log(err);
-        res.status(500).json({ msg: err });
-        return;
-    }
-    res.status(201).json({ msg: 'add category success' });
-}
+// exports.addCategory = async (req, res) => {
+//     if (typeof req.body.name === 'undefined'
+//         || typeof req.body.path === 'undefined') {
+//         res.status(422).json({ msg: 'Invalid data' });
+//         return;
+//     }
+//     let { name, path } = req.body;
+//     let categoryFind;
+//     try {
+//         categoryFind = await category.find({ 'name': name });
+//     }
+//     catch (err) {
+//         res.status(500).json({ msg: err });
+//         return;
+//     }
+//     if (categoryFind.length > 0) {
+//         res.status(409).json({ msg: 'category already exist' });
+//         return;
+//     }
+//     const newCategory = new category({ 
+//         name: name,
+//         path:path,
+//         status:true });
+//     try {
+//         await newCategory.save();
+//     }
+//     catch (err) {
+//         console.log(err);
+//         res.status(500).json({ msg: err });
+//         return;
+//     }
+//     res.status(201).json({ msg: 'add category success' });
+// }
 
-exports.updateCategory = async (req, res) => {
-    if (typeof req.body.id === 'undefined'
-        || typeof req.body.name === 'undefined'
-    ) {
-        res.status(422).json({ msg: 'Invalid data' });
-        return;
-    }
-    let { id, name } = req.body;
-    let categoryFind = null;
-    try {
-        categoryFind = await category.findById(id);
-    }
-    catch (err) {
-        res.status(500).json({ msg: err });
-        return;
-    }
-    if (categoryFind === null) {
-        res.status(422).json({ msg: "category not found" });
-        return;
-    }
-    categoryFind.name = name;
-    try {
-        await categoryFind.save();
-    }
-    catch (err) {
-        console.log(err);
-        res.status(500).json({ msg: err });
-        return;
-    }
-    res.status(201).json({ msg: 'update category success', category: { name: name } });
-}
+// exports.updateCategory = async (req, res) => {
+//     if (typeof req.body.id === 'undefined'
+//         || typeof req.body.name === 'undefined'
+//     ) {
+//         res.status(422).json({ msg: 'Invalid data' });
+//         return;
+//     }
+//     let { id, name } = req.body;
+//     let categoryFind = null;
+//     try {
+//         categoryFind = await category.findById(id);
+//     }
+//     catch (err) {
+//         res.status(500).json({ msg: err });
+//         return;
+//     }
+//     if (categoryFind === null) {
+//         res.status(422).json({ msg: "category not found" });
+//         return;
+//     }
+//     categoryFind.name = name;
+//     try {
+//         await categoryFind.save();
+//     }
+//     catch (err) {
+//         console.log(err);
+//         res.status(500).json({ msg: err });
+//         return;
+//     }
+//     res.status(201).json({ msg: 'update category success', category: { name: name } });
+// }
 
-exports.deleteCategory = async(req,res)=>{
-    if (typeof req.params.id === "undefined") {
-        res.status(402).json({ msg: "data invalid" });
-        return;
-    }
-    let id = req.params.id;
-    let categoryFind = null;
-    try {
-        categoryFind = await category.findById(id);
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ msg: "server found" });
-        return;
-    }
-    if (brandFind === null) {
-        res.status(400).json({ msg: "category not found" });
-        return;
-    }
-    categoryFind.status = false;
-    try {
-        await categoryFind.save();
-    }
-    catch (err) {
-        console.log(err);
-        res.status(500).json({ msg: err });
-        return;
-    }
-    res.status(200).json({ msg: "delete success" });
-}
+// exports.deleteCategory = async(req,res)=>{
+//     if (typeof req.params.id === "undefined") {
+//         res.status(402).json({ msg: "data invalid" });
+//         return;
+//     }
+//     let id = req.params.id;
+//     let categoryFind = null;
+//     try {
+//         categoryFind = await category.findById(id);
+//     } catch (err) {
+//         console.log(err);
+//         res.status(500).json({ msg: "server found" });
+//         return;
+//     }
+//     if (brandFind === null) {
+//         res.status(400).json({ msg: "category not found" });
+//         return;
+//     }
+//     categoryFind.status = false;
+//     try {
+//         await categoryFind.save();
+//     }
+//     catch (err) {
+//         console.log(err);
+//         res.status(500).json({ msg: err });
+//         return;
+//     }
+//     res.status(200).json({ msg: "delete success" });
+// }
 

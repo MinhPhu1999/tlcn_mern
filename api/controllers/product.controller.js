@@ -2,6 +2,7 @@
 const product = require('../models/product.model');
 const brandController = require('../controllers/brand.controller');
 const categoryController = require('../controllers/category.controller');
+const e = require('express');
 
 exports.getAllProduct=async(req,res)=>{
     // if(typeof req.params.page === 'undefined') {
@@ -10,7 +11,7 @@ exports.getAllProduct=async(req,res)=>{
     // }
     let count = null;
     try { 
-        count = await product.count({});
+        count = await product.countDocuments({});
     }
     catch(err) {
         console.log(err);
@@ -61,7 +62,7 @@ exports.searchProduct = async(req,res)=>{
 
     // let productCount = null;
     // try {
-    //     productCount = await product.count({ $or: [{ name: new RegExp(searchText, "i") }] });
+    //     productCount = await product.countDocuments({ $or: [{ name: new RegExp(searchText, "i") }] });
     // }
     // catch (err) {
     //     res.status(500).json({ msg: err });
@@ -104,7 +105,7 @@ exports.getProductByBrand = async(req,res)=>{
    
     let brandCount = null;
     try{
-        brandCount = await product.count({ id_brand: new RegExp(searchIDBrand, "i")});
+        brandCount = await product.countDocuments({ id_brand: new RegExp(searchIDBrand, "i")});
     }
     catch(err)
     {
@@ -118,7 +119,6 @@ exports.getProductByBrand = async(req,res)=>{
         res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
         return;
     }
-
     product.find({ $or: [{id_brand: new RegExp(searchIDBrand, "i")}]})
     .skip(9 * (parseInt(page) - 1))
     .limit(9)
@@ -128,7 +128,7 @@ exports.getProductByBrand = async(req,res)=>{
             res.status(500).json({ msg: err });
             return;
         }
-        //console.log(docs.price);
+        console.log(docs);
         res.status(200).json({ data: docs, totalPage });
     });
 
@@ -151,7 +151,7 @@ exports.getProductByCategory = async(req,res)=>{
     console.log(searchIDCatefory);
     let categoryCount = null;
     try{
-        categoryCount = await product.count({ id_category: new RegExp(searchIDCatefory)});//, "i"
+        categoryCount = await product.countDocuments({ id_category: new RegExp(searchIDCatefory)});//, "i"
     }
     catch(err)
     {
