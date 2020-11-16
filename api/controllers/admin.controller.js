@@ -510,7 +510,6 @@ exports.login = async (req, res) => {
     res.status(200).json({msg: 'success', token: token, user: {
         email: userFind.email,
         name: userFind.name,
-        phone: userFind.phone,
         id: userFind._id
     }});
 }
