@@ -3,6 +3,7 @@ const product = require('../models/product.model');
 const category=require('../models/category.model');
 const brand = require('../models/brand.model');
 const user = require('../models/user.model');
+const stock = require('../models/stock.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 var cloudinary = require('cloudinary').v2;
@@ -149,6 +150,119 @@ exports.deleteProduct = async (req, res) => {
 
 exports.getProduct = async(req,res)=>{
     product.find({status:true}, (err, docs) => {
+        if(err) {
+            res.status(422).json({msg:err});
+            return;
+        } 
+        res.status(200).json({data:docs});
+    })
+}
+
+//stock
+exports.addStock = async (req, res) => {
+    if (typeof req.body.name_category === 'undefined'
+        || typeof req.body.name_brand === 'undefined'
+        || typeof req.body.count_import === 'undefined') {
+        res.status(422).json({ msg: 'Invalid data' });
+        return;
+    }
+    let { name_category, name_brand, count_import } = req.body;
+    let stockFind;
+    try {
+        stockFind = await stock.find({ 'name_category': name_category, 'name_brand':name_brand });
+    }
+    catch (err) {
+        res.status(500).json({ msg: err });
+        return;
+    }
+    if (stockFind.length > 0) {
+        res.status(409).json({ msg: 'stock already exist' });
+        return;
+    }
+    const newstock = new stock({ 
+        name_category: name_category,
+        name_brand:name_brand,
+        count_import:count_import,
+        status:true });
+    try {
+        await newStock.save();
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({ msg: err });
+        return;
+    }
+    res.status(201).json({ msg: 'add stock success' });
+}
+
+exports.updateStock = async (req, res) => {
+    if (typeof req.body.id === 'undefined'
+        || typeof req.body.name_category === 'undefined'
+        || typeof req.body.name_brand === 'undefined'
+        || typeof req.body.count_import === 'undefined'
+    ) {
+        res.status(422).json({ msg: 'Invalid data' });
+        return;
+    }
+    let { id, name_category, name_brand, count_import } = req.body;
+    let stockFind = null;
+    try {
+        stockFind = await stock.findById(id);
+    }
+    catch (err) {
+        res.status(500).json({ msg: err });
+        return;
+    }
+    if (stockFind === null) {
+        res.status(422).json({ msg: "stock not found" });
+        return;
+    }
+    stockFind.name_category = name_category;
+    stockFind.name_brand = name_brand;
+    stockFind.count_import = count_import;
+    try {
+        await stockFind.save();
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({ msg: err });
+        return;
+    }
+    res.status(201).json({ msg: 'update stock success', stock: { name: name } });
+}
+
+exports.deleteStock = async(req,res)=>{
+    if (typeof req.params.id === "undefined") {
+        res.status(402).json({ msg: "data invalid" });
+        return;
+    }
+    let id = req.params.id;
+    let stockFind = null;
+    try {
+        stockFind = await stock.findById(id);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ msg: "server found" });
+        return;
+    }
+    if (brandFind === null) {
+        res.status(400).json({ msg: "stock not found" });
+        return;
+    }
+    stockFind.status = false;
+    try {
+        await stockFind.save();
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({ msg: err });
+        return;
+    }
+    res.status(200).json({ msg: "delete stock success" });
+}
+
+exports.getStock = async(req,res)=>{
+    stock.find({status:true}, (err, docs) => {
         if(err) {
             res.status(422).json({msg:err});
             return;
@@ -470,7 +584,6 @@ exports.addUser = async (req, res) => {
         await newUser.save();
     }
     catch (err) {
-        //console.log(err);
         res.status(500).json({ msg: err });
         return;
     }

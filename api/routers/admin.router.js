@@ -52,4 +52,14 @@ module.exports = (app) => {
         .get(admin_controller.getUser);
     app.route('/admin/login')
         .post(admin_controller.login);
+
+    //stock
+    app.route('/admin/addstock')
+        .post(admin_controller.addStock);
+    app.route('/admin/updatestock')
+        .put(admin_controller.updateStock);
+    app.route('/admin/delete/:id')
+        .put(admin_controller.deleteStock);
+    app.route('/admin/géttock')
+        .get(admin_controller.getStock);
 }

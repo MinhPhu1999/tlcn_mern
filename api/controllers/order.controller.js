@@ -40,7 +40,6 @@ exports.addOrder = async (req, res) => {
 	  id_user: id_user,
 	  cart: cartFind.products,
 	  city: city,
-	  order_date: Date.now(),
 	  order_subtotal: order_subtotal,
 	  posteCode: posteCode,
 	  address: address,
@@ -74,7 +73,7 @@ exports.deleteOrder = async(req,res)=>{
 	  }
 	  let orderFind = null;
 	  try {
-		orderFind = await order.findOne({ _id: req.params.id, issend: false, order_status: true });
+		orderFind = await order.findOne({ _id: req.params.id, is_send: false, order_status: true });
 	  } catch (err) {
 		console.log(err);
 		res.status(500).json({ msg: "server found" });
@@ -115,7 +114,7 @@ exports.verifyPayment = async (req, res) => {
 	try {
 	  await order.findByIdAndUpdate(
 		tokenFind._id,
-		{ $set: { issend: true } },
+		{ $set: { is_send: true } },
 		{ new: true }
 	  );
 	} catch (err) {
@@ -128,7 +127,7 @@ exports.verifyPayment = async (req, res) => {
 exports.getOrderNoVerify = async (req, res) => {
   let count = null;
   try {
-    count = await order.countDocuments({ issend: false });
+    count = await order.countDocuments({ is_send: false });
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: err });
@@ -140,7 +139,7 @@ exports.getOrderNoVerify = async (req, res) => {
     res.status(200).json({ data: [], msg: "Invalid page", totalPage });
     return;
   }
-  order.find({issend: false})
+  order.find({is_send: false})
     .skip(9 * (parseInt(page) - 1))
     .limit(9)
     .exec((err, docs) => {
@@ -156,7 +155,7 @@ exports.getOrderNoVerify = async (req, res) => {
 exports.getOrderVerify = async (req, res) => {
   let count = null;
   try {
-    count = await order.countDocuments({ issend: true });
+    count = await order.countDocuments({ is_send: true });
   } catch (err) {
     console.log(err);
     res.status(500).json({ msg: err });
@@ -168,7 +167,7 @@ exports.getOrderVerify = async (req, res) => {
     res.status(200).json({ data: [], msg: "Invalid page", totalPage });
     return;
   }
-  order.find({issend: true})
+  order.find({is_send: true})
     .skip(9 * (parseInt(page) - 1))
     .limit(9)
     .exec((err, docs) => {
