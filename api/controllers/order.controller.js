@@ -16,7 +16,7 @@ exports.addOrder = async (req, res) => {
 	  return;
 	}
 
-	const {id_user,city,order_subtotal,posteCode,address,phone} = req.body;
+	const {id_user, city, order_subtotal, posteCode, address, phone} = req.body;
 	const getDataUser = await userController.getDataByID(id_user);
 	var cartFind = null;
 	try {

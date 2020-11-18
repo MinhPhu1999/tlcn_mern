@@ -4,9 +4,10 @@ const category=require('../models/category.model');
 const brand = require('../models/brand.model');
 const user = require('../models/user.model');
 const stock = require('../models/stock.model');
+const stockController = require('../controllers/stock.controller')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-var cloudinary = require('cloudinary').v2;
+const cloudinary = require('cloudinary').v2;
 
 
 // product
@@ -75,12 +76,11 @@ exports.updateProduct = async (req, res) => {
     || typeof req.body.price === 'undefined' 
     || typeof req.body.id_brand === 'undefined' 
     || typeof req.body.description === 'undefined'
-    || typeof req.body.status === "undefined" 
     ) {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let { name, id, id_category, price, id_brand, description} = req.body;
+    let { name, id, id_category, price, id_brand, description, status} = req.body;
     let productFind = null;
     try {
         productFind = await product.findById(id);
@@ -113,6 +113,7 @@ exports.updateProduct = async (req, res) => {
     productFind.id_brand = id_brand;
     productFind.description = description;
     productFind.img = urlImg;
+    productFind.status = status;
     productFind.save((err, docs) => {
         if (err) {
             console.log(err);
@@ -155,7 +156,7 @@ exports.getProduct = async(req,res)=>{
             return;
         } 
         res.status(200).json({data:docs});
-    })
+    });
 }
 
 //stock
@@ -179,13 +180,25 @@ exports.addStock = async (req, res) => {
         res.status(409).json({ msg: 'stock already exist' });
         return;
     }
-    const newstock = new stock({ 
+    const newStock = new stock({ 
         name_category: name_category,
         name_brand:name_brand,
         count_import:count_import,
         status:true });
+
+    const newCategory = new category({
+        name: name_category,
+        status: true
+    });
+
+    const newBrand = new brand({
+        name: name_brand,
+        status: true
+    });
     try {
         await newStock.save();
+        await newCategory.save();
+        await newBrand.save();
     }
     catch (err) {
         console.log(err);
@@ -204,10 +217,15 @@ exports.updateStock = async (req, res) => {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let { id, name_category, name_brand, count_import } = req.body;
+    let { id, name_category, name_brand, count_import, status} = req.body;
+    const getNameStock = await stockController.getDataByID(id);
     let stockFind = null;
+    let categoryFind = null;
+    let brandFind = null;
     try {
         stockFind = await stock.findById(id);
+        categoryFind = await category.findOne({name: getNameStock[0], status: true});
+        brandFind = await brand.findOne({name: getNameStock[1], status: true});
     }
     catch (err) {
         res.status(500).json({ msg: err });
@@ -220,15 +238,24 @@ exports.updateStock = async (req, res) => {
     stockFind.name_category = name_category;
     stockFind.name_brand = name_brand;
     stockFind.count_import = count_import;
+    stockFind.status = status;
+
+    categoryFind.name = name_category;
+    categoryFind.status = status;
+
+    brandFind.name = name_brand;
+    brandFind.status = status;
     try {
         await stockFind.save();
+        await categoryFind.save();
+        await brandFind.save();
     }
     catch (err) {
         console.log(err);
         res.status(500).json({ msg: err });
         return;
     }
-    res.status(201).json({ msg: 'update stock success', stock: { name: name } });
+    res.status(201).json({ msg: 'update stock success', stock: { name_category: name_category, name_brand: name_brand, count_import:count_import} });
 }
 
 exports.deleteStock = async(req,res)=>{
@@ -237,9 +264,15 @@ exports.deleteStock = async(req,res)=>{
         return;
     }
     let id = req.params.id;
+    const getNameStock = await stockController.getDataByID(id);
     let stockFind = null;
+    let categoryFind = null;
+    let brandFind = null;
+
     try {
         stockFind = await stock.findById(id);
+        categoryFind = await category.findOne({name: getNameStock[0], status: true});
+        brandFind = await brand.findOne({name: getNameStock[1], status: true});
     } catch (err) {
         console.log(err);
         res.status(500).json({ msg: "server found" });
@@ -250,8 +283,12 @@ exports.deleteStock = async(req,res)=>{
         return;
     }
     stockFind.status = false;
+    categoryFind.status = false;
+    brandFind.status = false;
     try {
         await stockFind.save();
+        await categoryFind.save();
+        await brandFind.save();
     }
     catch (err) {
         console.log(err);
@@ -310,7 +347,7 @@ exports.updateBrand = async (req, res) => {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let { id, name } = req.body;
+    let { id, name, status} = req.body;
     let brandFind;
     try {
         brandFind = await brand.findById(id);
@@ -324,6 +361,7 @@ exports.updateBrand = async (req, res) => {
         return;
     }
     brandFind.name = name;
+    brandFind.status = status;
     try {
         await brandFind.save();
     }
@@ -418,7 +456,7 @@ exports.updateCategory = async (req, res) => {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let { id, name } = req.body;
+    let { id, name, status} = req.body;
     let categoryFind = null;
     try {
         categoryFind = await category.findById(id);
@@ -432,6 +470,7 @@ exports.updateCategory = async (req, res) => {
         return;
     }
     categoryFind.name = name;
+    categoryFind.status = status;
     try {
         await categoryFind.save();
     }
@@ -492,7 +531,7 @@ exports.updateUser = async (req, res) => {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let { email, name, is_admin } = req.body;
+    let { email, name, is_admin, status} = req.body;
     let userFind;
     try {
         userFind = await user.findOne({ 'email': email })
@@ -505,8 +544,9 @@ exports.updateUser = async (req, res) => {
         res.status(422).json({ msg: "user not found" });
         return;
     }
-    userFind.firstName = name;
+    userFind.name = name;
     userFind.is_admin = is_admin;
+    userFind.status = status;
     try {
         await userFind.save()
     }
@@ -578,7 +618,7 @@ exports.addUser = async (req, res) => {
         is_verify: true,
         password: password,
         is_admin: is_admin,
-        status:true
+        status: true
     });
     try {
         await newUser.save();

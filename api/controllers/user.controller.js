@@ -297,7 +297,7 @@ exports.updatePassword = async (req, res) => {
     res.status(200).json({msg: 'success'});
 }
 
-exports.getDataByID = async(id_user,res)=>{
+exports.getDataByID = async(id_user)=>{
     let result = null;
     try {
         result = await user.findById(id_user);

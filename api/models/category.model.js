@@ -7,8 +7,7 @@ const category = new Schema({
         required: [true, "Không được bỏ trống"],
     },
     path:{
-        type:String,
-        required:[true,"Không được bỏ trống"]
+        type:String
     },
     status:{
         type:Boolean

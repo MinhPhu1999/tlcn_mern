@@ -12,8 +12,8 @@ const stock = new Schema({
         required:[true,"Không được bỏ trống"]
 	},
 	date_import:{
-		type: Date,
-		$dateToString: { format: "%Y-%m-%d", date: "$date" },
+        type: Date,
+        default: Date.now()
 	},
     count_import:{
         type:Number,

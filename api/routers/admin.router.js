@@ -58,8 +58,8 @@ module.exports = (app) => {
         .post(admin_controller.addStock);
     app.route('/admin/updatestock')
         .put(admin_controller.updateStock);
-    app.route('/admin/delete/:id')
+    app.route('/admin/deletestock/:id')
         .put(admin_controller.deleteStock);
-    app.route('/admin/géttock')
+    app.route('/admin/getstock')
         .get(admin_controller.getStock);
 }
