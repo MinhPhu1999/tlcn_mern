@@ -6,7 +6,7 @@ exports.addToCart = async (req, res) => {
       res.status(422).json({ msg: "invalid data" });
     return;
   }
-  const { id_user, products, date} = req.body;
+  const { id_user, products} = req.body;
   let cartFind = null;
   cartFind = await cart.findOne({ id_user: id_user });
   if (cartFind === null) {
@@ -17,7 +17,6 @@ exports.addToCart = async (req, res) => {
     });
     try {
       await cart_new.save();
-      //console.log("thanh cong");
     } catch (err) {
       res.status(500).json({ msg: err });
       return;

@@ -568,15 +568,16 @@ exports.deleteUser = async (req, res) => {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
+    let { email} = req.body;
     let userFind;
     try {
-        userFind = await user.findOne({'email': req.body.email})
+        userFind = await user.findOne({email: email})
     }
     catch(err) {
         res.status(500).json({ msg: err });
         return;
     }
-    userFind.status=false;
+    userFind.status = false;
     try{
         await userFind.save();
     }
@@ -696,7 +697,7 @@ exports.getAllUser = async(req, res) => {
         res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
         return;
     }
-    user.find({})
+    user.find({status: true})
     .skip(9 * (parseInt(page) - 1))
     .limit(9)
     .exec((err, docs) => {

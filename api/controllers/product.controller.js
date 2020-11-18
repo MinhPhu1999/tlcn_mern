@@ -2,7 +2,6 @@
 const product = require('../models/product.model');
 const brandController = require('../controllers/brand.controller');
 const categoryController = require('../controllers/category.controller');
-const e = require('express');
 
 exports.getAllProduct=async(req,res)=>{
     // if(typeof req.params.page === 'undefined') {
@@ -18,7 +17,6 @@ exports.getAllProduct=async(req,res)=>{
         res.status(500).json({msg: err});
         return;
     }
-    //console.log(count);
     let totalPage = parseInt(((count - 1) / 9) + 1);
     let { page } = req.params;
     if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
