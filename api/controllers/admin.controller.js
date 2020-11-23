@@ -420,7 +420,7 @@ exports.addCategory = async (req, res) => {
     let { name, path } = req.body;
     let categoryFind;
     try {
-        categoryFind = await category.find({ 'name': name });
+        categoryFind = await category.find({ 'name': name, 'path':path });
     }
     catch (err) {
         res.status(500).json({ msg: err });
