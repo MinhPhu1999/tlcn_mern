@@ -11,18 +11,18 @@ const user = new Schema({
     },
     name:{
         type:String,
-        required:[true,"Không được bỏ trống"]
+        required:[true,"Không được bỏ trống name"]
     },
     email: {
         type: String,
-        required: [true, "Không được bỏ trống"],
+        required: [true, "Không được bỏ trống email"],
         index: true,
         lowercase: true,
         match: [/\S+@\S+\.\S+/, 'is invalid'],
     },
     password: {
         type: String,
-        required: [true, "Không được bỏ trống"]
+        required: [true, "Không được bỏ trống mk"]
     },
     is_verify: {
         type: Boolean,

@@ -15,15 +15,15 @@ exports.getAll=async(req,res)=>{
         res.status(500).json({msg:err});
         return;
     }
-    let totalPage = parseInt(((count-1)/9)+1);
+    let totalPage = parseInt(((count-1)/5)+1);
     let {page}=req.params;
     if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
         res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
         return;
     }
     category.find({status:true})
-    .skip(9 * (parseInt(page) - 1))
-    .limit(9)
+    .skip(5 * (parseInt(page) - 1))
+    .limit(5)
     .exec((err, docs) => {
         if(err) {
             console.log(err);

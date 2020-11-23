@@ -39,7 +39,6 @@ exports.addProduct = async (req, res) => {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    //console.log(req.body);
     const {name, id_category, price, id_brand, description} = req.body;
     let urlImg = await uploadImg(req.file.path);
     
@@ -54,9 +53,6 @@ exports.addProduct = async (req, res) => {
         id_brand: id_brand,
         img: urlImg,
         description: description,
-        countInStock:1,
-        rating:5,
-        numReviews:2,
         status:true
     });
     try{
@@ -599,6 +595,11 @@ exports.addUser = async (req, res) => {
         return;
     }
     let { email, password, name, is_admin } = req.body;
+    if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
+        || password.length < 6 ){
+        res.status(422).json({ msg: 'Invalid data or password too short' });
+        return;
+    }
     let userFind = null;
     try {
         userFind = await user.find({ 'email': email });

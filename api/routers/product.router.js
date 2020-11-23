@@ -2,7 +2,7 @@
 const product_controller = require('../controllers/product.controller');
 
 module.exports = (app) => {
-    app.route('/product/getallproduct')
+    app.route('/product/getallproduct/:page')
         .get(product_controller.getAllProduct);
         
     app.route('/product/searchproduct')

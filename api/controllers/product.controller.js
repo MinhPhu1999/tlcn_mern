@@ -3,11 +3,11 @@ const product = require('../models/product.model');
 const brandController = require('../controllers/brand.controller');
 const categoryController = require('../controllers/category.controller');
 
-exports.getAllProduct=async(req,res)=>{
-    // if(typeof req.params.page === 'undefined') {
-    //     res.status(402).json({msg: 'Data invalid'});
-    //     return;
-    // }
+exports.getAllProduct = async(req,res)=>{
+    if(typeof req.params.page === 'undefined') {
+        res.status(402).json({msg: 'Data invalid'});
+        return;
+    }
     let count = null;
     try { 
         count = await product.countDocuments({});
@@ -17,22 +17,22 @@ exports.getAllProduct=async(req,res)=>{
         res.status(500).json({msg: err});
         return;
     }
-    let totalPage = parseInt(((count - 1) / 9) + 1);
+    let totalPage = parseInt(((count - 1) / 5) + 1);
     let { page } = req.params;
     if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
         res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
         return;
     }
-    product.find({status:true})
-    .skip(9 * (parseInt(page) - 1))
-    .limit(9)
+    product.find({})
+    .skip(5 * (parseInt(page) - 1))
+    .limit(5)
     .exec((err, docs) => {
         if(err) {
             console.log(err);
-                    res.status(500).send({ msg: err });//.json
+                    res.status(500).json({ msg: err });
                     return;
         }
-        res.status(200).send({data:docs});//json data: docs, totalPage
+        res.status(200).json({data: docs, totalPage});
     })
 }
 

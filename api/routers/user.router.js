@@ -2,6 +2,7 @@
 const user_controller = require('../controllers/user.controller');
 const auth = require('../utils/auth');
 module.exports = (app) => {
+
    app.route('/user/register')
       .post(user_controller.register);
 
@@ -29,6 +30,4 @@ module.exports = (app) => {
    app.route('/user/updatepassword')
       .post(user_controller.updatePassword)
 
-   // app.route('/admin/login')
-   //    .post(user_controller.login);
 }

@@ -30,8 +30,8 @@ const order=new Schema({
     },
     order_date:{
         type: Date,
-        $dateToString: { format: "%Y-%m-%d", date: "$date" }
-        //default: Date.now
+        //$dateToString: { format: "%Y-%m-%d", date: "$date" }
+        default: Date.now
     },
     city:{
         type: String,

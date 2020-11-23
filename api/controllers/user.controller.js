@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const otp = require('../utils/otp');
 
+
 exports.register = async (req, res) => {
     if ((typeof req.body.email === 'undefined')
         || (typeof req.body.password === 'undefined')
@@ -16,11 +17,13 @@ exports.register = async (req, res) => {
         return;
     }
     let { email, password, name, phone} = req.body;
+
     if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
         || password.length < 6 ){
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
+
     let userFind = null;
     try {
         userFind = await user.find({ 'email': email });
@@ -34,18 +37,19 @@ exports.register = async (req, res) => {
         return;
     }
     const token = randomstring.generate();
-    let sendEmail = await nodemailer.sendEmail(email, token);
-    if (!sendEmail) {
-        res.status(500).json({ msg: 'Send email fail' });
-        return;
-    }   
+    // let sendEmail = await nodemailer.sendEmail(email, token);
+    // if (!sendEmail) {
+    //     res.status(500).json({ msg: 'Send email fail' });
+    //     return;
+    // }   
     password = bcrypt.hashSync(password, 10);
     const newUser = new user({
         email: email,
-        firstName: name,
+        name: name,
         password: password,
         phone: phone,
-        token: token
+        token: token,
+        status: true
     });
     try {
         await newUser.save();

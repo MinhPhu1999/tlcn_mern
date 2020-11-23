@@ -5,7 +5,7 @@ module.exports = (app) => {
     //     .get(brand_controller.getBrand);
     // app.route('/brand/all/:page')
     //     .get(brand_controller.getAll);
-    app.route('/brand/all')
+    app.route('/brand/all/:page')
         .get(brand_controller.getAll);
 
     app.route('/brand/name/:id')

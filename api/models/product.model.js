@@ -5,8 +5,7 @@ const Schema = mongoose.Schema;
 const product = new Schema({
     name:{
         type:String,
-        required:[true,"Không được bỏ trống"],
-        index:true
+        required:[true,"Không được bỏ trống"]
     },
     price:{
         type:Number,
@@ -31,16 +30,13 @@ const product = new Schema({
         required:[true,"Không  được bỏ trống"]
     },
     rating:{
-        type:Number,
-        required:[true,"Không được bỏ trống"]
+        type:Number
     },
     numReviews:{
-        type:Number,
-        required:[true,"Không được bỏ trống"]
+        type:Number
     },
     countInStock:{
-        type:Number,
-        required:[true,"Không được bỏ trống"]
+        type:Number
     },
     status:{
         type:Boolean
