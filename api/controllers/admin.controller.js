@@ -509,8 +509,8 @@ exports.deleteCategory = async(req,res)=>{
     res.status(200).json({ msg: "delete category success" });
 }
 
-exports.getCategory= async (req,res)=>{
-    category.find({status:true},(err,res)=>{
+exports.getCategory= async(req,res)=>{
+    category.find({status:true},(err,docs)=>{
         if(err){
             res.status(422).json({msg:err});
             return;
