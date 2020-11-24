@@ -33,7 +33,7 @@ exports.getAll=async(req,res)=>{
         res.status(200).json({ data: docs, totalPage });
     })
 }
-exports.getCategory=(req,res)=>{
+exports.getCategory= async (req,res)=>{
     category.find({status:true},(err,res)=>{
         if(err){
             res.status(422).json({msg:err});

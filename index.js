@@ -17,6 +17,7 @@ const adminRouter = require('./api/routers/admin.router');
 mongoose.Promise = global.Promise;
 //const mongoURL='mongodb://localhost/e_db';
 const {mongoURL} = require('./mongo')
+//console.log(mongoURL)
 mongoose.connect(mongoURL,{
     useNewUrlParser: true,
     useFindAndModify: false,
