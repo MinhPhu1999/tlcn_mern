@@ -7,14 +7,15 @@ const stock = require('../models/stock.model');
 const stockController = require('../controllers/stock.controller')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 const cloudinary = require('cloudinary').v2;
 
 
 // product
 cloudinary.config({
-    cloud_name: 'dpa6e5lwv',
-    api_key: '319431445471854',
-    api_secret: 'k4z82XS4CbAVrLubmo_kFbS3A4I'
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRECT
 });
 
 const uploadImg = async (path) => {
@@ -306,10 +307,10 @@ exports.getStock = async(req,res)=>{
 
 //brand
 exports.addBrand = async (req, res) => {
-    // if (typeof req.body.name === 'undefined') {
-    //     res.status(422).json({ msg: 'Invalid data' });
-    //     return;
-    // }
+    if (typeof req.body.name === 'undefined') {
+        res.status(422).json({ msg: 'Invalid data' });
+        return;
+    }
     let { name } = req.body;
     let brandFind = null;
     try {

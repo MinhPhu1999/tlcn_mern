@@ -16,14 +16,17 @@ exports.register = async (req, res) => {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let { email, password, name, phone} = req.body;
+    let { email, password, name, phone, repassword} = req.body;
 
     if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
         || password.length < 6 ){
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-
+    if(password !=repassword){
+        res.status(422).json({msg: 'password incorect'});
+        return;
+    }
     let userFind = null;
     try {
         userFind = await user.find({ 'email': email });
