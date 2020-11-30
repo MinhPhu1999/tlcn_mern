@@ -29,6 +29,14 @@ const product = new Schema({
         type:String,
         required:[true,"Không  được bỏ trống"]
     },
+    color:{
+        type: String,
+        required:[true,"Không được bỏ trống"]
+    },
+    size:{
+        type: String,
+        required:[true,"Không được bỏ trống"]
+    },
     rating:{
         type:Number
     },

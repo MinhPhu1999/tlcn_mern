@@ -36,11 +36,13 @@ exports.addProduct = async (req, res) => {
     || typeof req.body.price === 'undefined' 
     || typeof req.body.id_brand === 'undefined' 
     || typeof req.body.description === 'undefined'
+    || typeof req.body.color === 'undefined'
+    || typeof req.body.size === 'undefined'
     ) {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    const {name, id_category, price, id_brand, description} = req.body;
+    const {name, id_category, price, id_brand, description, color, size} = req.body;
     let urlImg = await uploadImg(req.file.path);
     
     if(urlImg === false) {
@@ -54,6 +56,8 @@ exports.addProduct = async (req, res) => {
         id_brand: id_brand,
         img: urlImg,
         description: description,
+        color: color,
+        size: size,
         status:true
     });
     try{
@@ -73,11 +77,13 @@ exports.updateProduct = async (req, res) => {
     || typeof req.body.price === 'undefined' 
     || typeof req.body.id_brand === 'undefined' 
     || typeof req.body.description === 'undefined'
+    || typeof req.body.color === 'undefined'
+    || typeof req.body.size === 'undefined'
     ) {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let { name, id, id_category, price, id_brand, description, status} = req.body;
+    let { name, id, id_category, price, id_brand, description, status, color, size} = req.body;
     let productFind = null;
     try {
         productFind = await product.findById(id);
@@ -110,6 +116,8 @@ exports.updateProduct = async (req, res) => {
     productFind.id_brand = id_brand;
     productFind.description = description;
     productFind.img = urlImg;
+    productFind.color = color;
+    productFind.size = size;
     productFind.status = status;
     productFind.save((err, docs) => {
         if (err) {
@@ -159,12 +167,13 @@ exports.getProduct = async(req,res)=>{
 //stock
 exports.addStock = async (req, res) => {
     if (typeof req.body.name_category === 'undefined'
+        || typeof req.body.path === 'undefined'
         || typeof req.body.name_brand === 'undefined'
         || typeof req.body.count_import === 'undefined') {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let { name_category, name_brand, count_import } = req.body;
+    let { name_category,path, name_brand, count_import } = req.body;
     let stockFind;
     try {
         stockFind = await stock.find({ 'name_category': name_category, 'name_brand':name_brand });
@@ -185,6 +194,7 @@ exports.addStock = async (req, res) => {
 
     const newCategory = new category({
         name: name_category,
+        path: path,
         status: true
     });
 
@@ -208,13 +218,14 @@ exports.addStock = async (req, res) => {
 exports.updateStock = async (req, res) => {
     if (typeof req.body.id === 'undefined'
         || typeof req.body.name_category === 'undefined'
+        || typeof req.body.path === 'undefined'
         || typeof req.body.name_brand === 'undefined'
         || typeof req.body.count_import === 'undefined'
     ) {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let { id, name_category, name_brand, count_import, status} = req.body;
+    let { id, name_category, path, name_brand, count_import, status} = req.body;
     const getNameStock = await stockController.getDataByID(id);
     let stockFind = null;
     let categoryFind = null;
@@ -233,11 +244,13 @@ exports.updateStock = async (req, res) => {
         return;
     }
     stockFind.name_category = name_category;
+    
     stockFind.name_brand = name_brand;
     stockFind.count_import = count_import;
     stockFind.status = status;
 
     categoryFind.name = name_category;
+    categoryFind.path = path;
     categoryFind.status = status;
 
     brandFind.name = name_brand;

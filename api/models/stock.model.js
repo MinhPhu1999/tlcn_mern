@@ -6,7 +6,11 @@ const stock = new Schema({
     name_category:{
         type:String,
         required:[true,"Không được bỏ trống"]
-	},
+    },
+    path:{
+        type: String,
+        required:[true,'Không được bỏ trống']
+    },
 	name_brand:{
 		type:String,
         required:[true,"Không được bỏ trống"]

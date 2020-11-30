@@ -1,7 +1,5 @@
 'use strict'
 const brand = require('../models/brand.model');
-
-
 exports.getAll = async (req, res) => {
     if(typeof req.params.page === 'undefined') {
         res.status(402).json({msg: 'Data invalid'});

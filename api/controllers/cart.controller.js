@@ -45,8 +45,8 @@ exports.addToCart = async (req, res) => {
   res.status(200).json({ msg: "add cart success" });
 }
 
-exports.getCart = async(req,res)=>{
-  cart.find({status:true},(err,res)=>{
+exports.getCart = async (req,res)=>{
+  cart.find({status:true},(err,docs)=>{
     if(err){
         res.status(422).json({msg:err});
         return;
