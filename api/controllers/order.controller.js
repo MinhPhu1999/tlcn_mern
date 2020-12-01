@@ -18,7 +18,7 @@ exports.addOrder = async (req, res) => {
 
 	const {id_user, city, order_subtotal, posteCode, address, phone} = req.body;
 	const getDataUser = await userController.getDataByID(id_user);
-	var cartFind = null;
+	let cartFind = null;
 	try {
 	  cartFind = await cart.findOne({ id_user: id_user, status: true });
 	} catch (err) {

@@ -1,38 +1,6 @@
 'use strict'
 const category = require('../models/category.model');
 
-exports.getAll=async(req,res)=>{
-    if(typeof req.params.page === 'undefined'){
-        res.status(402).json({msg:'Data Invalid'});
-        return;
-    }
-    let count = null;
-    try{
-        count = await category.countDocuments({});
-    }
-    catch(err){
-        console.log(err);
-        res.status(500).json({msg:err});
-        return;
-    }
-    let totalPage = parseInt(((count-1)/5)+1);
-    let {page}=req.params;
-    if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
-        res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
-        return;
-    }
-    category.find({status:true})
-    .skip(5 * (parseInt(page) - 1))
-    .limit(5)
-    .exec((err, docs) => {
-        if(err) {
-            console.log(err);
-                    res.status(500).json({ msg: err });
-                    return;
-        }
-        res.status(200).json({ data: docs, totalPage });
-    })
-}
 exports.getCategory= async (req,res)=>{
     category.find({status:true},(err,res)=>{
         if(err){

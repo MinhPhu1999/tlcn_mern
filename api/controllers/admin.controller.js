@@ -7,9 +7,9 @@ const stock = require('../models/stock.model');
 const stockController = require('../controllers/stock.controller')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { count } = require('../models/product.model');
 require('dotenv').config();
 const cloudinary = require('cloudinary').v2;
-
 
 // product
 cloudinary.config({
@@ -42,7 +42,7 @@ exports.addProduct = async (req, res) => {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    const {name, id_category, price, id_brand, description, color, size} = req.body;
+    const {name, id_category, price, id_brand, description, color, size, count} = req.body;
     let urlImg = await uploadImg(req.file.path);
     
     if(urlImg === false) {
@@ -58,10 +58,11 @@ exports.addProduct = async (req, res) => {
         description: description,
         color: color,
         size: size,
-        status:true
+        count: count,
+        status: true
     });
     try{
-        newProduct.save();
+        await newProduct.save();
     }
     catch(err) {
         res.status(500).json({msg: 'add product fail'});
@@ -119,6 +120,7 @@ exports.updateProduct = async (req, res) => {
     productFind.color = color;
     productFind.size = size;
     productFind.status = status;
+    
     productFind.save((err, docs) => {
         if (err) {
             console.log(err);
@@ -154,14 +156,37 @@ exports.deleteProduct = async (req, res) => {
     res.status(200).json({ msg: 'delete product success', });
 }
 
-exports.getProduct = async(req,res)=>{
-    product.find({status:true}, (err, docs) => {
+exports.getAllProduct = async(req,res)=>{
+    if(typeof req.params.page === 'undefined') {
+        res.status(402).json({msg: 'Data invalid'});
+        return;
+    }
+    let count = null;
+    try { 
+        count = await product.countDocuments({});
+    }
+    catch(err) {
+        console.log(err);
+        res.status(500).json({msg: err});
+        return;
+    }
+    let totalPage = parseInt(((count - 1) / 5) + 1);
+    let { page } = req.params;
+    if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
+        res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
+        return;
+    }
+    product.find({})
+    .skip(5 * (parseInt(page) - 1))
+    .limit(5)
+    .exec((err, docs) => {
         if(err) {
-            res.status(422).json({msg:err});
-            return;
-        } 
-        res.status(200).json({data:docs});
-    });
+            console.log(err);
+                    res.status(500).json({ msg: err });
+                    return;
+        }
+        res.status(200).json({data: docs, totalPage});
+    })
 }
 
 //stock
@@ -308,6 +333,39 @@ exports.deleteStock = async(req,res)=>{
     res.status(200).json({ msg: "delete stock success" });
 }
 
+exports.getAllStock = async(req,res)=>{
+    // if(typeof req.params.page === 'undefined'){
+    //     res.status(402).json({msg:'Data Invalid'});
+    //     return;
+    // }
+    let count = null;
+    try{
+        count = await stock.countDocuments({});
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({msg:err});
+        return;
+    }
+    let totalPage = parseInt(((count-1)/9)+1);
+    let {page}=req.params;
+    if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
+        res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
+        return;
+    }
+    stock.find({status:true})
+    .skip(9 * (parseInt(page) - 1))
+    .limit(9)
+    .exec((err, docs) => {
+        if(err) {
+            console.log(err);
+                    res.status(500).json({ msg: err });
+                    return;
+        }
+        res.status(200).json({ data: docs, totalPage });
+    })
+}
+
 exports.getStock = async(req,res)=>{
     stock.find({status:true}, (err, docs) => {
         if(err) {
@@ -413,16 +471,38 @@ exports.deleteBrand = async(req,res)=>{
     res.status(200).json({ msg: "delete brand success" });
 }
 
-exports.getBrand = async (req, res) => {
-    brand.find({status:true}, (err, docs) => {
+exports.getAllBrand = async (req, res) => {
+    if(typeof req.params.page === 'undefined') {
+        res.status(402).json({msg: 'Data invalid'});
+        return;
+    }
+    let count = null;
+    try { 
+        count = await brand.countDocuments({})
+    }
+    catch(err) {
+        console.log(err);
+        res.status(500).json({msg: err});
+        return;
+    }
+    let totalPage = parseInt(((count - 1) / 5) + 1);
+    let { page } = req.params;
+    if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
+        res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
+        return;
+    }
+    brand.find({status:true})
+    .skip(5 * (parseInt(page) - 1))
+    .limit(5)
+    .exec((err, docs) => {
         if(err) {
-            res.status(422).json({msg:err});
-            return;
+            console.log(err);
+                    res.status(500).json({ msg: err });
+                    return;
         }
-        res.status(200).json({data:docs});
-    })
+        res.status(200).json({ data: docs, totalPage });
+    });
 }
-
 
 // category
 exports.addCategory = async (req, res) => {
@@ -522,15 +602,39 @@ exports.deleteCategory = async(req,res)=>{
     res.status(200).json({ msg: "delete category success" });
 }
 
-exports.getCategory= async(req,res)=>{
-    category.find({status:true},(err,docs)=>{
-        if(err){
-            res.status(422).json({msg:err});
-            return;
+exports.getAllCategory=async(req,res)=>{
+    if(typeof req.params.page === 'undefined'){
+        res.status(402).json({msg:'Data Invalid'});
+        return;
+    }
+    let count = null;
+    try{
+        count = await category.countDocuments({});
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({msg:err});
+        return;
+    }
+    let totalPage = parseInt(((count-1)/5)+1);
+    let {page}=req.params;
+    if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
+        res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
+        return;
+    }
+    category.find({status:true})
+    .skip(5 * (parseInt(page) - 1))
+    .limit(5)
+    .exec((err, docs) => {
+        if(err) {
+            console.log(err);
+                    res.status(500).json({ msg: err });
+                    return;
         }
-        res.status(200).json({data:docs});
+        res.status(200).json({ data: docs, totalPage });
     })
 }
+
 
 // user
 exports.updateUser = async (req, res) => {

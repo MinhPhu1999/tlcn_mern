@@ -43,7 +43,7 @@ const product = new Schema({
     numReviews:{
         type:Number
     },
-    countInStock:{
+    count:{
         type:Number
     },
     status:{

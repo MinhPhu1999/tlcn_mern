@@ -10,6 +10,8 @@ const order=new Schema({
             {
                 id_category: String,
                 name: String,
+                color: String,
+                size: String,
                 price: Number,
                 id_brand: String,
                 img: String,
@@ -30,7 +32,6 @@ const order=new Schema({
     },
     order_date:{
         type: Date,
-        //$dateToString: { format: "%Y-%m-%d", date: "$date" }
         default: Date.now
     },
     city:{

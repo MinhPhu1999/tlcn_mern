@@ -3,38 +3,24 @@ const product = require('../models/product.model');
 const brandController = require('../controllers/brand.controller');
 const categoryController = require('../controllers/category.controller');
 
-exports.getAllProduct = async(req,res)=>{
-    if(typeof req.params.page === 'undefined') {
-        res.status(402).json({msg: 'Data invalid'});
-        return;
-    }
-    let count = null;
-    try { 
-        count = await product.countDocuments({});
-    }
-    catch(err) {
-        console.log(err);
-        res.status(500).json({msg: err});
-        return;
-    }
-    let totalPage = parseInt(((count - 1) / 5) + 1);
-    let { page } = req.params;
-    if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
-        res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
-        return;
-    }
-    product.find({})
-    .skip(5 * (parseInt(page) - 1))
-    .limit(5)
-    .exec((err, docs) => {
+exports.getProduct = async(req,res)=>{
+    product.find({status:true}, (err, docs) => {
         if(err) {
-            console.log(err);
-                    res.status(500).json({ msg: err });
-                    return;
-        }
-        res.status(200).json({data: docs, totalPage});
-    })
+            res.status(422).json({msg:err});
+            return;
+        } 
+        res.status(200).json({data:docs});
+    });
 }
+//  exports.checkAmountProduct = async(req, rés) =>{
+//      if(typeof req.body.id === 'undefined')
+//      {
+//         res.status(422).json({ msg: "invalid data" });
+//         return;
+//      }
+//      let id = req.body.id;
+//      let productFind = 
+//  }
 
 exports.searchProduct = async(req,res)=>{
     let searchText = "";
@@ -184,9 +170,10 @@ exports.getNameByID = async (req, res) => {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let result
+    let result;
+    let id = req.body.id;
     try {
-        result = await product.findById(req.params.id);
+        result = await product.findOne({_id:id});
     }
     catch(err) {
         console.log(err)
@@ -197,6 +184,7 @@ exports.getNameByID = async (req, res) => {
         res.status(404).json({msg: "not found"})
         return;
     }
-    res.status(200).json({name: result.name})
+    console.log(result)
+    res.status(200).json({name: result.name, count: result.count})
 }
 

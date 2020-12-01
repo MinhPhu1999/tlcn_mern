@@ -22,8 +22,10 @@ exports.addToCart = async (req, res) => {
       return;
     }
   }else{
-    for (let i = 0; i < products.length; i++) {
-      let index = cartFind.products.findIndex(
+    let i, index;
+    const productLen = products.length;
+    for (i = 0; i < productLen; i++) {
+      index = cartFind.products.findIndex(
         element => products[i]._id === element._id
       );
       if (index === -1) {
@@ -75,9 +77,8 @@ exports.updateCart = async (req, res) => {
     res.status(422).json({ msg: "invalid data" });
     return;
   }
-  
   const { id_user, products} = req.body;
-  var cartFind = null;
+  let cartFind = null;
   try {
     cartFind = await cart.findOne({ id_user: id_user, status: true});
   } catch (err) {
@@ -88,9 +89,10 @@ exports.updateCart = async (req, res) => {
     res.status(404).json({ msg: "product not found" });
     return;
   }
-
-  for (let i = 0; i < products.length; i++) {
-    let index = cartFind.products.findIndex(
+  let i, index;
+  const productLen = products.length;
+  for (i = 0; i < productLen; i++) {
+    index = cartFind.products.findIndex(
       element => products[i]._id === element._id
     );
     if (index === -1) {
@@ -118,7 +120,7 @@ exports.deleteCart = async (req, res) => {
   }
   const { id_user } = req.params;
 
-  var cartFind = null;
+  let cartFind = null;
   try {
     cartFind = await cart.findOne({ id_user: id_user, status: true });
   } catch (err) {
@@ -150,7 +152,7 @@ exports.deleteProductInCart = async (req, res) => {
     return;
   }
   const { id_user, id_product } = req.body;
-  var cartFind = null;
+  let cartFind = null;
   try {
     cartFind = await cart.findOne({ id_user: id_user, status: true });
   } catch (err) {

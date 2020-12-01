@@ -18,8 +18,8 @@ module.exports = (app) => {
         .put(upload.single('file'),admin_controller.updateProduct);
     app.route('/admin/deleteproduct/:id')
         .put(admin_controller.deleteProduct);
-    app.route('/admin/getproduct')
-        .get(admin_controller.getProduct);
+    app.route('/admin/getallproduct/:page')
+        .get(admin_controller.getAllProduct);
 
     //brand
     app.route('/admin/addbrand')
@@ -28,8 +28,8 @@ module.exports = (app) => {
         .put(admin_controller.updateBrand);
     app.route('/admin/deletebrand/:id')
         .put(admin_controller.deleteBrand);
-    app.route('/admin/getbrand')
-        .get(admin_controller.getBrand);
+    app.route('/admin/getallbrand/:page')
+        .get(admin_controller.getAllBrand);
     
     //category
     app.route('/admin/addcategory')
@@ -38,8 +38,8 @@ module.exports = (app) => {
         .put(admin_controller.updateCategory);
     app.route('/admin/deletecategory/:id')
         .put(admin_controller.deleteCategory);
-    app.route('/admin/getcategory')
-        .get(admin_controller.getCategory);
+    app.route('/admin/getallcategory/:page')
+        .get(admin_controller.getAllCategory);
 
     //user
     app.route('/admin/adduser')
@@ -60,6 +60,6 @@ module.exports = (app) => {
         .put(admin_controller.updateStock);
     app.route('/admin/deletestock/:id')
         .put(admin_controller.deleteStock);
-    app.route('/admin/getstock')
-        .get(admin_controller.getStock);
+    app.route('/admin/getallstock/:page')
+        .get(admin_controller.getAllStock);
 }
