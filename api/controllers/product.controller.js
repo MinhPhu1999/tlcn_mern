@@ -4,25 +4,30 @@ const brandController = require('../controllers/brand.controller');
 const categoryController = require('../controllers/category.controller');
 
 exports.getProduct = async(req,res)=>{
-    // product.find({status:true}, (err, docs) => {
-    //     if(err) {
-    //         res.status(422).json({msg:err});
-    //         return;
-    //     } 
-    //     res.status(200).json({docs});
-    // });
-    const productFind = await product.find({});
-    res.status(200).json(productFind);
+
+    const productFind = await product.find({status: true});
+    if(productFind)
+    {
+        res.status(200).json(productFind);
+    }
+    else{
+        res.status(404).json({msg: "product not found"})
+    }
 }
-//  exports.checkAmountProduct = async(req, rés) =>{
-//      if(typeof req.body.id === 'undefined')
-//      {
-//         res.status(422).json({ msg: "invalid data" });
-//         return;
-//      }
-//      let id = req.body.id;
-//      let productFind = 
-//  }
+
+exports.getProductByID = async(req, res) =>{
+    let id = req.params.id;
+    const productFind = await product.findOne({_id: id})
+    if(productFind)
+    {
+        res.status(200).json(productFind);
+    }
+    else{
+        res.status(404).json({msg: "product not found"})
+        return;
+    }
+}
+
 
 exports.searchProduct = async(req,res)=>{
     let searchText = "";

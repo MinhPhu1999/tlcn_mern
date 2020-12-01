@@ -2,8 +2,11 @@
 const product_controller = require('../controllers/product.controller');
 
 module.exports = (app) => {
-    app.route('/product/getproduct')
+    app.route('/product')
         .get(product_controller.getProduct);
+
+    app.route('/product/:id')
+        .get(product_controller.getProductByID);
         
     app.route('/product/searchproduct')
         .post(product_controller.searchProduct);
