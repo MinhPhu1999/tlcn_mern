@@ -4,13 +4,15 @@ const brandController = require('../controllers/brand.controller');
 const categoryController = require('../controllers/category.controller');
 
 exports.getProduct = async(req,res)=>{
-    product.find({status:true}, (err, docs) => {
-        if(err) {
-            res.status(422).json({msg:err});
-            return;
-        } 
-        res.status(200).json({data:docs});
-    });
+    // product.find({status:true}, (err, docs) => {
+    //     if(err) {
+    //         res.status(422).json({msg:err});
+    //         return;
+    //     } 
+    //     res.status(200).json({docs});
+    // });
+    const productFind = await product.find({});
+    res.status(200).json(productFind);
 }
 //  exports.checkAmountProduct = async(req, rés) =>{
 //      if(typeof req.body.id === 'undefined')
