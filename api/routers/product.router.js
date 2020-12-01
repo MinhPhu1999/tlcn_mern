@@ -8,16 +8,19 @@ module.exports = (app) => {
     app.route('/product/:id')
         .get(product_controller.getProductByID);
         
-    app.route('/product/searchproduct')
+    app.route('/product/search')
         .post(product_controller.searchProduct);
 
-    app.route('/product/getproductbybrand')
+    app.route('/product/brand')
         .post(product_controller.getProductByBrand);
 
-    app.route('/product/getproductbycategory')
+    app.route('/product/category')
         .post(product_controller.getProductByCategory);
 
     app.route('/product/amount/:id')
         .post(product_controller.getNameByID);
+
+    app.route('/product/sortprice')
+        .get(product_controller.sortProduct);
 
 }

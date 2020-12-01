@@ -133,6 +133,9 @@ exports.updateProduct = async (req, res) => {
     res.status(200).json({ msg: 'update product success', data: productFind });
 }
 
+exports.deleteAllProduct = async(req, res) =>{
+    product.removeAllListeners();
+}
 exports.deleteProduct = async (req, res) => {
     if (typeof req.params.id === 'undefined') {
         res.status(422).json({ msg: 'Invalid data' });
