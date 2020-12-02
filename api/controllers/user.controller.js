@@ -17,6 +17,8 @@ exports.register = async (req, res) => {
     }
     let { email, password, name, repassword} = req.body;
 
+
+
     if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
         || password.length < 6 ){
         res.status(422).json({ msg: 'Invalid data' });
@@ -128,6 +130,30 @@ exports.login = async (req, res) => {
     }});
 }
 
+exports.getUser = async (req, res) =>{
+    if(typeof req.params.id === 'undefined'){
+        res.json({msg: "Invalid data"});
+        return;
+    }
+    let id = req.params.id;
+    let userFind = null;
+    try{
+        userFind = await user.find({_id: id});
+    }
+    catch(err){
+        res.json({msg: err});
+        return;
+    }
+    if(userFind == null) {
+        res.status(422).json({msg: "Invalid data"});
+        return;
+    }
+    res.status(200).json({ user: {
+        email: userFind.email,
+        name: userFind.name,
+    }});
+
+}
 exports.requestForgotPassword = async (req, res) => {
     if(typeof req.params.email === 'undefined'){
         res.json({msg: "Invalid data"});
@@ -232,37 +258,42 @@ exports.forgotPassword = async (req, res) => {
 
 exports.updateInfor = async (req, res) => {
     if ( typeof req.body.name === 'undefined'
+        || typeof req.body.oldpassword === 'undefined'
+        || typeof req.body.newpassword === 'undefined'
         || typeof req.body.email === 'undefined'
     ) {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let { email, name} = req.body;
-    let userFind;
+    let { email, name, oldpassword, newpassword, id} = req.body;
+    let newUser = await user.findById(id);
+    let userFind = await user.findOne({'email': email});
+
+    //console.log(userFind);
+    if(userFind != null && newUser.email !== email) {
+        res.status(422).json({ msg: "Email already exist" });
+        return;
+    }
+    if(!bcrypt.compareSync(oldpassword, newUser.password)){
+        res.status(422).json({msg: 'Wrong password'});
+        return;
+    }
+
+    newUser.password = bcrypt.hashSync(newpassword, 10);
+    newUser.name = name;
+    newUser.email = email;
     try {
-        userFind = await user.findOne({'email': email})
+        await newUser.save();
     }
     catch(err) {
         res.status(500).json({ msg: err });
         return;
     }
-    if(userFind === null) {
-        res.status(422).json({ msg: "not found" });
-        return;
-    }
-    userFind.name=name;
-    try {
-        await userFind.save()
-    }
-    catch(err) {
-        res.status(500).json({ msg: err });
-        return;
-    }
-    let token = jwt.sign({email: email}, 'shhhhh');
+    let token = jwt.sign({_id: id}, 'shhhhh');
     res.status(200).json({msg: 'success', token: token, user: {
-        email: userFind.email,
-        name: userFind.name,
-        id: userFind._id
+        email: newUser.email,
+        name: newUser.name,
+        id: newUser._id
     }});
 }
 

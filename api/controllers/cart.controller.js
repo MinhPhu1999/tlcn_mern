@@ -1,5 +1,6 @@
 "use strict";
 const cart = require("../models/cart.model");
+const product = require('../models/product.model');
 exports.addToCart = async (req, res) => {
   if (typeof req.body.id_user === 'undefined'
     || typeof req.body.products === 'undefined') {
@@ -8,7 +9,21 @@ exports.addToCart = async (req, res) => {
   }
   const { id_user, products} = req.body;
   let cartFind = null;
+  let productFind = null;
   cartFind = await cart.findOne({ id_user: id_user });
+  
+  //console.log(products[_id]);
+  let index;
+  const productLen = products.length;
+  for (let i = 0; i < productLen; i++) {
+    index = cartFind.products.findIndex(
+      element => products[i]._id === element._id
+    );
+  }
+  //console.log(products[index]._id);
+  productFind = await product.findById(products[index]._id)
+  productFind.count -= products[index].count;
+  await productFind.save();
   if (cartFind === null) {
     const cart_new = new cart({
       id_user: id_user,
@@ -28,6 +43,7 @@ exports.addToCart = async (req, res) => {
       index = cartFind.products.findIndex(
         element => products[i]._id === element._id
       );
+      
       if (index === -1) {
         cartFind.products.push(products[i]);
       } else {
