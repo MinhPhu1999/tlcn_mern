@@ -11,12 +11,11 @@ exports.register = async (req, res) => {
     if ((typeof req.body.email === 'undefined')
         || (typeof req.body.password === 'undefined')
         || typeof req.body.name === 'undefined'
-        || typeof req.body.phone === 'undefined'
     ) {
         res.status(422).json({ msg: 'Invalid data' });
         return;
     }
-    let { email, password, name, phone, repassword} = req.body;
+    let { email, password, name, repassword} = req.body;
 
     if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
         || password.length < 6 ){
