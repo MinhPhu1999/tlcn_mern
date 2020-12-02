@@ -49,7 +49,6 @@ exports.register = async (req, res) => {
         email: email,
         name: name,
         password: password,
-        phone: phone,
         token: token,
         status: true
     });
