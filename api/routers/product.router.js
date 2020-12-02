@@ -20,7 +20,10 @@ module.exports = (app) => {
     app.route('/product/amount/:id')
         .post(product_controller.getNameByID);
 
-    app.route('/product/sortprice')
+    app.route('/productsort/:theo')
+        .get(product_controller.sortProduct);
+    
+    app.route('/product/sort/:inc')
         .get(product_controller.sortProduct);
 
 }

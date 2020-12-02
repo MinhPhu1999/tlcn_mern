@@ -3,10 +3,13 @@ const product = require('../models/product.model');
 const brandController = require('../controllers/brand.controller');
 const categoryController = require('../controllers/category.controller');
 
-exports.sortProduct = async(req,res)=>{
+exports.sortProduct = async(req, res)=>{
+    let sapXep = req.params.inc;
     const listProduct = await product.find({status: true});
     const sortListProduct =  listProduct.sort(function(a, b) {
-        return parseFloat(a.price) - parseFloat(b.price);
+        if(sapXep == 'increase')
+            return parseFloat(a.price) - parseFloat(b.price);
+        return parseFloat(b.price) - parseFloat(a.price);
     });
     if(sortListProduct){
         res.status(200).json(sortListProduct);
