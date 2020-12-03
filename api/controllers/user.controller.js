@@ -138,7 +138,7 @@ exports.getUser = async (req, res) =>{
     let id = req.params.id;
     let userFind = null;
     try{
-        userFind = await user.find({_id: id});
+        userFind = await user.findOne({_id: id});
     }
     catch(err){
         res.json({msg: err});
@@ -148,6 +148,7 @@ exports.getUser = async (req, res) =>{
         res.status(422).json({msg: "Invalid data"});
         return;
     }
+    console.log(userFind);
     res.status(200).json({ user: {
         email: userFind.email,
         name: userFind.name,
