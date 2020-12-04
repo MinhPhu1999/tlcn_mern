@@ -39,14 +39,14 @@ exports.addProduct = async (req, res) => {
     || typeof req.body.color === 'undefined'
     || typeof req.body.size === 'undefined'
     ) {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     const {name, id_category, price, id_brand, description, color, size, count} = req.body;
     let urlImg = await uploadImg(req.file.path);
     
     if(urlImg === false) {
-        res.status(500).json({msg: 'khong upload duoc anh len cloudinary'});
+        res.status(500).send({message: 'khong upload duoc anh len cloudinary'});
         return;
     }
     const newProduct = new product({
@@ -65,10 +65,10 @@ exports.addProduct = async (req, res) => {
         await newProduct.save();
     }
     catch(err) {
-        res.status(500).json({msg: 'add product fail'});
+        res.status(500).send({message: 'add product fail'});
         return;
     }
-    res.status(201).json({msg: 'add product success'})
+    res.status(201).send({message: 'add product success'})
 }
 
 exports.updateProduct = async (req, res) => {
@@ -81,7 +81,7 @@ exports.updateProduct = async (req, res) => {
     || typeof req.body.color === 'undefined'
     || typeof req.body.size === 'undefined'
     ) {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let { name, id, id_category, price, id_brand, description, status, color, size} = req.body;
@@ -91,11 +91,11 @@ exports.updateProduct = async (req, res) => {
     }
     catch (err) {
         //console.log(err)
-        res.status(500).json({ msg: err })
+        res.status(500).send({message: err })
         return;
     }
     if (productFind === null) {
-        res.status(404).json({ msg: "not found product" });
+        res.status(404).send({message: "not found product" });
         return;
     }
     let urlImg = null;
@@ -104,7 +104,7 @@ exports.updateProduct = async (req, res) => {
     }
     if(urlImg !== null) {
         if(urlImg === false) {
-            res.status(500).json({msg: 'not update image'});
+            res.status(500).send({message: 'not update image'});
             return;
         }
     }
@@ -130,21 +130,18 @@ exports.updateProduct = async (req, res) => {
     //     if (err) throw err;
     //     console.log('path/file.txt was deleted');
     //   });
-    res.status(200).json({ msg: 'update product success', data: productFind });
+    res.status(200).send({message: 'update product success', data: productFind });
 }
 
-exports.deleteAllProduct = async(req, res) =>{
-    product.removeAllListeners();
-}
 exports.deleteProduct = async (req, res) => {
     if (typeof req.params.id === 'undefined') {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let productFind = null;
     productFind = await product.findById(req.params.id);
     if (productFind === null) {
-        res.status(404).json({ msg: "not found product" });
+        res.status(404).send({message: "not found product" });
         return;
     }
     productFind.status = false;
@@ -153,15 +150,15 @@ exports.deleteProduct = async (req, res) => {
     }
     catch (err) {
         //console.log(err)
-        res.status(500).json({ msg: err })
+        res.status(500).send({message: err })
         return;
     }
-    res.status(200).json({ msg: 'delete product success', });
+    res.status(200).send({message: 'delete product success', });
 }
 
 exports.getAllProduct = async(req,res)=>{
     if(typeof req.params.page === 'undefined') {
-        res.status(402).json({msg: 'Data invalid'});
+        res.status(402).send({message: 'Data invalid'});
         return;
     }
     let count = null;
@@ -170,13 +167,13 @@ exports.getAllProduct = async(req,res)=>{
     }
     catch(err) {
         console.log(err);
-        res.status(500).json({msg: err});
+        res.status(500).send({message: err});
         return;
     }
     let totalPage = parseInt(((count - 1) / 5) + 1);
     let { page } = req.params;
     if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
-        res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
+        res.status(200).send({ data: [], message: 'Invalid page', totalPage });
         return;
     }
     product.find({})
@@ -185,10 +182,10 @@ exports.getAllProduct = async(req,res)=>{
     .exec((err, docs) => {
         if(err) {
             console.log(err);
-                    res.status(500).json({ msg: err });
+                    res.status(500).send({message: err });
                     return;
         }
-        res.status(200).json({data: docs, totalPage});
+        res.status(200).send({data: docs, totalPage});
     })
 }
 
@@ -198,7 +195,7 @@ exports.addStock = async (req, res) => {
         || typeof req.body.path === 'undefined'
         || typeof req.body.name_brand === 'undefined'
         || typeof req.body.count_import === 'undefined') {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let { name_category,path, name_brand, count_import } = req.body;
@@ -207,11 +204,11 @@ exports.addStock = async (req, res) => {
         stockFind = await stock.find({ 'name_category': name_category, 'name_brand':name_brand });
     }
     catch (err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
     if (stockFind.length > 0) {
-        res.status(409).json({ msg: 'stock already exist' });
+        res.status(409).send({message: 'stock already exist' });
         return;
     }
     const newStock = new stock({ 
@@ -237,10 +234,10 @@ exports.addStock = async (req, res) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(201).json({ msg: 'add stock success' });
+    res.status(201).send({message: 'add stock success' });
 }
 
 exports.updateStock = async (req, res) => {
@@ -250,7 +247,7 @@ exports.updateStock = async (req, res) => {
         || typeof req.body.name_brand === 'undefined'
         || typeof req.body.count_import === 'undefined'
     ) {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let { id, name_category, path, name_brand, count_import, status} = req.body;
@@ -264,11 +261,11 @@ exports.updateStock = async (req, res) => {
         brandFind = await brand.findOne({name: getNameStock[1], status: true});
     }
     catch (err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
     if (stockFind === null) {
-        res.status(422).json({ msg: "stock not found" });
+        res.status(422).send({message: "stock not found" });
         return;
     }
     stockFind.name_category = name_category;
@@ -290,15 +287,15 @@ exports.updateStock = async (req, res) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(201).json({ msg: 'update stock success', stock: { name_category: name_category, name_brand: name_brand, count_import:count_import} });
+    res.status(201).send({message: 'update stock success', stock: { name_category: name_category, name_brand: name_brand, count_import:count_import} });
 }
 
 exports.deleteStock = async(req,res)=>{
     if (typeof req.params.id === "undefined") {
-        res.status(402).json({ msg: "data invalid" });
+        res.status(402).send({message: "data invalid" });
         return;
     }
     let id = req.params.id;
@@ -313,11 +310,11 @@ exports.deleteStock = async(req,res)=>{
         brandFind = await brand.findOne({name: getNameStock[1], status: true});
     } catch (err) {
         console.log(err);
-        res.status(500).json({ msg: "server found" });
+        res.status(500).send({message: "server found" });
         return;
     }
     if (brandFind === null) {
-        res.status(400).json({ msg: "stock not found" });
+        res.status(400).send({message: "stock not found" });
         return;
     }
     stockFind.status = false;
@@ -330,15 +327,15 @@ exports.deleteStock = async(req,res)=>{
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(200).json({ msg: "delete stock success" });
+    res.status(200).send({message: "delete stock success" });
 }
 
 exports.getAllStock = async(req,res)=>{
     // if(typeof req.params.page === 'undefined'){
-    //     res.status(402).json({msg:'Data Invalid'});
+    //     res.status(402).send({message:'Data Invalid'});
     //     return;
     // }
     let count = null;
@@ -347,13 +344,13 @@ exports.getAllStock = async(req,res)=>{
     }
     catch(err){
         console.log(err);
-        res.status(500).json({msg:err});
+        res.status(500).send({message:err});
         return;
     }
     let totalPage = parseInt(((count-1)/9)+1);
     let {page}=req.params;
     if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
-        res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
+        res.status(200).send({ data: [], message: 'Invalid page', totalPage });
         return;
     }
     stock.find({status:true})
@@ -362,27 +359,27 @@ exports.getAllStock = async(req,res)=>{
     .exec((err, docs) => {
         if(err) {
             console.log(err);
-                    res.status(500).json({ msg: err });
+                    res.status(500).send({message: err });
                     return;
         }
-        res.status(200).json({ data: docs, totalPage });
+        res.status(200).send({ data: docs, totalPage });
     })
 }
 
 exports.getStock = async(req,res)=>{
     stock.find({status:true}, (err, docs) => {
         if(err) {
-            res.status(422).json({msg:err});
+            res.status(422).send({message:err});
             return;
         } 
-        res.status(200).json({data:docs});
+        res.status(200).send({data:docs});
     })
 }
 
 //brand
 exports.addBrand = async (req, res) => {
     if (typeof req.body.name === 'undefined') {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let { name } = req.body;
@@ -391,11 +388,11 @@ exports.addBrand = async (req, res) => {
         brandFind = await brand.find({ 'name': name });
     }
     catch (err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
     if (brandFind.length > 0) {
-        res.status(409).json({ msg: 'Brand already exist' });
+        res.status(409).send({message: 'Brand already exist' });
         return;
     }
     const newBrand = new brand({ 
@@ -406,16 +403,16 @@ exports.addBrand = async (req, res) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(201).json({ msg: 'add brand success', data:newBrand });
+    res.status(201).send({message: 'add brand success', data:newBrand });
 }
 
 exports.updateBrand = async (req, res) => {
     if (typeof req.body.id === 'undefined'
         || typeof req.body.name === 'undefined') {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let { id, name, status} = req.body;
@@ -424,11 +421,11 @@ exports.updateBrand = async (req, res) => {
         brandFind = await brand.findById(id);
     }
     catch (err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
     if (brandFind === null) {
-        res.status(422).json({ msg: "brand not found" });
+        res.status(422).send({message: "brand not found" });
         return;
     }
     brandFind.name = name;
@@ -438,15 +435,15 @@ exports.updateBrand = async (req, res) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(201).json({ msg: 'update brand success', brand: { name: name } });
+    res.status(201).send({message: 'update brand success', brand: { name: name } });
 }
 
 exports.deleteBrand = async(req,res)=>{
     if (typeof req.params.id === "undefined") {
-        res.status(402).json({ msg: "data invalid" });
+        res.status(402).send({message: "data invalid" });
         return;
     }
     let id=req.params.id;
@@ -455,11 +452,11 @@ exports.deleteBrand = async(req,res)=>{
         brandFind = await brand.findById(id);
     } catch (err) {
         console.log(err);
-        res.status(500).json({ msg: "server found" });
+        res.status(500).send({message: "server found" });
         return;
     }
     if (brandFind === null) {
-        res.status(400).json({ msg: "brand ot found" });
+        res.status(400).send({message: "brand ot found" });
         return;
     }
     brandFind.status = false;
@@ -468,15 +465,15 @@ exports.deleteBrand = async(req,res)=>{
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(200).json({ msg: "delete brand success" });
+    res.status(200).send({message: "delete brand success" });
 }
 
 exports.getAllBrand = async (req, res) => {
     if(typeof req.params.page === 'undefined') {
-        res.status(402).json({msg: 'Data invalid'});
+        res.status(402).send({message: 'Data invalid'});
         return;
     }
     let count = null;
@@ -485,13 +482,13 @@ exports.getAllBrand = async (req, res) => {
     }
     catch(err) {
         console.log(err);
-        res.status(500).json({msg: err});
+        res.status(500).send({message: err});
         return;
     }
     let totalPage = parseInt(((count - 1) / 5) + 1);
     let { page } = req.params;
     if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
-        res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
+        res.status(200).send({ data: [], message: 'Invalid page', totalPage });
         return;
     }
     brand.find({status:true})
@@ -500,10 +497,10 @@ exports.getAllBrand = async (req, res) => {
     .exec((err, docs) => {
         if(err) {
             console.log(err);
-                    res.status(500).json({ msg: err });
+                    res.status(500).send({message: err });
                     return;
         }
-        res.status(200).json({ data: docs, totalPage });
+        res.status(200).send({ data: docs, totalPage });
     });
 }
 
@@ -511,7 +508,7 @@ exports.getAllBrand = async (req, res) => {
 exports.addCategory = async (req, res) => {
     if (typeof req.body.name === 'undefined'
         || typeof req.body.path === 'undefined') {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let { name, path } = req.body;
@@ -520,11 +517,11 @@ exports.addCategory = async (req, res) => {
         categoryFind = await category.find({ 'name': name, 'path':path });
     }
     catch (err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
     if (categoryFind.length > 0) {
-        res.status(409).json({ msg: 'category already exist' });
+        res.status(409).send({message: 'category already exist' });
         return;
     }
     const newCategory = new category({ 
@@ -536,17 +533,17 @@ exports.addCategory = async (req, res) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(201).json({ msg: 'add category success' });
+    res.status(201).send({message: 'add category success' });
 }
 
 exports.updateCategory = async (req, res) => {
     if (typeof req.body.id === 'undefined'
         || typeof req.body.name === 'undefined'
     ) {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let { id, name, status} = req.body;
@@ -555,11 +552,11 @@ exports.updateCategory = async (req, res) => {
         categoryFind = await category.findById(id);
     }
     catch (err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
     if (categoryFind === null) {
-        res.status(422).json({ msg: "category not found" });
+        res.status(422).send({message: "category not found" });
         return;
     }
     categoryFind.name = name;
@@ -569,15 +566,15 @@ exports.updateCategory = async (req, res) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(201).json({ msg: 'update category success', category: { name: name } });
+    res.status(201).send({message: 'update category success', category: { name: name } });
 }
 
 exports.deleteCategory = async(req,res)=>{
     if (typeof req.params.id === "undefined") {
-        res.status(402).json({ msg: "data invalid" });
+        res.status(402).send({message: "data invalid" });
         return;
     }
     let id = req.params.id;
@@ -586,11 +583,11 @@ exports.deleteCategory = async(req,res)=>{
         categoryFind = await category.findById(id);
     } catch (err) {
         console.log(err);
-        res.status(500).json({ msg: "server found" });
+        res.status(500).send({message: "server found" });
         return;
     }
     if (brandFind === null) {
-        res.status(400).json({ msg: "category not found" });
+        res.status(400).send({message: "category not found" });
         return;
     }
     categoryFind.status = false;
@@ -599,15 +596,15 @@ exports.deleteCategory = async(req,res)=>{
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(200).json({ msg: "delete category success" });
+    res.status(200).send({message: "delete category success" });
 }
 
 exports.getAllCategory=async(req,res)=>{
     if(typeof req.params.page === 'undefined'){
-        res.status(402).json({msg:'Data Invalid'});
+        res.status(402).send({message:'Data Invalid'});
         return;
     }
     let count = null;
@@ -616,13 +613,13 @@ exports.getAllCategory=async(req,res)=>{
     }
     catch(err){
         console.log(err);
-        res.status(500).json({msg:err});
+        res.status(500).send({message:err});
         return;
     }
     let totalPage = parseInt(((count-1)/5)+1);
     let {page}=req.params;
     if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
-        res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
+        res.status(200).send({ data: [], message: 'Invalid page', totalPage });
         return;
     }
     category.find({status:true})
@@ -631,10 +628,10 @@ exports.getAllCategory=async(req,res)=>{
     .exec((err, docs) => {
         if(err) {
             console.log(err);
-                    res.status(500).json({ msg: err });
+                    res.status(500).send({message: err });
                     return;
         }
-        res.status(200).json({ data: docs, totalPage });
+        res.status(200).send({ data: docs, totalPage });
     })
 }
 
@@ -645,7 +642,7 @@ exports.updateUser = async (req, res) => {
         || typeof req.body.name === 'undefined'
         || typeof req.body.is_admin === 'undefined'
     ) {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let { email, name, is_admin, status} = req.body;
@@ -654,11 +651,11 @@ exports.updateUser = async (req, res) => {
         userFind = await user.findOne({ 'email': email })
     }
     catch (err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
     if (userFind === null) {
-        res.status(422).json({ msg: "user not found" });
+        res.status(422).send({message: "user not found" });
         return;
     }
     userFind.name = name;
@@ -668,11 +665,11 @@ exports.updateUser = async (req, res) => {
         await userFind.save()
     }
     catch (err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(200).json({
-        msg: 'update user success', user: {
+    res.status(200).send({
+        message: 'update user success', user: {
             email: userFind.email,
             name: userFind.name,
             is_admin: userFind.is_admin
@@ -682,7 +679,7 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
     if (typeof req.body.email === 'undefined') {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let { email} = req.body;
@@ -691,7 +688,7 @@ exports.deleteUser = async (req, res) => {
         userFind = await user.findOne({email: email})
     }
     catch(err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
     userFind.status = false;
@@ -700,10 +697,10 @@ exports.deleteUser = async (req, res) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(200).json({ msg: 'delete user success'});
+    res.status(200).send({message: 'delete user success'});
 }
 
 exports.addUser = async (req, res) => {
@@ -712,13 +709,13 @@ exports.addUser = async (req, res) => {
         || typeof req.body.name === 'undefined'
         || typeof req.body.is_admin === 'undefined'
     ) {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let { email, password, name, is_admin } = req.body;
     if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
         || password.length < 6 ){
-        res.status(422).json({ msg: 'Invalid data or password too short' });
+        res.status(422).send({message: 'Invalid data or password too short' });
         return;
     }
     let userFind = null;
@@ -726,12 +723,12 @@ exports.addUser = async (req, res) => {
         userFind = await user.find({ 'email': email });
     }
     catch (err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         console.log(1)
         return;
     }
     if (userFind.length > 0) {
-        res.status(409).json({ msg: 'Email already exist' });
+        res.status(409).send({message: 'Email already exist' });
         return;
     }
     password = bcrypt.hashSync(password, 10);
@@ -747,16 +744,16 @@ exports.addUser = async (req, res) => {
         await newUser.save();
     }
     catch (err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(201).json({ msg: 'add user success' });
+    res.status(201).send({message: 'add user success' });
 }
 
 exports.login = async (req, res) => {
     if(typeof req.body.email === 'undefined'
     || typeof req.body.password == 'undefined'){
-        res.status(402).json({msg: "Invalid data"});
+        res.status(402).send({message: "Invalid data"});
         return;
     }
     let { email, password } = req.body;
@@ -765,25 +762,25 @@ exports.login = async (req, res) => {
         userFind = await user.findOne({'email': email, 'is_admin': true});
     }
     catch(err){
-        res.json({msg: err});
+        res.send({message: err});
         return;
     }
     if(userFind == null){
-        res.status(422).json({msg: "user not found"});
+        res.status(422).send({message: "user not found"});
         return;
     }
 
     if(!userFind.is_verify){
-        res.status(401).json({msg: 'no_registration_confirmation'});
+        res.status(401).send({message: 'no_registration_confirmation'});
         return;
     }
     
     if(!bcrypt.compareSync(password, userFind.password)){
-        res.status(422).json({msg: 'wrong password'});
+        res.status(422).send({message: 'wrong password'});
         return;
     }
     let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
-    res.status(200).json({msg: 'success', token: token, user: {
+    res.status(200).send({message: 'success', token: token, user: {
         email: userFind.email,
         name: userFind.name,
         id: userFind._id
@@ -795,13 +792,13 @@ exports.getUser = async(req,res)=>{
         if(err) {
             console.log(err);
         } 
-        res.status(200).json({data:docs});
+        res.status(200).send({data:docs});
     })
 }
 
 exports.getAllUser = async(req, res) => {
     if(typeof req.params.page === 'undefined') {
-        res.status(402).json({msg: 'Data invalid'});
+        res.status(402).send({message: 'Data invalid'});
         return;
     }
     let count = null;
@@ -810,13 +807,13 @@ exports.getAllUser = async(req, res) => {
     }
     catch(err) {
         console.log(err);
-        res.status(500).json({msg: err});
+        res.status(500).send({message: err});
         return;
     }
     let totalPage = parseInt(((count - 1) / 9) + 1);
     let { page } = req.params;
     if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
-        res.status(200).json({ data: [], msg: 'Invalid page', totalPage });
+        res.status(200).send({ data: [], message: 'Invalid page', totalPage });
         return;
     }
     user.find({status: true})
@@ -825,9 +822,9 @@ exports.getAllUser = async(req, res) => {
     .exec((err, docs) => {
         if(err) {
             console.log(err);
-                    res.status(500).json({ msg: err });
+                    res.status(500).send({message: err });
                     return;
         }
-        res.status(200).json({ data: docs, totalPage });
+        res.status(200).send({ data: docs, totalPage });
     })
 }

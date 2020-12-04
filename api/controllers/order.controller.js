@@ -11,7 +11,7 @@ exports.addOrder = async (req, res) => {
 		typeof req.body.posteCode === "undefined" ||
 		typeof req.body.address === "undefined" ||
 		typeof req.body.phone === "undefined" ) {
-	  res.status(422).json({ msg: "Invalid data" });
+	  res.status(422).send({message: "Invalid data" });
 	  return;
 	}
 
@@ -22,17 +22,17 @@ exports.addOrder = async (req, res) => {
 	  cartFind = await cart.findOne({ id_user: id_user, status: true });
 	} catch (err) {
 	  console.log("error ", err);
-	  res.status(500).json({ msg: err });
+	  res.status(500).send({message: err });
 	  return;
 	}
 	if (cartFind === null) {
-	  res.status(404).json({ msg: "user not found" });
+	  res.status(404).send({message: "user not found" });
 	  return;
 	}
 	const token = randomstring.generate();
 	// let sendEmail = await nodemailer.sendMailConfirmPayment(email, token);
 	// if (!sendEmail) {
-	//   res.status(500).json({ msg: "Send email fail" });
+	//   res.status(500).send({message: "Send email fail" });
 	//   return;
 	// }
 	const new_order = new order({
@@ -51,23 +51,23 @@ exports.addOrder = async (req, res) => {
 	// try {
 	//   await cartFind.remove();
 	// } catch (err) {
-	//   res.status(500).json({ msg: err });
+	//   res.status(500).send({message: err });
 	//   console.log("cart remove fail");
 	//   return;
 	// }
 	try {
 		new_order.save();
 	} catch (err) {
-	  res.status(500).json({ msg: err });
+	  res.status(500).send({message: err });
 	  console.log("save order fail");
 	  return;
 	}
-	res.status(201).json({ msg: "success" });
+	res.status(201).send({message: "success" });
 };
 
 exports.deleteOrder = async(req,res)=>{
 	if (typeof req.params.id === "undefined") {
-		res.status(402).json({ msg: "data invalid" });
+		res.status(402).send({message: "data invalid" });
 		return;
 	  }
 	  let orderFind = null;
@@ -75,11 +75,11 @@ exports.deleteOrder = async(req,res)=>{
 		orderFind = await order.findOne({ _id: req.params.id, is_send: false, order_status: true });
 	  } catch (err) {
 		console.log(err);
-		res.status(500).json({ msg: "server found" });
+		res.status(500).send({message: "server found" });
 		return;
 	  }
 	  if (orderFind === null) {
-		res.status(400).json({ msg: "order not found" });
+		res.status(400).send({message: "order not found" });
 		return;
 	  }
 	  orderFind.order_status = false;
@@ -87,15 +87,15 @@ exports.deleteOrder = async(req,res)=>{
 		orderFind.save();
 	  } catch (err) {
 		console.log(err);
-		res.status(500).json({ msg: "server found" });
+		res.status(500).send({message: "server found" });
 		return;
 	  }
-	  res.status(200).json({ msg: "delete order success" });
+	  res.status(200).send({message: "delete order success" });
 };
 
 exports.verifyPayment = async (req, res) => {
 	if (typeof req.params.token === "undefined") {
-	  res.status(402).json({ msg: "!invalid" });
+	  res.status(402).send({message: "!invalid" });
 	  return;
 	}
 	let token = req.params.token;
@@ -103,11 +103,11 @@ exports.verifyPayment = async (req, res) => {
 	try {
 	  tokenFind = await order.findOne({ token: token });
 	} catch (err) {
-	  res.status(500).json({ msg: err });
+	  res.status(500).send({message: err });
 	  return;
 	}
 	if (tokenFind == null) {
-	  res.status(404).json({ msg: "order not found!!!" });
+	  res.status(404).send({message: "order not found!!!" });
 	  return;
 	}
 	try {
@@ -117,10 +117,10 @@ exports.verifyPayment = async (req, res) => {
 		{ new: true }
 	  );
 	} catch (err) {
-	  res.status(500).json({ msg: err });
+	  res.status(500).send({message: err });
 	  return;
 	}
-	res.status(200).json({ msg: "verify payment success!" });
+	res.status(200).send({message: "verify payment success!" });
 };
 
 exports.getOrderNoVerify = async (req, res) => {
@@ -129,13 +129,13 @@ exports.getOrderNoVerify = async (req, res) => {
     count = await order.countDocuments({ is_send: false });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: err });
+    res.status(500).send({message: err });
     return;
   }
   let totalPage = parseInt((count - 1) / 9 + 1);
   let { page } = req.params;
   if (parseInt(page) < 1 || parseInt(page) > totalPage) {
-    res.status(200).json({ data: [], msg: "Invalid page", totalPage });
+    res.status(200).send({ data: [], message: "Invalid page", totalPage });
     return;
   }
   order.find({is_send: false})
@@ -144,10 +144,10 @@ exports.getOrderNoVerify = async (req, res) => {
     .exec((err, docs) => {
         if(err) {
             console.log(err);
-                    res.status(500).json({ msg: err });
+                    res.status(500).send({message: err });
                     return;
         }
-        res.status(200).json({ data: docs, totalPage });
+        res.status(200).send({ data: docs, totalPage });
     })
 };
 
@@ -157,13 +157,13 @@ exports.getOrderVerify = async (req, res) => {
     count = await order.countDocuments({ is_send: true });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: err });
+    res.status(500).send({message: err });
     return;
   }
   let totalPage = parseInt((count - 1) / 9 + 1);
   let { page } = req.params;
   if (parseInt(page) < 1 || parseInt(page) > totalPage) {
-    res.status(200).json({ data: [], msg: "Invalid page", totalPage });
+    res.status(200).send({ data: [], message: "Invalid page", totalPage });
     return;
   }
   order.find({is_send: true})
@@ -172,9 +172,9 @@ exports.getOrderVerify = async (req, res) => {
     .exec((err, docs) => {
         if(err) {
             console.log(err);
-                    res.status(500).json({ msg: err });
+                    res.status(500).send({message: err });
                     return;
         }
-        res.status(200).json({ data: docs, totalPage });
+        res.status(200).send({ data: docs, totalPage });
     })
 };

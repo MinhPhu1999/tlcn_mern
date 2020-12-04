@@ -16,8 +16,6 @@ module.exports = (app) => {
         .post(upload.single('file'),admin_controller.addProduct); 
     app.route('/admin/updateproduct')
         .put(upload.single('file'),admin_controller.updateProduct);
-    app.route('/admin/deleteproduct')
-        .delete(admin_controller.deleteAllProduct);
     app.route('/admin/deleteproduct/:id')
         .put(admin_controller.deleteProduct);
     app.route('/admin/getallproduct/:page')

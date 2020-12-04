@@ -1,10 +1,10 @@
 'use strict'
 const user = require('../models/user.model');
-const jwt = require('jsonwebtoken');
+const jwt = require('sendwebtoken');
 exports.verify = async(req, res) => {
     if(typeof req.body.token === 'undefined'
         ||typeof req.body.email === 'undefined'){
-        res.status(422).json({msg: "Invalid data"});
+        res.status(422).send({message: "Invalid data"});
         return;
     }
 
@@ -13,16 +13,16 @@ exports.verify = async(req, res) => {
     try{
         let decoded = await jwt.verify(token, process.env.JWT_KEY)
         if(decoded.email == email){
-            res.status(200).json({msg: 'success'});
+            res.status(200).send({message: 'success'});
             return;
         }
         res
     }
     catch(err){
-        res.status(404).json({msg: 'unsuccess'});
+        res.status(404).send({message: 'unsuccess'});
         return
     }
-    res.status(404).json({msg: 'unsuccess'});
+    res.status(404).send({message: 'unsuccess'});
 }
 
 exports.authLogin = (req, res, next) => {

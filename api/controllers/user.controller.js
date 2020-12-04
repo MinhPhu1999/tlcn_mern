@@ -13,18 +13,18 @@ exports.register = async (req, res) => {
         || (typeof req.body.password === 'undefined')
         || typeof req.body.name === 'undefined'
     ) {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let { email, password, name, repassword} = req.body;
 
     if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
         || password.length < 6 ){
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     if(password !=repassword){
-        res.status(422).json({msg: 'password incorect'});
+        res.status(422).send({message: 'password incorect'});
         return;
     }
     let userFind = null;
@@ -32,18 +32,18 @@ exports.register = async (req, res) => {
         userFind = await user.find({ 'email': email });
     }
     catch (err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
     if (userFind.length > 0) {
-        res.status(409).json({ msg: 'Email already exist' }); 
+        res.status(409).send({message: 'Email already exist' }); 
         return;
     }
     
     //const token = randomstring.generate();
     // let sendEmail = await nodemailer.sendEmail(email, token);
     // if (!sendEmail) {
-    //     res.status(500).json({ msg: 'Send email fail' });
+    //     res.status(500).send({message: 'Send email fail' });
     //     return;
     // }   
     password = bcrypt.hashSync(password, 10);
@@ -61,15 +61,15 @@ exports.register = async (req, res) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(201).json({ msg: 'success' })
+    res.status(201).send({message: 'success' })
 }
 
 exports.verifyAccount = async (req, res) => {
     if(typeof req.params.token === 'undefined'){
-        res.status(402).json({msg: "!invalid"});
+        res.status(402).send({message: "!invalid"});
         return;
     }
     let token = req.params.token;
@@ -78,11 +78,11 @@ exports.verifyAccount = async (req, res) => {
         tokenFind = await user.findOne({'token': token});
     }
     catch(err){
-        res.status(500).json({msg: err});
+        res.status(500).send({message: err});
         return;
     }
     if(tokenFind == null){
-        res.status(404).json({msg: "user not found!!!"});
+        res.status(404).send({message: "user not found!!!"});
         return;
     }
     try{
@@ -90,16 +90,16 @@ exports.verifyAccount = async (req, res) => {
             { $set: { is_verify: true }}, { new: true });
     }
     catch(err){
-        res.status(500).json({msg: err});
+        res.status(500).send({message: err});
         return;
     }
-    res.status(200).json({msg:"verify account success!"});
+    res.status(200).send({message:"verify account success!"});
 }
 
 exports.login = async (req, res) => {
     if(typeof req.body.email === 'undefined'
     || typeof req.body.password == 'undefined'){
-        res.status(402).json({msg: "email or password wrrong"});
+        res.status(402).send({message: "email or password wrrong"});
         return;
     }
     let { email, password } = req.body;
@@ -108,25 +108,25 @@ exports.login = async (req, res) => {
         userFind = await user.findOne({'email': email});
     }
     catch(err){
-        res.status(402).json({msg:"loi"});
+        res.status(402).send({message:"loi"});
         return;
     }
     if(userFind === null){
-        res.status(422).json({msg: "not found user in database"});
+        res.status(422).send({message: "not found user in database"});
         return;
     }
     if(!userFind.is_verify){
-        res.status(401).json({msg: 'no_registration_confirmation'});
+        res.status(401).send({message: 'no_registration_confirmation'});
         return;
     }
     
     if(!bcrypt.compareSync(password, userFind.password)){
-        res.status(422).json({msg: 'password wrong'});
+        res.status(422).send({message: 'password wrong'});
         return;
     }
     // let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
     //let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
-    res.status(200).json({msg: 'login success', token: userFind.token, user: {
+    res.status(200).send({message: 'login success', token: userFind.token, user: {
         email: userFind.email,
         name: userFind.name,
         id: userFind._id
@@ -135,7 +135,7 @@ exports.login = async (req, res) => {
 
 exports.getUser = async (req, res) =>{
     if(typeof req.params.id === 'undefined'){
-        res.json({msg: "Invalid data"});
+        res.status(402).send({message: "Invalid data"});
         return;
     }
     let id = req.params.id;
@@ -144,15 +144,15 @@ exports.getUser = async (req, res) =>{
         userFind = await user.findOne({_id: id});
     }
     catch(err){
-        res.json({msg: err});
+        res.send({message: err});
         return;
     }
     if(userFind == null) {
-        res.status(422).json({msg: "Invalid data"});
+        res.status(422).send({message: "Invalid data"});
         return;
     }
     //console.log(userFind);
-    res.status(200).json({ user: {
+    res.status(200).send({ user: {
         email: userFind.email,
         name: userFind.name,
     }});
@@ -160,7 +160,7 @@ exports.getUser = async (req, res) =>{
 }
 exports.requestForgotPassword = async (req, res) => {
     if(typeof req.params.email === 'undefined'){
-        res.json({msg: "Invalid data"});
+        res.status(402).send({message: "Invalid data"});
         return;
     }   
     let email = req.params.email;
@@ -169,20 +169,20 @@ exports.requestForgotPassword = async (req, res) => {
         userFind = await user.findOne({'email': email});
     }
     catch(err){
-        res.json({msg: err});
+        res.send({message: err});
         return;
     }
     if(userFind == null) {
-        res.status(422).json({msg: "Invalid data"});
+        res.status(422).send({message: "Invalid data"});
     }
     if(!userFind.is_verify){
-        res.status(401).json({msg: 'no_registration_confirmation'});
+        res.status(401).send({message: 'no_registration_confirmation'});
         return;
     }
     let otp = otp.generateOTP();
     let sendEmail = await nodemailer.sendEmailForgotPassword(email, otp);
     if (!sendEmail) {
-        res.status(500).json({ msg: 'Send email fail' });
+        res.status(500).send({message: 'Send email fail' });
         return;
     }
     userFind.otp = otp;
@@ -190,16 +190,16 @@ exports.requestForgotPassword = async (req, res) => {
         await userFind.save();
     }
     catch (err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(201).json({ msg: 'success', email: email })
+    res.status(201).send({message: 'success', email: email })
 }
 
 exports.verifyForgotPassword = async (req, res) => {
     if(typeof req.body.email === 'undefined'
     || typeof req.body.otp === 'undefined'){
-        res.status(402).json({msg: "Invalid data"});
+        res.status(402).send({message: "Invalid data"});
         return;
     }
 
@@ -209,25 +209,25 @@ exports.verifyForgotPassword = async (req, res) => {
         userFind = await user.findOne({'email': email});
     }
     catch(err){
-        res.json({msg: err});
+        res.send({message: err});
         return;
     }
     if(userFind == null){
-        res.status(422).json({msg: "Invalid data"});
+        res.status(422).send({message: "Invalid data"});
         return;
     }
     if(userFind.otp != otp) {
-        res.status(422).json({msg: "OTP fail"});
+        res.status(422).send({message: "OTP fail"});
         return;
     }
-    res.status(200).json({msg: "success", otp: otp});
+    res.status(200).send({message: "success", otp: otp});
 }
 
 exports.forgotPassword = async (req, res) => {
     if(typeof req.body.email === 'undefined'
     || typeof req.body.otp === 'undefined'
     || typeof req.body.newPassword === 'undefined'){
-        res.status(402).json({msg: "Invalid data"});
+        res.status(402).send({message: "Invalid data"});
         return;
     }
     let { email, otp, newPassword } = req.body;
@@ -236,15 +236,15 @@ exports.forgotPassword = async (req, res) => {
         userFind = await user.findOne({'email': email});
     }
     catch(err){
-        res.json({msg: err});
+        res.send({message: err});
         return;
     }
     if(userFind == null){
-        res.status(422).json({msg: "Invalid data"});
+        res.status(422).send({message: "Invalid data"});
         return;
     }
     if(userFind.otp != otp) {
-        res.status(422).json({msg: "OTP fail"});
+        res.status(422).send({message: "OTP fail"});
         return;
     }
 
@@ -254,10 +254,10 @@ exports.forgotPassword = async (req, res) => {
     }
     catch (err) {
         console.log(err);
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(201).json({ msg: 'success' })
+    res.status(201).send({message: 'success' })
 }
 
 exports.updateInfor = async (req, res) => {
@@ -266,7 +266,7 @@ exports.updateInfor = async (req, res) => {
         || typeof req.body.newpassword === 'undefined'
         || typeof req.body.email === 'undefined'
     ) {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({ message: 'Invalid data' });
         return;
     }
     let { email, name, oldpassword, newpassword, id} = req.body;
@@ -274,11 +274,11 @@ exports.updateInfor = async (req, res) => {
     let userFind = await user.findOne({'email': email});
 
     if(userFind != null && newUser.email !== email) {
-        res.status(422).json({ msg: "Email already exist" });
+        res.status(422).send({ message: "Email already exist" });
         return;
     }
     if(!bcrypt.compareSync(oldpassword, newUser.password)){
-        res.status(422).json({msg: 'Wrong password'});
+        res.status(422).send({message: 'Wrong password'});
         return;
     }
 
@@ -289,10 +289,10 @@ exports.updateInfor = async (req, res) => {
         await newUser.save();
     }
     catch(err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(200).json({msg: 'success', token: newUser.token, user: {
+    res.status(200).send({message: 'success', token: newUser.token, user: {
         email: newUser.email,
         name: newUser.name,
         id: newUser._id
@@ -304,7 +304,7 @@ exports.updatePassword = async (req, res) => {
         || typeof req.body.newpassword === 'undefined'
         || typeof req.body.email === 'undefined'
     ) {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let { email, oldpassword, newpassword } = req.body;
@@ -313,15 +313,15 @@ exports.updatePassword = async (req, res) => {
         userFind = await user.findOne({'email': email});
     }
     catch(err){
-        res.json({msg: err});
+        res.send({message: err});
         return;
     }
     if(userFind == null){
-        res.status(422).json({msg: "Invalid data"});
+        res.status(422).send({message: "Invalid data"});
         return;
     }
     if(!bcrypt.compareSync(oldpassword, userFind.password)){
-        res.status(422).json({msg: 'Invalid data'});
+        res.status(422).send({message: 'Invalid data'});
         return;
     }
     userFind.password = bcrypt.hashSync(newpassword, 10);
@@ -329,10 +329,10 @@ exports.updatePassword = async (req, res) => {
         await userFind.save()
     }
     catch(err) {
-        res.status(500).json({ msg: err });
+        res.status(500).send({message: err });
         return;
     }
-    res.status(200).json({msg: 'success'});
+    res.status(200).send({message: 'success'});
 }
 
 exports.getDataByID = async(id_user)=>{

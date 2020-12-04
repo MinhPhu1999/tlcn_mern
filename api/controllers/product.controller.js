@@ -12,29 +12,29 @@ exports.sortProduct = async(req, res)=>{
         return parseFloat(b.price) - parseFloat(a.price);
     });
     if(sortListProduct){
-        res.status(200).json(sortListProduct);
+        res.status(200).send(sortListProduct);
         return;
     }
-    res.status(404).json({msg: "product not found"});
+    res.status(404).send({message: "product not found"});
 }
 
 exports.getProductByID = async(req, res) =>{
     let id = req.params.id;
     const productFind = await product.findOne({_id: id})
     if(productFind){
-        res.status(200).json(productFind);
+        res.status(200).send(productFind);
         return;
     }
-    res.status(404).json({msg: "product not found"});
+    res.status(404).send({message: "product not found"});
 }
 
 exports.getProduct = async(req,res)=>{
     const productFind = await product.find({status: true});
     if(productFind){
-        res.status(200).json(productFind);
+        res.status(200).send(productFind);
         return;
     }
-    res.status(404).json({msg: "product not found"});
+    res.status(404).send({message: "product not found"});
 }
 
 exports.searchProduct = async(req,res)=>{
@@ -44,10 +44,10 @@ exports.searchProduct = async(req,res)=>{
     }
     const productFind = await product.find({ $or: [{ name: new RegExp(searchText, "i"), status:true }]});
     if(productFind){
-        res.status(200).json(productFind);
+        res.status(200).send(productFind);
         return;
     }
-    res.status(404).json({msg: "product not found"});
+    res.status(404).send({message: "product not found"});
 
 }
 
@@ -61,10 +61,10 @@ exports.getProductByBrand = async(req, res) =>{
    
     let productFind = await product.find({ $or: [{id_brand: new RegExp(searchIDBrand, "i")}]});
     if(productFind){
-        res.status(200).json(productFind);
+        res.status(200).send(productFind);
         return;
     }
-    res.status(404).json({msg: "product not found"});
+    res.status(404).send({message: "product not found"});
 
 }
 
@@ -78,10 +78,10 @@ exports.getProductByCategory = async(req,res)=>{
     searchIDCatefory= await categoryController.getIDBySearchText(categoryName);
     let productFind = await product.find({ $or: [{id_category: new RegExp(searchIDCatefory, "i")}]});
     if(productFind){
-        res.status(200).json(productFind);
+        res.status(200).send(productFind);
         return;
     }
-    res.status(404).json({msg: "product not found"});
+    res.status(404).send({message: "product not found"});
 }
 
 // exports.getProductByPrice = async(req, res) =>{
@@ -92,7 +92,7 @@ exports.getProductByCategory = async(req,res)=>{
 
 exports.getNameByID = async (req, res) => {
     if(req.params.id === 'undefined') {
-        res.status(422).json({ msg: 'Invalid data' });
+        res.status(422).send({message: 'Invalid data' });
         return;
     }
     let result;
@@ -102,14 +102,14 @@ exports.getNameByID = async (req, res) => {
     }
     catch(err) {
         console.log(err)
-        res.status(500).json({msg: err})
+        res.status(500).send({message: err})
         return;
     }
     if(result === null){
-        res.status(404).json({msg: "not found"})
+        res.status(404).send({message: "not found"})
         return;
     }
     console.log(result)
-    res.status(200).json({name: result.name, count: result.count})
+    res.status(200).send({name: result.name, count: result.count})
 }
 
