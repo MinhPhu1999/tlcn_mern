@@ -1,9 +1,10 @@
 'use strict'
 const user = require('../models/user.model');
 const nodemailer = require('../utils/nodemailer');
+//const auth = require('../utils/auth');
 const randomstring = require('randomstring');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+//const jwt = require('jsonwebtoken');
 const otp = require('../utils/otp');
 
 
@@ -16,8 +17,6 @@ exports.register = async (req, res) => {
         return;
     }
     let { email, password, name, repassword} = req.body;
-
-
 
     if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
         || password.length < 6 ){
@@ -40,7 +39,8 @@ exports.register = async (req, res) => {
         res.status(409).json({ msg: 'Email already exist' }); 
         return;
     }
-    const token = randomstring.generate();
+    
+    //const token = randomstring.generate();
     // let sendEmail = await nodemailer.sendEmail(email, token);
     // if (!sendEmail) {
     //     res.status(500).json({ msg: 'Send email fail' });
@@ -51,11 +51,13 @@ exports.register = async (req, res) => {
         email: email,
         name: name,
         password: password,
-        token: token,
         status: true
     });
     try {
-        await newUser.save();
+        await newUser.save()
+                    .then(function() {
+                        newUser.generateJWT();
+                    })
     }
     catch (err) {
         console.log(err);
@@ -122,8 +124,9 @@ exports.login = async (req, res) => {
         res.status(422).json({msg: 'password wrong'});
         return;
     }
-    let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
-    res.status(200).json({msg: 'login success', token: token, user: {
+    // let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
+    //let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
+    res.status(200).json({msg: 'login success', token: userFind.token, user: {
         email: userFind.email,
         name: userFind.name,
         id: userFind._id
@@ -148,7 +151,7 @@ exports.getUser = async (req, res) =>{
         res.status(422).json({msg: "Invalid data"});
         return;
     }
-    console.log(userFind);
+    //console.log(userFind);
     res.status(200).json({ user: {
         email: userFind.email,
         name: userFind.name,
@@ -176,13 +179,13 @@ exports.requestForgotPassword = async (req, res) => {
         res.status(401).json({msg: 'no_registration_confirmation'});
         return;
     }
-    let token = otp.generateOTP();
-    let sendEmail = await nodemailer.sendEmailForgotPassword(email, token);
+    let otp = otp.generateOTP();
+    let sendEmail = await nodemailer.sendEmailForgotPassword(email, otp);
     if (!sendEmail) {
         res.status(500).json({ msg: 'Send email fail' });
         return;
     }
-    userFind.token = token;
+    userFind.otp = otp;
     try {
         await userFind.save();
     }
@@ -213,7 +216,7 @@ exports.verifyForgotPassword = async (req, res) => {
         res.status(422).json({msg: "Invalid data"});
         return;
     }
-    if(userFind.token != otp) {
+    if(userFind.otp != otp) {
         res.status(422).json({msg: "OTP fail"});
         return;
     }
@@ -240,7 +243,7 @@ exports.forgotPassword = async (req, res) => {
         res.status(422).json({msg: "Invalid data"});
         return;
     }
-    if(userFind.token != otp) {
+    if(userFind.otp != otp) {
         res.status(422).json({msg: "OTP fail"});
         return;
     }
@@ -270,7 +273,6 @@ exports.updateInfor = async (req, res) => {
     let newUser = await user.findById(id);
     let userFind = await user.findOne({'email': email});
 
-    //console.log(userFind);
     if(userFind != null && newUser.email !== email) {
         res.status(422).json({ msg: "Email already exist" });
         return;
@@ -290,8 +292,7 @@ exports.updateInfor = async (req, res) => {
         res.status(500).json({ msg: err });
         return;
     }
-    let token = jwt.sign({_id: id}, process.env.JWT_KEY);
-    res.status(200).json({msg: 'success', token: token, user: {
+    res.status(200).json({msg: 'success', token: newUser.token, user: {
         email: newUser.email,
         name: newUser.name,
         id: newUser._id

@@ -1,6 +1,7 @@
 'use strict'
 const user_controller = require('../controllers/user.controller');
 const auth = require('../utils/auth');
+const {authLogin} = require('../utils/auth')
 module.exports = (app) => {
 
    app.route('/user/register')
@@ -13,7 +14,7 @@ module.exports = (app) => {
       .post(user_controller.login);
 
    app.route('/user/:id')
-      .get(user_controller.getUser);
+      .get(authLogin,user_controller.getUser);
 
    app.route('/user/request/forgotpassword/:email')
       .get(user_controller.requestForgotPassword)
@@ -28,7 +29,7 @@ module.exports = (app) => {
       .post(auth.verify)
 
    app.route('/user/updateinfor')
-      .post(user_controller.updateInfor)
+      .put(authLogin,user_controller.updateInfor)
 
    app.route('/user/updatepassword')
       .post(user_controller.updatePassword)
