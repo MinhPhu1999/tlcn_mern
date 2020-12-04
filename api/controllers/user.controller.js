@@ -22,7 +22,7 @@ exports.register = async (req, res) => {
         res.status(422).send({message: 'Invalid data' });
         return;
     }
-    if(password !=repassword){
+    if(password != repassword){
         res.status(422).send({message: 'password incorect'});
         return;
     }
@@ -123,8 +123,6 @@ exports.login = async (req, res) => {
         res.status(422).send({message: 'password wrong'});
         return;
     }
-    // let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
-    //let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
     res.status(200).send({message: 'login success', token: userFind.token, user: {
         email: userFind.email,
         name: userFind.name,

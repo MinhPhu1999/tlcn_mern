@@ -44,6 +44,7 @@ exports.authLogin = (req, res, next) => {
                     message: "Not authorized to access this resource",
                 });
             });
+            //console.log(user);
     } catch (error) {
         res.status(401).send({ message: 'Not authorized to access this resource' })
     }
