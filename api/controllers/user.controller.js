@@ -7,7 +7,6 @@ const bcrypt = require('bcrypt');
 //const jwt = require('jsonwebtoken');
 const otp = require('../utils/otp');
 
-
 exports.register = async (req, res) => {
     if ((typeof req.body.email === 'undefined')
         || (typeof req.body.password === 'undefined')

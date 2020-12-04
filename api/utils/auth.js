@@ -1,6 +1,6 @@
 'use strict'
 const user = require('../models/user.model');
-const jwt = require('sendwebtoken');
+const jwt = require('jsonwebtoken');
 exports.verify = async(req, res) => {
     if(typeof req.body.token === 'undefined'
         ||typeof req.body.email === 'undefined'){
