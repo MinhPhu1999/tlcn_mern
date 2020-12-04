@@ -10,7 +10,7 @@ exports.verify = async(req, res) => {
     let token = req.body.token;
     let email = req.body.email;
     try{
-        let decoded = await jwt.verify(token, 'shhhhh')
+        let decoded = await jwt.verify(token, process.env.JWT_KEY)
         if(decoded.email == email){
             res.status(200).json({msg: 'success'});
             return;

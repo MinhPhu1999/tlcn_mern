@@ -20,6 +20,9 @@ const cart = new Schema ({
         required : true,
         minlength: 1,
     },
+    grandTotal: {
+        type: Number
+    },
     status:{
         type:Boolean
     }

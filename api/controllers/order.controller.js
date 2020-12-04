@@ -8,7 +8,6 @@ const nodemailer = require("../utils/nodemailer");
 exports.addOrder = async (req, res) => {
 	if (typeof req.body.id_user === "undefined" ||
 		typeof req.body.city === "undefined" ||
-		typeof req.body.order_subtotal === 'undefined' ||
 		typeof req.body.posteCode === "undefined" ||
 		typeof req.body.address === "undefined" ||
 		typeof req.body.phone === "undefined" ) {
@@ -16,7 +15,7 @@ exports.addOrder = async (req, res) => {
 	  return;
 	}
 
-	const {id_user, city, order_subtotal, posteCode, address, phone} = req.body;
+	const {id_user, city, posteCode, address, phone} = req.body;
 	const getDataUser = await userController.getDataByID(id_user);
 	let cartFind = null;
 	try {
@@ -40,13 +39,13 @@ exports.addOrder = async (req, res) => {
 	  id_user: id_user,
 	  cart: cartFind.products,
 	  city: city,
-	  order_subtotal: order_subtotal,
+	  order_subtotal: cartFind.grandTotal,
 	  posteCode: posteCode,
 	  address: address,
 	  phone: phone,
-	  name: getDataUser[0],
+	  name: getDataUser.name,
 	  order_status: true,
-	  email: getDataUser[1],
+	  email: getDataUser.email,
 	  token: token
 	});
 	// try {

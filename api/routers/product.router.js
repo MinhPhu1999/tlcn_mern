@@ -8,20 +8,17 @@ module.exports = (app) => {
     app.route('/product/:id')
         .get(product_controller.getProductByID);
         
-    app.route('/product/search')
-        .post(product_controller.searchProduct);
+    app.route('/product/search/:search')
+        .get(product_controller.searchProduct);
 
-    app.route('/product/brand')
-        .post(product_controller.getProductByBrand);
+    app.route('/product/brand/:brand')
+        .get(product_controller.getProductByBrand);
 
-    app.route('/product/category')
-        .post(product_controller.getProductByCategory);
+    app.route('/product/category/:category')
+        .get(product_controller.getProductByCategory);
 
     app.route('/product/amount/:id')
         .post(product_controller.getNameByID);
-
-    app.route('/productsort/:theo')
-        .get(product_controller.sortProduct);
     
     app.route('/product/sort/:inc')
         .get(product_controller.sortProduct);

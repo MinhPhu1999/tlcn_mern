@@ -782,7 +782,7 @@ exports.login = async (req, res) => {
         res.status(422).json({msg: 'wrong password'});
         return;
     }
-    let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, 'shhhhh');
+    let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
     res.status(200).json({msg: 'success', token: token, user: {
         email: userFind.email,
         name: userFind.name,

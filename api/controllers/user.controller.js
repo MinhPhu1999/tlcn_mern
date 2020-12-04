@@ -122,7 +122,7 @@ exports.login = async (req, res) => {
         res.status(422).json({msg: 'password wrong'});
         return;
     }
-    let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, 'shhhhh');
+    let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
     res.status(200).json({msg: 'login success', token: token, user: {
         email: userFind.email,
         name: userFind.name,
@@ -290,7 +290,7 @@ exports.updateInfor = async (req, res) => {
         res.status(500).json({ msg: err });
         return;
     }
-    let token = jwt.sign({_id: id}, 'shhhhh');
+    let token = jwt.sign({_id: id}, process.env.JWT_KEY);
     res.status(200).json({msg: 'success', token: token, user: {
         email: newUser.email,
         name: newUser.name,
@@ -335,17 +335,6 @@ exports.updatePassword = async (req, res) => {
 }
 
 exports.getDataByID = async(id_user)=>{
-    let result = null;
-    try {
-        result = await user.findById(id_user);
-    }
-    catch(err) {
-        console.log(err);
-        return;
-    }
-    if(result === null){
-        console.log("user not found");
-        return;
-    }
-    return [result.name, result.email];
+    let userFind = await user.findOne({_id: id_user});
+    return userFind ;
 }

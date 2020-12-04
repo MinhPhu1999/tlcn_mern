@@ -8,15 +8,11 @@ const order=new Schema({
     cart:{
         type:[
             {
-                id_category: String,
                 name: String,
-                color: String,
-                size: String,
                 price: Number,
-                id_brand: String,
                 img: String,
-                description: String,
                 count: Number,
+                total: Number,
                 _id: String
             }
         ],

@@ -7,13 +7,14 @@ exports.addToCart = async (req, res) => {
       res.status(422).json({ msg: "invalid data" });
     return;
   }
-  const { id_user, products} = req.body;
+  const { id_user, products, grandTotal} = req.body;
   let cartFind = null;
   cartFind = await cart.findOne({ id_user: id_user });
   if (cartFind === null) {
     const cart_new = new cart({
       id_user: id_user,
       products: products,
+      grandTotal: grandTotal,
       status: true
     });
     try {
@@ -168,9 +169,9 @@ exports.deleteCart = async (req, res) => {
     res.status(404).json({ msg: "cart not found" });
     return;
   }
-  cartFind.status = false;
+  //cartFind.status = false;
   try {
-    await cartFind.save();
+    await cartFind.remove();
   }
   catch (err) {
       res.status(500).json({ msg: err });

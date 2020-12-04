@@ -39,8 +39,8 @@ exports.getProduct = async(req,res)=>{
 
 exports.searchProduct = async(req,res)=>{
     let searchText = "";
-    if (typeof req.body.searchtext !== 'undefined') {
-        searchText = req.body.searchtext;
+    if (typeof req.params.search !== 'undefined') {
+        searchText = req.params.search;
     }
     const productFind = await product.find({ $or: [{ name: new RegExp(searchText, "i"), status:true }]});
     if(productFind){
@@ -53,8 +53,8 @@ exports.searchProduct = async(req,res)=>{
 
 exports.getProductByBrand = async(req, res) =>{
     let brandName = "";
-    if (typeof req.body.brandname !== 'undefined') 
-        brandName = req.body.brandname;
+    if (typeof req.params.brand !== 'undefined') 
+        brandName = req.params.brand;
 
     let searchIDBrand = null;
     searchIDBrand= await brandController.getIDBySearchText(brandName);
@@ -70,8 +70,8 @@ exports.getProductByBrand = async(req, res) =>{
 
 exports.getProductByCategory = async(req,res)=>{
     let categoryName = "";
-    if (typeof req.body.categoryname !== 'undefined') {
-        categoryName = req.body.categoryname;
+    if (typeof req.params.category !== 'undefined') {
+        categoryName = req.params.category;
     }
 
     let searchIDCatefory = null;
