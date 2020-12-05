@@ -63,6 +63,11 @@ exports.register = async (req, res) => {
         res.status(500).send({message: err });
         return;
     }
+    let sendEmail = await nodemailer.sendEmail(email, newUser.token);
+    if (!sendEmail) {
+        res.status(500).send({message: 'Send email fail' });
+        return;
+    }   
     res.status(201).send({message: 'success' })
 }
 
