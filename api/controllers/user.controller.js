@@ -38,13 +38,7 @@ exports.register = async (req, res) => {
         res.status(409).send({message: 'Email already exist' }); 
         return;
     }
-    
-    //const token = randomstring.generate();
-    // let sendEmail = await nodemailer.sendEmail(email, token);
-    // if (!sendEmail) {
-    //     res.status(500).send({message: 'Send email fail' });
-    //     return;
-    // }   
+ 
     password = bcrypt.hashSync(password, 10);
     const newUser = new user({
         email: email,
@@ -56,6 +50,7 @@ exports.register = async (req, res) => {
         await newUser.save()
                     .then(function() {
                         newUser.generateJWT();
+                        
                     })
     }
     catch (err) {

@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer')
-const adminEmail = 'minhphuson99@gmail.com'
-const adminPassword = 'sonminhphu99'
+require('dotenv').config();
+const adminEmail = process.env.ADMINEMAIL;
+const adminPassword = process.env.ADMINPASSWORD;
 
 const transporter = nodemailer.createTransport({
     service:'gmail',

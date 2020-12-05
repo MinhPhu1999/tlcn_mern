@@ -7,7 +7,6 @@ const stock = require('../models/stock.model');
 const stockController = require('../controllers/stock.controller')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { count } = require('../models/product.model');
 require('dotenv').config();
 const cloudinary = require('cloudinary').v2;
 
