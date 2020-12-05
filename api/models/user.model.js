@@ -33,7 +33,8 @@ const user = new Schema({
         type: String
     },
     status:{
-        type:Boolean
+        type:Boolean,
+        default: true
     }
 });
 user.methods.generateJWT = async function() {

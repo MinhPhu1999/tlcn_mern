@@ -259,14 +259,13 @@ exports.forgotPassword = async (req, res) => {
 
 exports.updateInfor = async (req, res) => {
     if ( typeof req.body.name === 'undefined'
-        || typeof req.body.oldpassword === 'undefined'
-        || typeof req.body.newpassword === 'undefined'
+        || typeof req.body.id === 'undefined'
         || typeof req.body.email === 'undefined'
     ) {
         res.status(422).send({ message: 'Invalid data' });
         return;
     }
-    let { email, name, oldpassword, newpassword, id} = req.body;
+    let { email, name, id} = req.body;
     let newUser = await user.findById(id);
     let userFind = await user.findOne({'email': email});
 
@@ -274,12 +273,6 @@ exports.updateInfor = async (req, res) => {
         res.status(422).send({ message: "Email already exist" });
         return;
     }
-    if(!bcrypt.compareSync(oldpassword, newUser.password)){
-        res.status(422).send({message: 'Wrong password'});
-        return;
-    }
-
-    newUser.password = bcrypt.hashSync(newpassword, 10);
     newUser.name = name;
     newUser.email = email;
     try {
@@ -299,15 +292,15 @@ exports.updateInfor = async (req, res) => {
 exports.updatePassword = async (req, res) => {
     if ( typeof req.body.oldpassword === 'undefined'
         || typeof req.body.newpassword === 'undefined'
-        || typeof req.body.email === 'undefined'
+        || typeof req.body.id === 'undefined'
     ) {
         res.status(422).send({message: 'Invalid data' });
         return;
     }
-    let { email, oldpassword, newpassword } = req.body;
+    let { id, oldpassword, newpassword } = req.body;
     let userFind = null;
     try{
-        userFind = await user.findOne({'email': email});
+        userFind = await user.findOne({'_id': id});
     }
     catch(err){
         res.send({message: err});

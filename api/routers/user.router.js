@@ -32,6 +32,6 @@ module.exports = (app) => {
       .put(authLogin,user_controller.updateInfor)
 
    app.route('/user/updatepassword')
-      .post(user_controller.updatePassword)
+      .put(user_controller.updatePassword)
 
 }
