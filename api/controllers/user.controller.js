@@ -5,7 +5,7 @@ const nodemailer = require('../utils/nodemailer');
 const randomstring = require('randomstring');
 const bcrypt = require('bcrypt');
 //const jwt = require('jsonwebtoken');
-const otp = require('../utils/otp');
+const maotp = require('../utils/otp');
 
 exports.register = async (req, res) => {
     if ((typeof req.body.email === 'undefined')
@@ -176,7 +176,7 @@ exports.requestForgotPassword = async (req, res) => {
         res.status(401).send({message: 'no_registration_confirmation'});
         return;
     }
-    let otp = otp.generateOTP();
+    let otp = maotp.generateOTP();
     let sendEmail = await nodemailer.sendEmailForgotPassword(email, otp);
     if (!sendEmail) {
         res.status(500).send({message: 'Send email fail' });
