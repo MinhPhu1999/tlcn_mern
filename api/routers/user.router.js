@@ -25,13 +25,15 @@ module.exports = (app) => {
    app.route('/user/forgotpassword')
       .post(user_controller.forgotPassword)
 
+
+
    app.route('/auth')
       .post(auth.verify)
 
    app.route('/user/updateinfor')
-      .put(authLogin,user_controller.updateInfor)
+      .put(authLogin, user_controller.updateInfor)
 
    app.route('/user/updatepassword')
-      .put(user_controller.updatePassword)
+      .put(authLogin, user_controller.updatePassword)
 
 }

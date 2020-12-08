@@ -34,13 +34,14 @@ exports.addToCart = async (req, res) => {
       if (index === -1) {
         cartFind.products.push(products[i]);
       } else {
-        cartFind.products[index].count += Number(products[i].count);
+        cartFind.products[index].count = Number(products[i].count);
+        cartFind.products[index].total = Number(products[i].total);
       }
     }
-  
     try {
       await cart.findByIdAndUpdate(cartFind._id, {
-        $set: { products: cartFind.products }
+        $set: { products: cartFind.products,
+                grandTotal: grandTotal }
       });
     } catch (err) {
       res.status(500).send({message: err });
@@ -208,12 +209,17 @@ exports.deleteProductInCart = async (req, res) => {
     res.status(404).send({message: "product not found in list" });
     return;
   }
+  cartFind.grandTotal -= cartFind.products[index].total;
   cartFind.products.splice(index, 1);
+
   try {
     await cart.findByIdAndUpdate(cartFind._id, {
-      $set: { products: cartFind.products }
+      $set: { products: cartFind.products,
+              grandTotal: cartFind.grandTotal }
     });
+
   } catch (err) {
+    console.log(err);
     res.status(500).send({message: err });
     return;
   }
