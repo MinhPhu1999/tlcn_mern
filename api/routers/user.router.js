@@ -25,8 +25,6 @@ module.exports = (app) => {
    app.route('/user/forgotpassword')
       .post(user_controller.forgotPassword)
 
-
-
    app.route('/auth')
       .post(auth.verify)
 
@@ -35,5 +33,8 @@ module.exports = (app) => {
 
    app.route('/user/updatepassword')
       .put(authLogin, user_controller.updatePassword)
+
+   app.route('/user/addcart')
+      .post(user_controller.addToCart);
 
 }

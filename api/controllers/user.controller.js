@@ -1,10 +1,9 @@
 'use strict'
 const user = require('../models/user.model');
 const nodemailer = require('../utils/nodemailer');
-//const auth = require('../utils/auth');
+const sendgrid = require('../utils/sendgrid');
 const randomstring = require('randomstring');
 const bcrypt = require('bcrypt');
-//const jwt = require('jsonwebtoken');
 const maotp = require('../utils/otp');
 
 exports.register = async (req, res) => {
@@ -59,10 +58,13 @@ exports.register = async (req, res) => {
         return;
     }
     let sendEmail = await nodemailer.sendEmail(email, newUser.token);
+    // let token = '123456789';
+    // let sendMail = await sendgrid.sendEmail(email, token);
+    //console.log(sendMail);
     if (!sendEmail) {
         res.status(500).send({message: 'Send email fail' });
         return;
-    }   
+    }
     res.status(201).send({message: 'success' })
 }
 
@@ -329,3 +331,19 @@ exports.getDataByID = async(id_user)=>{
     let userFind = await user.findOne({_id: id_user});
     return userFind ;
 }
+
+exports.addToCart = async (req, res) => {
+    if (typeof req.body.id === 'undefined'
+      || typeof req.body.cart === 'undefined') {
+        res.status(422).send({message: "invalid data" });
+      return;
+    }
+    const { id, cart} = req.body;
+    let userFind = null;
+    userFind = await user.findById(id);
+    if(!userFind)
+      return res.status(400).json({ msg: "User does not exists" });
+  
+    await user.findOneAndUpdate({_id: id}, {cart: cart})
+    res.status(200).send({message: "add cart success" });
+  }

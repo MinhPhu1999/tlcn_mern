@@ -7,6 +7,14 @@ const user = new Schema({
         type:Boolean,
         default: false
     },
+    cart: {
+        type: Array,
+        default: []
+    },
+    history: {
+        type: Array,
+        default: []
+    },
     name:{
         type:String,
         required:[true,"Không được bỏ trống name"]
@@ -38,7 +46,6 @@ const user = new Schema({
     }
 });
 user.methods.generateJWT = async function() {
-    // Generate an auth token for the user
     const user = this;
     const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY)
     

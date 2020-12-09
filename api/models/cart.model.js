@@ -13,7 +13,6 @@ const cart = new Schema ({
                 price: Number,
                 img: String,
                 count: Number,
-                total: Number,
                 _id: String
             }
         ],
@@ -25,7 +24,25 @@ const cart = new Schema ({
     },
     status:{
         type:Boolean
+    },
+    date_cart: {
+        type: Date,
+        default: Date.now()
     }
+
 });
+
+cart.methods.updateCountProduct = async function() {
+    const cart = this;
+    for (let i = 0; i < cart.products.length; i++) {
+        let index = cart.products.findIndex(
+          element => cart.products[i]._id === element._id
+        );
+        if(index !== -1)
+        {
+            cart.grandTotal = cart.products[index].price * cart.products[index].count
+        }
+    }
+}
 
 module.exports = mongoose.model('cart', cart);

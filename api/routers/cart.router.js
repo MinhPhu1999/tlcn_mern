@@ -10,8 +10,11 @@ module.exports = (app) => {
 	app.route('/cart/addcart')
 		.post(cart_controller.addToCart);
 		
-    app.route('/cart/updatecart')
-		.post(cart_controller.update);
+    app.route('/cart/updatetang')
+		.put(cart_controller.updateTang);
+
+    app.route('/cart/updategiam')
+		.put(cart_controller.updateGiam);
 		
     app.route('/cart/delete/:id_user')
 		.delete(cart_controller.deleteCart);
