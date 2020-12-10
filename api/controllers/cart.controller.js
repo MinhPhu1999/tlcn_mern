@@ -48,10 +48,10 @@ exports.addToCart = async (req, res) => {
 }
 
 exports.getCart = async (req,res)=>{
-  const {id_user} = req.body.id_user;
-  const cartFind = await cart.findOne({id_user: id_user},{status: true});
+  const id_user = req.params.id_user;
+  const cartFind = await cart.findOne({id_user: id_user});
   if(cartFind){
-      res.status(200).send(cartFind);
+      res.status(200).send(cartFind.products);
       return;
   }
   res.status(404).send({message: "product not found"});
