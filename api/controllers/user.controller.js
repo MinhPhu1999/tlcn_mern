@@ -127,8 +127,6 @@ exports.login = async (req, res) => {
         return;
     }
     userFind.generateJWT();
-    //console.log(token);
-
     res.status(200).send({message: 'login success', token: userFind.token, user: {
         email: userFind.email,
         name: userFind.name,
@@ -154,7 +152,6 @@ exports.getUser = async (req, res) =>{
         res.status(422).send({message: "Invalid data"});
         return;
     }
-    //console.log(userFind);
     res.status(200).send({ user: {
         email: userFind.email,
         name: userFind.name,
