@@ -1,4 +1,3 @@
-'use strict'
 const user = require('../models/user.model');
 const jwt = require('jsonwebtoken');
 exports.verify = async(req, res) => {

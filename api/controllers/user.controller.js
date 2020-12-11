@@ -5,7 +5,6 @@ const randomstring = require('randomstring');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const maotp = require('../utils/otp');
-const createJWT = require('../utils/jwt')
 
 exports.register = async (req, res) => {
     if ((typeof req.body.email === 'undefined')
