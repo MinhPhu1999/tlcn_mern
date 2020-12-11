@@ -1,4 +1,3 @@
-'use strict'
 const admin_controller = require('../controllers/admin.controller');
 const multer = require('multer')
 const storage = multer.diskStorage({

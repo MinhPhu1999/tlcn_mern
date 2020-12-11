@@ -1,4 +1,3 @@
-'use strict'
 const category = require('../models/category.model');
 
 exports.getCategory= async (req,res)=>{

@@ -1,4 +1,3 @@
-'use strict'
 const product = require('../models/product.model');
 const category=require('../models/category.model');
 const brand = require('../models/brand.model');

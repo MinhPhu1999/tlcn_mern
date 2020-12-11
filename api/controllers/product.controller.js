@@ -1,4 +1,3 @@
-'use strict'
 const product = require('../models/product.model');
 const brandController = require('../controllers/brand.controller');
 const categoryController = require('../controllers/category.controller');

@@ -7,14 +7,14 @@ const user = new Schema({
         type:Boolean,
         default: false
     },
-    cart: {
-        type: Array,
-        default: []
-    },
-    history: {
-        type: Array,
-        default: []
-    },
+    // cart: {
+    //     type: Array,
+    //     default: []
+    // },
+    // history: {
+    //     type: Array,
+    //     default: []
+    // },
     name:{
         type:String,
         required:[true,"Không được bỏ trống name"]
@@ -47,7 +47,9 @@ const user = new Schema({
 });
 user.methods.generateJWT = async function() {
     const user = this;
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY)
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY,{
+                    expiresIn: '5m'
+    });
     
     user.token = token;
     await user.save();

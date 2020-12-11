@@ -27,8 +27,8 @@ exports.verify = async(req, res) => {
 
 exports.authLogin = (req, res, next) => {
     try {
-        const token = req.header('Authorization').replace('Bearer ', '')
-        const data = jwt.verify(token, process.env.JWT_KEY)
+        const token = req.header('Authorization').replace('Bearer ', '');
+        const data = jwt.verify(token, process.env.JWT_KEY);
         user.findOne({ _id: data._id, 'token': token })
             .then((user) => {
                 if (!user) {
@@ -44,9 +44,8 @@ exports.authLogin = (req, res, next) => {
                     message: "Not authorized to access this resource",
                 });
             });
-            //console.log(user);
     } catch (error) {
-        res.status(401).send({ message: 'Not authorized to access this resource' })
+        res.status(401).send({ message: 'Time out, Please login again' })
     }
 }
 

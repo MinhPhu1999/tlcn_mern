@@ -1,10 +1,11 @@
-'use strict'
 const user = require('../models/user.model');
 const nodemailer = require('../utils/nodemailer');
 const sendgrid = require('../utils/sendgrid');
 const randomstring = require('randomstring');
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const maotp = require('../utils/otp');
+const createJWT = require('../utils/jwt')
 
 exports.register = async (req, res) => {
     if ((typeof req.body.email === 'undefined')
@@ -48,8 +49,7 @@ exports.register = async (req, res) => {
     try {
         await newUser.save()
                     .then(function() {
-                        newUser.generateJWT();
-                        
+                        newUser.generateJWT();                        
                     })
     }
     catch (err) {
@@ -57,14 +57,15 @@ exports.register = async (req, res) => {
         res.status(500).send({message: err });
         return;
     }
-    let sendEmail = await nodemailer.sendEmail(email, newUser.token);
+    //let sendEmail = await nodemailer.sendEmail(email, newUser.token);
     // let token = '123456789';
     // let sendMail = await sendgrid.sendEmail(email, token);
-    //console.log(sendMail);
-    if (!sendEmail) {
-        res.status(500).send({message: 'Send email fail' });
-        return;
-    }
+    // console.log(email,token);
+    // console.log(sendMail);
+    // if (!sendMail) {
+    //     res.status(500).send({message: 'Send email fail' });
+    //     return;
+    // }
     res.status(201).send({message: 'success' })
 }
 
@@ -125,6 +126,9 @@ exports.login = async (req, res) => {
         res.status(422).send({message: 'password wrong'});
         return;
     }
+    userFind.generateJWT();
+    //console.log(token);
+
     res.status(200).send({message: 'login success', token: userFind.token, user: {
         email: userFind.email,
         name: userFind.name,

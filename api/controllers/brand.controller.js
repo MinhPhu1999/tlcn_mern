@@ -1,4 +1,3 @@
-'use strict'
 const brand = require('../models/brand.model');
 exports.getBrand = async (req, res) => {
     brand.find({status:true}, (err, docs) => {
