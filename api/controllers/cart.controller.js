@@ -215,13 +215,13 @@ exports.deleteCart = async (req, res) => {
 }
 
 exports.deleteProductInCart = async (req, res) => {
-  // if (
-  //   typeof req.body.id_user === "undefined" ||
-  //   typeof req.body.id_product === "undefined"
-  // ) {
-  //   res.status(422).send({message: "invalid data" });
-  //   return;
-  // }
+  if (
+    typeof req.body.id_user === "undefined" ||
+    typeof req.body.id_product === "undefined"
+  ) {
+    res.status(422).send({message: "invalid data" });
+    return;
+  }
   const { id_user, id_product } = req.body;
   let cartFind = null;
   try {

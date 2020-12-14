@@ -20,5 +20,5 @@ module.exports = (app) => {
 		.delete(cart_controller.deleteCart);
 		
 	app.route('/cart/remove')
-		.delete(cart_controller.deleteProductInCart);
+		.post(cart_controller.deleteProductInCart);
 }
