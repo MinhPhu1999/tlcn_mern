@@ -18,7 +18,7 @@ exports.sendEmail = async (email, token) => {
 	};
     try{
 		let sendMail = await sendgrid.send(mailOptions);
-		//console.log(sendMail);
+		console.log(sendMail);
     }
     catch(err){
         console.log(err);
