@@ -57,6 +57,9 @@ const order=new Schema({
         lowercase: true,
         match: [/\S+@\S+\.\S+/, 'is invalid'],
     },
+    shiping: {
+        type: Number
+    },
     is_send: {
         type: Boolean,
         default: false

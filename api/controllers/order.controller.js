@@ -44,7 +44,7 @@ exports.addOrder = async (req, res) => {
 	  address: address,
 	  phone: phone,
 	  name: getDataUser.name,
-	  order_status: true,
+	  order_status: false,
 	  email: getDataUser.email,
 	  token: token
 	});
@@ -178,3 +178,16 @@ exports.getOrderVerify = async (req, res) => {
         res.status(200).send({ data: docs, totalPage });
     })
 };
+
+exports.getOrder = async(req, res) =>{
+	if(typeof req.params.id_user === 'undefined'){
+		return res.status(500).send("Invalid Data")
+	}
+	const id_user = req.params.id_user;
+	const orderFind = await order.find({id_user: id_user});
+	if(orderFind){
+		return res.status(200).send(orderFind);
+	}
+	res.status(404).send({message: "orders not found"});
+
+}
