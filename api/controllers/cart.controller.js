@@ -18,7 +18,7 @@ exports.addToCart = async (req, res) => {
     });
     try {
       await cart_new.save()
-                    .then(cart_new.updateCountProduct());
+                    .then(cart_new.updateCountProduct());//, cart_new.minusProduct());
     } catch (err) {
       res.status(500).send({message: err });
       return;
@@ -34,15 +34,24 @@ exports.addToCart = async (req, res) => {
         cartFind.grandTotal += (cartFind.products[cartFind.products.length - 1].price * cartFind.products[cartFind.products.length - 1].count);
       }
     }    
-    try {
-      await cart.findByIdAndUpdate(cartFind._id, {
-        $set: { products: cartFind.products,
-                grandTotal: cartFind.grandTotal}
-      });
-    } catch (err) {
-      res.status(500).send({message: err });
-      return;
+    try{
+      await cartFind.save();
+                    //.then(cartFind.minusProduct(req, res));
     }
+    catch(err){
+      console.log(err);
+      return res.status(500).send("Add cart fail");
+    }
+    // try {
+    //   await cart.findByIdAndUpdate(cartFind._id, {
+    //     $set: { products: cartFind.products,
+    //             grandTotal: cartFind.grandTotal}}
+    //             .then(cart.minusProduct()));
+    // } catch (err) {
+    //   console.log('lỗi');
+    //   res.status(500).send({message: err });
+    //   return;
+    // }
   }
   res.status(200).send({message: "add cart success" });
 }
@@ -94,15 +103,23 @@ exports.updateTang = async (req, res) => {
   );
   cartFind.products[index].count += 1;
   cartFind.grandTotal += cartFind.products[index].price;
-  try {
-    await cart.findByIdAndUpdate(cartFind._id, {
-      $set: { products: cartFind.products,
-              grandTotal: cartFind.grandTotal }
-    });
-  } catch (err) {
-    res.status(500).send({message: err });
-    return;
+  try{
+    await cartFind.save();
+                  //.then(cartFind.minusProduct());
   }
+  catch(err){
+    console.log(err);
+    return res.status(500).send("Add cart fail");
+  }
+  // try {
+  //   await cart.findByIdAndUpdate(cartFind._id, {
+  //     $set: { products: cartFind.products,
+  //             grandTotal: cartFind.grandTotal }
+  //   });
+  // } catch (err) {
+  //   res.status(500).send({message: err });
+  //   return;
+  // }
   res.status(200).send({message: "update cart success" });
 };
 
@@ -129,15 +146,24 @@ exports.updateGiam = async (req, res) => {
   );
   cartFind.products[index].count -= 1;
   cartFind.grandTotal -= cartFind.products[index].price;
-  try {
-    await cart.findByIdAndUpdate(cartFind._id, {
-      $set: { products: cartFind.products,
-              grandTotal: cartFind.grandTotal }
-    });
-  } catch (err) {
-    res.status(500).send({message: err });
-    return;
+  try{
+    await cartFind.save()
+                  .then(cartFind.plusProduct());
   }
+  catch(err){
+    console.log(err);
+    return res.status(500).send("Add cart fail");
+  }
+
+  // try {
+  //   await cart.findByIdAndUpdate(cartFind._id, {
+  //     $set: { products: cartFind.products,
+  //             grandTotal: cartFind.grandTotal }
+  //   });
+  // } catch (err) {
+  //   res.status(500).send({message: err });
+  //   return;
+  // }
   res.status(200).send({message: "update cart success" });
 };
 

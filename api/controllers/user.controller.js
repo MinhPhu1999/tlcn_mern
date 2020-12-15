@@ -16,52 +16,52 @@ exports.register = async (req, res) => {
     }
     let { email, password, name, repassword} = req.body;
 
-    // if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
-    //     || password.length < 6 ){
-    //     res.status(422).send({message: 'Invalid data' });
-    //     return;
-    // }
-    // if(password != repassword){
-    //     res.status(422).send({message: 'password incorect'});
-    //     return;
-    // }
-    // let userFind = null;
-    // try {
-    //     userFind = await user.find({ 'email': email });
-    // }
-    // catch (err) {
-    //     res.status(500).send({message: err });
-    //     return;
-    // }
-    // if (userFind.length > 0) {
-    //     res.status(409).send({message: 'Email already exist' }); 
-    //     return;
-    // }
+    if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
+        || password.length < 6 ){
+        res.status(422).send({message: 'Invalid data' });
+        return;
+    }
+    if(password != repassword){
+        res.status(422).send({message: 'password incorect'});
+        return;
+    }
+    let userFind = null;
+    try {
+        userFind = await user.find({ 'email': email });
+    }
+    catch (err) {
+        res.status(500).send({message: err });
+        return;
+    }
+    if (userFind.length > 0) {
+        res.status(409).send({message: 'Email already exist' }); 
+        return;
+    }
  
-    // password = bcrypt.hashSync(password, 10);
-    // const newUser = new user({
-    //     email: email,
-    //     name: name,
-    //     password: password,
-    //     status: true
-    // });
-    // try {
-    //     await newUser.save()
-    //                 .then(function() {
-    //                     newUser.generateJWT();                        
-    //                 })
-    // }
-    // catch (err) {
-    //     console.log(err);
-    //     res.status(500).send({message: err });
-    //     return;
-    // }
-    //let sendEmail = await nodemailer.sendEmail(email, newUser.token);
-    let token = '123456789';
-    let sendMail = await sendgrid.sendEmail(email, token);
+    password = bcrypt.hashSync(password, 10);
+    const newUser = new user({
+        email: email,
+        name: name,
+        password: password,
+        status: true
+    });
+    try {
+        await newUser.save()
+                    .then(function() {
+                        newUser.generateJWT();                        
+                    })
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).send({message: err });
+        return;
+    }
+    let sendEmail = await nodemailer.sendEmail(email, newUser.token);
+    //let token = '123456789';
+    //let sendMail = await sendgrid.sendEmail(email, token);
     //console.log(email,token);
     //console.log(sendMail);
-    if (!sendMail) {
+    if (!sendEmail) {
         res.status(500).send({message: 'Send email fail' });
         return;
     }
