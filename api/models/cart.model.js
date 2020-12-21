@@ -1,4 +1,3 @@
-'use strict'
 const mongoose = require('mongoose');
 const product = require('../models/product.model');
 const Schema = mongoose.Schema;

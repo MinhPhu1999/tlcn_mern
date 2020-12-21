@@ -1,4 +1,3 @@
-'use strict'
 const brand_controller = require('../controllers/brand.controller');
 module.exports = (app) => {
     app.route('/brand/all')

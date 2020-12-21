@@ -3,12 +3,13 @@ const brandController = require('../controllers/brand.controller');
 const categoryController = require('../controllers/category.controller');
 
 exports.sortProduct = async(req, res)=>{
+    //khai báo các biến cần thiết
     let sapXep = req.params.inc;
     const listProduct = await product.find({status: true});
     const sortListProduct =  listProduct.sort(function(a, b) {
         if(sapXep == 'increase')
-            return parseFloat(a.price) - parseFloat(b.price);
-        return parseFloat(b.price) - parseFloat(a.price);
+            return parseFloat(a.price) - parseFloat(b.price);//sắp xếp sản phẩm tăng dần theo giá
+        return parseFloat(b.price) - parseFloat(a.price);//sắp xếp sản phẩm giảm dần theo giá
     });
     if(sortListProduct){
         res.status(200).send(sortListProduct);

@@ -1,4 +1,3 @@
-'use strict'
 const product_controller = require('../controllers/product.controller');
 
 module.exports = (app) => {

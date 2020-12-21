@@ -6,6 +6,7 @@ const randomstring = require("randomstring");
 const nodemailer = require("../utils/nodemailer");
 
 exports.addOrder = async (req, res) => {
+	//kiểm tra có truyền tham số đủ hay không
 	if (typeof req.body.id_user === "undefined" ||
 		typeof req.body.city === "undefined" ||
 		typeof req.body.posteCode === "undefined" ||
@@ -14,18 +15,18 @@ exports.addOrder = async (req, res) => {
 	  res.status(422).send({message: "Invalid data" });
 	  return;
 	}
-
+	//khai báo các biến cần thiết
 	const {id_user, city, posteCode, address, phone} = req.body;
 	const getDataUser = await userController.getDataByID(id_user);
 	let cartFind = null;
 	try {
-	  cartFind = await cart.findOne({ id_user: id_user, status: true });
+	  cartFind = await cart.findOne({ id_user: id_user, status: true });//tìm kiếm order theo id_user và status
 	} catch (err) {
 	  console.log("error ", err);
 	  res.status(500).send({message: err });
 	  return;
 	}
-	if (cartFind === null) {
+	if (cartFind === null) {//trường hợp không có cart trong db
 	  res.status(404).send({message: "user not found" });
 	  return;
 	}
@@ -35,6 +36,8 @@ exports.addOrder = async (req, res) => {
 	//   res.status(500).send({message: "Send email fail" });
 	//   return;
 	// }
+	
+	//tạo mới order
 	const new_order = new order({
 	  id_user: id_user,
 	  cart: cartFind.products,
@@ -56,61 +59,68 @@ exports.addOrder = async (req, res) => {
 	//   return;
 	// }
 	try {
-		new_order.save();
+		new_order.save();//lưu order
 	} catch (err) {
 	  res.status(500).send({message: err });
 	  console.log("save order fail");
 	  return;
 	}
-	res.status(201).send({message: "success" });
+	res.status(201).send({message: "success" });//thông báo lưu thành công
 };
 
 exports.deleteOrder = async(req,res)=>{
+	//kiểm tra có truyền tham số đủ hay không
 	if (typeof req.params.id === "undefined") {
 		res.status(402).send({message: "data invalid" });
 		return;
-	  }
-	  let orderFind = null;
-	  try {
-		orderFind = await order.findOne({ _id: req.params.id, is_send: false, order_status: true });
-	  } catch (err) {
-		console.log(err);
-		res.status(500).send({message: "server found" });
-		return;
-	  }
-	  if (orderFind === null) {
-		res.status(400).send({message: "order not found" });
-		return;
-	  }
-	  orderFind.order_status = false;
-	  try {
-		orderFind.save();
-	  } catch (err) {
-		console.log(err);
-		res.status(500).send({message: "server found" });
-		return;
-	  }
-	  res.status(200).send({message: "delete order success" });
+	}
+	//khai báo các biến cần thiết
+	let orderFind = null;
+	try {
+		//tìm kiếm order theo id ,is_send và status
+	  orderFind = await order.findOne({ _id: req.params.id, is_send: false, order_status: true });
+	} catch (err) {
+	  console.log(err);
+	  res.status(500).send({message: "server found" });
+	  return;
+	}
+	if (orderFind === null) {//trường hợp không có order trong db
+	  res.status(400).send({message: "order not found" });
+	  return;
+	}
+	orderFind.order_status = false;//cập nhật lại status của order
+	try {
+	  orderFind.save();//lại các thay đổi
+	} catch (err) {
+	  console.log(err);
+	  res.status(500).send({message: "server found" });
+	  return;
+	}
+	res.status(200).send({message: "delete order success" });//thông báo xóa order thành công
+
 };
 
 exports.verifyPayment = async (req, res) => {
+	//kiểm tra có truyền tham số đủ hay không
 	if (typeof req.params.token === "undefined") {
 	  res.status(402).send({message: "!invalid" });
 	  return;
 	}
+	//khai báo các biến cần thiết
 	let token = req.params.token;
 	let tokenFind = null;
 	try {
-	  tokenFind = await order.findOne({ token: token });
+	  tokenFind = await order.findOne({ token: token });//tìm kiếm order theo token
 	} catch (err) {
 	  res.status(500).send({message: err });
 	  return;
 	}
-	if (tokenFind == null) {
+	if (tokenFind == null) {//trường hợp không có order trong db
 	  res.status(404).send({message: "order not found!!!" });
 	  return;
 	}
 	try {
+		//lưu lại các thay đổi
 	  await order.findByIdAndUpdate(
 		tokenFind._id,
 		{ $set: { is_send: true } },
@@ -120,63 +130,67 @@ exports.verifyPayment = async (req, res) => {
 	  res.status(500).send({message: err });
 	  return;
 	}
-	res.status(200).send({message: "verify payment success!" });
+	res.status(200).send({message: "verify payment success!" });//thông báo verify thành công
 };
 
 exports.getOrderNoVerify = async (req, res) => {
-  let count = null;
-  try {
-    count = await order.countDocuments({ is_send: false });
-  } catch (err) {
-    console.log(err);
-    res.status(500).send({message: err });
-    return;
-  }
-  let totalPage = parseInt((count - 1) / 9 + 1);
-  let { page } = req.params;
-  if (parseInt(page) < 1 || parseInt(page) > totalPage) {
-    res.status(200).send({ data: [], message: "Invalid page", totalPage });
-    return;
-  }
-  order.find({is_send: false})
-    .skip(9 * (parseInt(page) - 1))
-    .limit(9)
-    .exec((err, docs) => {
-        if(err) {
-            console.log(err);
-                    res.status(500).send({message: err });
-                    return;
-        }
-        res.status(200).send({ data: docs, totalPage });
-    })
+	//khai báo các biến cần thiết
+	let count = null;
+	try {
+		count = await order.countDocuments({ is_send: false });//đếm order có trong db
+	} catch (err) {
+		console.log(err);
+		res.status(500).send({message: err });
+		return;
+	}
+	let totalPage = parseInt((count - 1) / 9 + 1);//tính số trang
+	let { page } = req.params;
+	if (parseInt(page) < 1 || parseInt(page) > totalPage) {
+		res.status(200).send({ data: [], message: "Invalid page", totalPage });
+		return;
+	}
+	//get order theo is_send
+	order.find({is_send: false})
+		.skip(9 * (parseInt(page) - 1))
+		.limit(9)
+		.exec((err, docs) => {
+			if(err) {
+				console.log(err);
+						res.status(500).send({message: err });
+						return;
+			}
+			res.status(200).send({ data: docs, totalPage });
+		})
 };
 
 exports.getOrderVerify = async (req, res) => {
-  let count = null;
-  try {
-    count = await order.countDocuments({ is_send: true });
-  } catch (err) {
-    console.log(err);
-    res.status(500).send({message: err });
-    return;
-  }
-  let totalPage = parseInt((count - 1) / 9 + 1);
-  let { page } = req.params;
-  if (parseInt(page) < 1 || parseInt(page) > totalPage) {
-    res.status(200).send({ data: [], message: "Invalid page", totalPage });
-    return;
-  }
-  order.find({is_send: true})
-    .skip(9 * (parseInt(page) - 1))
-    .limit(9)
-    .exec((err, docs) => {
-        if(err) {
-            console.log(err);
-                    res.status(500).send({message: err });
-                    return;
-        }
-        res.status(200).send({ data: docs, totalPage });
-    })
+	//khai báo biến cần thiết
+	let count = null;
+	try {
+		count = await order.countDocuments({ is_send: true });//đếm order có trong db
+	} catch (err) {
+		console.log(err);
+		res.status(500).send({message: err });
+		return;
+	}
+	let totalPage = parseInt((count - 1) / 9 + 1);//tính số trang
+	let { page } = req.params;
+	if (parseInt(page) < 1 || parseInt(page) > totalPage) {
+		res.status(200).send({ data: [], message: "Invalid page", totalPage });
+		return;
+	}
+	//get order theo is_send
+	order.find({is_send: true})
+		.skip(9 * (parseInt(page) - 1))
+		.limit(9)
+		.exec((err, docs) => {
+			if(err) {
+				console.log(err);
+						res.status(500).send({message: err });
+						return;
+			}
+			res.status(200).send({ data: docs, totalPage });
+		})
 };
 
 exports.getOrder = async(req, res) =>{
