@@ -47,7 +47,7 @@ exports.addOrder = async (req, res) => {
 	  address: address,
 	  phone: phone,
 	  name: getDataUser.name,
-	  order_status: 'false',
+	  order_status: true,
 	  email: getDataUser.email,
 	  token: token
 	});
@@ -78,7 +78,7 @@ exports.deleteOrder1 = async(req,res)=>{
 	let orderFind = null;
 	try {
 		//tìm kiếm order theo id ,is_send và status
-	  orderFind = await order.findOne({ _id: req.params.id, is_send: false, order_status: 'true' });
+	  orderFind = await order.findOne({ _id: req.params.id, is_send: false, order_status: true });
 	} catch (err) {
 	  console.log(err);
 	  res.status(500).send({message: "server found" });
@@ -88,7 +88,7 @@ exports.deleteOrder1 = async(req,res)=>{
 	  res.status(400).send({message: "order not found" });
 	  return;
 	}
-	orderFind.order_status = 'false';//cập nhật lại status của order
+	orderFind.order_status = false;//cập nhật lại status của order
 	try {
 	  orderFind.save();//lại các thay đổi
 	} catch (err) {
@@ -226,7 +226,8 @@ exports.getOrder = async(req, res) =>{
 		return res.status(500).send("Invalid Data")
 	}
 	const id_user = req.params.id_user;
-	const orderFind = await order.find({id_user: id_user},{order_status: 'true'});
+	const orderFind = await order.find({id_user: id_user, order_status: true});
+
 	if(orderFind){
 		return res.status(200).send(orderFind);
 	}
@@ -261,7 +262,7 @@ exports.deleteOrder = async(req, res) =>{
 	if(orderFind === null){
 		return res.status(500).send("Order not found");
 	}
-	orderFind.order_status = 'cancel';
+	orderFind.order_status = false;
 	console.log(orderFind);
 	try{
 		orderFind.save();
