@@ -47,7 +47,7 @@ exports.addOrder = async (req, res) => {
 	  address: address,
 	  phone: phone,
 	  name: getDataUser.name,
-	  order_status: false,
+	  order_status: 'false',
 	  email: getDataUser.email,
 	  token: token
 	});
@@ -68,7 +68,7 @@ exports.addOrder = async (req, res) => {
 	res.status(201).send({message: "success" });//thông báo lưu thành công
 };
 
-exports.deleteOrder = async(req,res)=>{
+exports.deleteOrder1 = async(req,res)=>{
 	//kiểm tra có truyền tham số đủ hay không
 	if (typeof req.params.id === "undefined") {
 		res.status(402).send({message: "data invalid" });
@@ -78,7 +78,7 @@ exports.deleteOrder = async(req,res)=>{
 	let orderFind = null;
 	try {
 		//tìm kiếm order theo id ,is_send và status
-	  orderFind = await order.findOne({ _id: req.params.id, is_send: false, order_status: true });
+	  orderFind = await order.findOne({ _id: req.params.id, is_send: false, order_status: 'true' });
 	} catch (err) {
 	  console.log(err);
 	  res.status(500).send({message: "server found" });
@@ -88,7 +88,7 @@ exports.deleteOrder = async(req,res)=>{
 	  res.status(400).send({message: "order not found" });
 	  return;
 	}
-	orderFind.order_status = false;//cập nhật lại status của order
+	orderFind.order_status = 'false';//cập nhật lại status của order
 	try {
 	  orderFind.save();//lại các thay đổi
 	} catch (err) {
@@ -160,7 +160,7 @@ exports.getOrderNoVerify = async (req, res) => {
 						return;
 			}
 			res.status(200).send({ data: docs, totalPage });
-		})
+	})
 };
 
 exports.getOrderVerify = async (req, res) => {
@@ -190,18 +190,86 @@ exports.getOrderVerify = async (req, res) => {
 						return;
 			}
 			res.status(200).send({ data: docs, totalPage });
-		})
+	})
 };
 
 exports.getOrder = async(req, res) =>{
+	//khai báo biến cần thiết
+	// let count = null;
+	// try {
+	// 	count = await order.countDocuments({ is_send: true });//đếm order có trong db
+	// } catch (err) {
+	// 	console.log(err);
+	// 	res.status(500).send({message: err });
+	// 	return;
+	// }
+	// let totalPage = parseInt((count - 1) / 9 + 1);//tính số trang
+	// let { page } = req.params;
+	// if (parseInt(page) < 1 || parseInt(page) > totalPage) {
+	// 	res.status(200).send({ data: [], message: "Invalid page", totalPage });
+	// 	return;
+	// }
+	// //get order
+	// order.find()
+	// 	.skip(9 * (parseInt(page) - 1))
+	// 	.limit(9)
+	// 	.exec((err, docs) => {
+	// 		if(err) {
+	// 			console.log(err);
+	// 					res.status(500).send({message: err });
+	// 					return;
+	// 		}
+	// 		res.status(200).send({ data: docs, totalPage });
+	// })
+
 	if(typeof req.params.id_user === 'undefined'){
 		return res.status(500).send("Invalid Data")
 	}
 	const id_user = req.params.id_user;
-	const orderFind = await order.find({id_user: id_user});
+	const orderFind = await order.find({id_user: id_user},{order_status: 'true'});
 	if(orderFind){
 		return res.status(200).send(orderFind);
 	}
 	res.status(404).send({message: "orders not found"});
+
+}
+
+exports.getOrderDetail = async(req, res) =>{
+	//kiểm tra có truyền tham số đủ hay không
+	if (typeof req.params.id === "undefined") {
+	  res.status(422).send({message: "Invalid data" });
+	  return;
+	}
+	const id = req.params.id;
+	const orderFind = await order.find({'_id':id});
+	if(orderFind === null){
+		return res.status(500).send("Order not found");
+	}
+	res.status(200).send(orderFind);
+
+}
+
+
+exports.deleteOrder = async(req, res) =>{
+	//kiểm tra có truyền tham số đủ hay không
+	if (typeof req.params.id === "undefined") {
+	  res.status(422).send({message: "Invalid data" });
+	  return;
+	}
+	const id = req.params.id;
+	const orderFind = await order.findById(id);
+	if(orderFind === null){
+		return res.status(500).send("Order not found");
+	}
+	orderFind.order_status = 'cancel';
+	console.log(orderFind);
+	try{
+		orderFind.save();
+	}
+	catch(err){
+		console.log("Delete order fail");
+		return res.status(500).send({message: err});
+	}
+	res.status(200).send("Delete order success");
 
 }

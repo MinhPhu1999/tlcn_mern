@@ -18,7 +18,7 @@ const order=new Schema({
         required:true,
     },
     order_status:{
-        type:Boolean,
+        type:String,
         required:true
     },
     order_subtotal:{

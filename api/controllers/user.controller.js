@@ -13,7 +13,7 @@ exports.register = async (req, res) => {
         || typeof req.body.name === 'undefined'
     ) {
         res.status(422).send({message: 'Invalid data' });
-        return;
+        return; 
     }
     //khai báo các biến cần thiết
     let { email, password, name, repassword} = req.body;

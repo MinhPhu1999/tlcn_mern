@@ -15,7 +15,7 @@ exports.verify = async(req, res) => {
             res.status(200).send({message: 'success'});
             return;
         }
-        res
+        //res
     }
     catch(err){
         res.status(404).send({message: 'unsuccess'});

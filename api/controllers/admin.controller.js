@@ -198,13 +198,13 @@ exports.getAllProduct = async(req,res)=>{
 exports.addStock = async (req, res) => { 
     //kiểm tra các tham số truyền vào có đủ hay không
     if (typeof req.body.name_category === 'undefined'
-        || typeof req.body.path === 'undefined'
+        || typeof req.body.name === 'undefined'
         || typeof req.body.name_brand === 'undefined'
         || typeof req.body.count_import === 'undefined') {
         res.status(422).send({message: 'Invalid data' });
         return;
     }
-    let { name_category,path, name_brand, count_import } = req.body; //khai cái tham số cần thiết
+    let { name_category, name, name_brand, count_import } = req.body; //khai cái tham số cần thiết
     let stockFind;
     try {
         stockFind = await stock.find({ 'name_category': name_category, 'name_brand':name_brand });//tìm kiếm tên category và tên brand
@@ -806,7 +806,7 @@ exports.login = async (req, res) => {
     let { email, password } = req.body;
     let userFind = null;
     try{
-        userFind = await user.findOne({'email': email, 'is_admin': true});//tiến hành tìm kiếm user theo email và status
+        userFind = await user.findOne({'email': email, 'is_admin': true});//tiến hành tìm kiếm user theo email và is_admin
     }
     catch(err){
         res.send({message: err});
@@ -827,9 +827,10 @@ exports.login = async (req, res) => {
         return;
     }
     //tạo token cho user khi đăng nhập
-    let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
+    //let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
+    userFind.generateJWT();
     //thông báo đăng nhập thành công
-    res.status(200).send({message: 'success', token: token, user: {
+    res.status(200).send({message: 'success', token: userFind.token, user: {
         email: userFind.email,
         name: userFind.name,
         id: userFind._id

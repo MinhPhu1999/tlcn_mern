@@ -2,6 +2,10 @@ const order_controller = require('../controllers/order.controller');
 module.exports = (app) => {
     app.route('/order/addorder')
         .post(order_controller.addOrder);
+    app.route('/order/:id')
+        .get(order_controller.getOrderDetail);
+    app.route('/order/:id')
+        .put(order_controller.deleteOrder);
     app.route('/order/deleteorder/:id')
         .put(order_controller.deleteOrder);
     app.route('/order/verify/:token')
