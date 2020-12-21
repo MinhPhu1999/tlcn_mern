@@ -12,7 +12,7 @@ module.exports = (app) => {
         .get(order_controller.verifyPayment);
     app.route('/order/status/false')
         .get(order_controller.getOrderNoVerify);
-    app.route('/order/:id_user')
+    app.route('/order/getorder/:id_user')
         .get(order_controller.getOrder);
     app.route('/order/status/true')
         .get(order_controller.getOrderVerify);
