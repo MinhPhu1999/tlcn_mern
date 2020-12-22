@@ -145,8 +145,8 @@ exports.getOrderNoVerify = async (req, res) => {
 		res.status(200).send({ data: [], message: "Invalid page", totalPage });
 		return;
 	}
-	//get order theo is_send
-	order.find({is_send: false})
+	//get order theo is_verify
+	order.find({is_verify: false})
 		.skip(9 * (parseInt(page) - 1))
 		.limit(9)
 		.exec((err, docs) => {
@@ -176,7 +176,7 @@ exports.getOrderVerify = async (req, res) => {
 		return;
 	}
 	//get order theo is_send
-	order.find({is_send: true})
+	order.find({is_verify: true})
 		.skip(9 * (parseInt(page) - 1))
 		.limit(9)
 		.exec((err, docs) => {
@@ -206,7 +206,7 @@ exports.getOrderNoDeliver = async (req, res) => {
 		return;
 	}
 	//get order theo is_send
-	order.find({is_send: false})
+	order.find({is_delivering: false})
 		.skip(9 * (parseInt(page) - 1))
 		.limit(9)
 		.exec((err, docs) => {
@@ -236,7 +236,7 @@ exports.getOrderDeliver = async (req, res) => {
 		return;
 	}
 	//get order theo is_send
-	order.find({is_send: true})
+	order.find({is_verify: true})
 		.skip(9 * (parseInt(page) - 1))
 		.limit(9)
 		.exec((err, docs) => {
@@ -283,6 +283,7 @@ exports.getOrder = async(req, res) =>{
 	}
 	const id_user = req.params.id_user;
 	const orderFind = await order.find({id_user: id_user, order_status: true});
+	console.log(orderFind);
 
 	if(orderFind){
 		return res.status(200).send(orderFind);
