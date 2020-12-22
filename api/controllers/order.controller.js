@@ -38,7 +38,7 @@ exports.addOrder = async (req, res) => {
 	  id_user: id_user,
 	  cart: cartFind.products,
 	  city: city,
-	  order_subtotal: cartFind.grandTotal + shiping,
+	  order_subtotal: Number(cartFind.grandTotal) + Number(shiping),
 	  posteCode: posteCode,
 	  address: address,
 	  phone: phone,
