@@ -133,7 +133,7 @@ exports.getOrderNoVerify = async (req, res) => {
 	//khai báo các biến cần thiết
 	let count = null;
 	try {
-		count = await order.countDocuments({ is_send: false });//đếm order có trong db
+		count = await order.countDocuments({ is_verify: false });//đếm order có trong db
 	} catch (err) {
 		console.log(err);
 		res.status(500).send({message: err });
@@ -163,7 +163,67 @@ exports.getOrderVerify = async (req, res) => {
 	//khai báo biến cần thiết
 	let count = null;
 	try {
-		count = await order.countDocuments({ is_send: true });//đếm order có trong db
+		count = await order.countDocuments({ is_verify: true });//đếm order có trong db
+	} catch (err) {
+		console.log(err);
+		res.status(500).send({message: err });
+		return;
+	}
+	let totalPage = parseInt((count - 1) / 9 + 1);//tính số trang
+	let { page } = req.params;
+	if (parseInt(page) < 1 || parseInt(page) > totalPage) {
+		res.status(200).send({ data: [], message: "Invalid page", totalPage });
+		return;
+	}
+	//get order theo is_send
+	order.find({is_send: true})
+		.skip(9 * (parseInt(page) - 1))
+		.limit(9)
+		.exec((err, docs) => {
+			if(err) {
+				console.log(err);
+						res.status(500).send({message: err });
+						return;
+			}
+			res.status(200).send({ data: docs, totalPage });
+	})
+};
+
+exports.getOrderNoDeliver = async (req, res) => {
+	//khai báo các biến cần thiết
+	let count = null;
+	try {
+		count = await order.countDocuments({ is_delivering: false });//đếm order có trong db
+	} catch (err) {
+		console.log(err);
+		res.status(500).send({message: err });
+		return;
+	}
+	let totalPage = parseInt((count - 1) / 9 + 1);//tính số trang
+	let { page } = req.params;
+	if (parseInt(page) < 1 || parseInt(page) > totalPage) {
+		res.status(200).send({ data: [], message: "Invalid page", totalPage });
+		return;
+	}
+	//get order theo is_send
+	order.find({is_send: false})
+		.skip(9 * (parseInt(page) - 1))
+		.limit(9)
+		.exec((err, docs) => {
+			if(err) {
+				console.log(err);
+						res.status(500).send({message: err });
+						return;
+			}
+			res.status(200).send({ data: docs, totalPage });
+	})
+};
+
+exports.getOrderDeliver = async (req, res) => {
+	//khai báo biến cần thiết
+	let count = null;
+	try {
+		count = await order.countDocuments({ is_verify: true });//đếm order có trong db
 	} catch (err) {
 		console.log(err);
 		res.status(500).send({message: err });
