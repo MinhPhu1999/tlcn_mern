@@ -9,16 +9,16 @@ exports.verify = async(req, res) => {
 
     let token = req.body.token;
     let email = req.body.email;
+    let userFind = await user.findOne({'email': email});
     try{
-        let decoded = await jwt.verify(token, process.env.JWT_KEY)
-        if(decoded.email == email){
+        let decoded = await jwt.verify(token, process.env.JWT_KEY);
+        if(decoded._id == userFind._id){
             res.status(200).send({message: 'success'});
             return;
         }
-        //res
     }
     catch(err){
-        res.status(404).send({message: 'unsuccess'});
+        res.status(404).send({message: 'unsuccess1'});
         return
     }
     res.status(404).send({message: 'unsuccess'});
