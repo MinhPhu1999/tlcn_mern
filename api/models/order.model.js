@@ -19,7 +19,7 @@ const order=new Schema({
     },
     order_status:{
         type:Boolean,
-        required:true
+        default:true
     },
     order_subtotal:{
         type:Number,
@@ -59,7 +59,18 @@ const order=new Schema({
     shiping: {
         type: Number
     },
-    is_send: {
+    payment: {
+        type: String
+    },
+    is_verify: {
+        type: Boolean,
+        default: false
+    },
+    is_seen:{
+        type: Boolean,
+        default: false
+    },
+    is_delivering:{
         type: Boolean,
         default: false
     }
