@@ -66,11 +66,11 @@ const order=new Schema({
         type: Boolean,
         default: false
     },
-    is_seen:{
+    is_shiping:{
         type: Boolean,
         default: false
     },
-    is_delivering:{
+    is_deliver:{
         type: Boolean,
         default: false
     }

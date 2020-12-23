@@ -314,7 +314,7 @@ exports.deleteOrder = async(req, res) =>{
 	  return;
 	}
 	const id = req.params.id;
-	const orderFind = await order.findOne({_id: id, is_delivering: false});
+	const orderFind = await order.findOne({_id: id, is_deliver: false, is_shiping: false});
 	if(orderFind === null){
 		return res.status(500).send("Order not found");
 	}
@@ -326,23 +326,6 @@ exports.deleteOrder = async(req, res) =>{
 		return res.status(500).send({message: err });
 	}
 	res.status(200).send("Delete order success");
-}
-
-exports.isSeen = async(req, res) =>{
-	//kiểm tra có truyền đầy đủ tham số hay không
-	if(typeof req.params.id_order === 'undefined'){
-		return res.status(500).send('Invalid data');
-	}
-	//khai báo biến cần thiết
-	const id_order = req.params.id_order;
-	try {
-		//lưu lại các thay đổi
-	  await order.findByIdAndUpdate(id_order,
-		{ $set: { is_seen: true }});
-	} catch (err) {
-		return res.status(500).send({message: err });
-	}
-	res.status(200).send("Success");
 }
 
 exports.isVerify = async(req, res) =>{
@@ -363,25 +346,46 @@ exports.isVerify = async(req, res) =>{
 	} catch (err) {
 		return res.status(500).send({message: err });
 	}
-	res.status(200).send("Duyệt thành công");
+	res.status(200).send("Verify Order Success");
 }
 
-exports.isDelevering = async(req, res) =>{
+exports.isShiping = async(req, res) =>{
+	//kiểm tra có truyền đầy đủ tham số hay không
+	if(typeof req.params.id_order === 'undefined'){
+		return res.status(500).send('Invalid data');
+	}
+	//khai báo biến cần thiết
+	const id_order = req.params.id_order;
+	const orderFind = await order.findOne({order_status: true, is_verify: true});
+	if(orderFind === null){
+		return res.status(500).send("Không giao được đơn hàng vì đơn hàng chưa được duyệt");
+	}
+	try {
+		//lưu lại các thay đổi
+	  await order.findByIdAndUpdate(id_order,
+		{ $set: { is_shiping: true }});
+	} catch (err) {
+		return res.status(500).send({message: err });
+	}
+	res.status(200).send("Shiping Order Success");
+}
+
+exports.isDelever = async(req, res) =>{
 	//kiểm tra có truyền đầy đủ tham số hay không
 	if(typeof req.params.id_order === 'undefined'){
 		return res.status(500).send('Invalid data');
 	}
 	const id_order = req.params.id_order;
-	const orderFind = await order.findOne({_id: id_order, order_status: true, is_verify: true});
+	const orderFind = await order.findOne({_id: id_order, order_status: true, is_verify: true, is_shiping: true});
 	if(orderFind === null){
-		return res.status(500).send("Đơn hàng chưa được giao vì đơn hàng đã bị hủy hoặc chưa được duyệt");
+		return res.status(500).send("Đơn hàng không được giao");
 	}
 	try{
 		await order.findByIdAndUpdate(id_order,
-			{$set: {is_delivering: true}});
+			{$set: {is_deliver: true}});
 	}catch(err){
 		return res.status(500).send({message: err});
 	}
-	res.status(200).send("Đơn hàng đang được giao");
+	res.status(200).send("Delever Orer Success");
 
 }
