@@ -13,6 +13,7 @@ exports.addOrder = async (req, res) => {
 		typeof req.body.address === "undefined" ||
 		typeof req.body.payment === "undefined" ||
 		typeof req.body.shiping === "undefined" ||
+		typeof req.body.paymentStatus === "undefined" ||
 		typeof req.body.phone === "undefined" ) {
 	  res.status(422).send({message: "Invalid data" });
 	  return;
