@@ -18,11 +18,11 @@ exports.addOrder = async (req, res) => {
 	  return;
 	}
 	//khai báo các biến cần thiết
-	const {id_user, city, posteCode, address, phone, payment, shiping} = req.body;
+	const {id_user, city, posteCode, address, phone, payment, shiping, paymentStatus} = req.body;
 	const getDataUser = await userController.getDataByID(id_user);
 	let cartFind = null;
 	try {
-	  cartFind = await cart.findOne({ id_user: id_user, status: true });//tìm kiếm order theo id_user và status
+	  cartFind = await cart.findOne({ id_user: id_user });//tìm kiếm order theo id_user và status
 	} catch (err) {
 	  console.log("error ", err);
 	  res.status(500).send({message: err });
@@ -45,7 +45,27 @@ exports.addOrder = async (req, res) => {
 	  name: getDataUser.name,
 	  email: getDataUser.email,
 	  shiping: shiping,
-	  payment: payment
+	  paymentStatus: paymentStatus,
+	  payment: payment,
+	  orderStatus = [
+        {
+          type: "ordered",
+          date: new Date(),
+          isCompleted: true,
+        },
+        {
+          type: "packed",
+          isCompleted: false,
+        },
+        {
+          type: "shipped",
+          isCompleted: false,
+        },
+        {
+          type: "delivered",
+          isCompleted: false,
+        },
+      ]
 	});
 	try {
 	  await cartFind.remove();

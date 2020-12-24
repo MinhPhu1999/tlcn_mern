@@ -17,9 +17,26 @@ const order=new Schema({
         ],
         required:true,
     },
-    order_status:{
-        type:Boolean,
-        default:true
+    orderStatus: [
+        {
+          type: {
+            type: String,
+            enum: ["ordered", "packed", "shipped", "delivered"],
+            default: "ordered",
+          },
+          date: {
+            type: Date,
+          },
+          isCompleted: {
+            type: Boolean,
+            default: false,
+          },
+        },
+    ],
+    paymentStatus: {
+        type: String,
+        enum: ["pending", "completed", "cancelled", "refund"],
+        required: true,
     },
     order_subtotal:{
         type:Number,
@@ -61,18 +78,6 @@ const order=new Schema({
     },
     payment: {
         type: String
-    },
-    is_verify: {
-        type: Boolean,
-        default: false
-    },
-    is_shiping:{
-        type: Boolean,
-        default: false
-    },
-    is_deliver:{
-        type: Boolean,
-        default: false
     }
 });
 
