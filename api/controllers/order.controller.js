@@ -32,22 +32,7 @@ exports.addOrder = async (req, res) => {
 	  res.status(404).send({message: "user not found" });
 	  return;
 	}
-	
-	//tạo mới order
-	const new_order = new order({
-	  id_user: id_user,
-	  cart: cartFind.products,
-	  city: city,
-	  order_subtotal: Number(cartFind.grandTotal) + Number(shiping),
-	  posteCode: posteCode,
-	  address: address,
-	  phone: phone,
-	  name: getDataUser.name,
-	  email: getDataUser.email,
-	  shiping: shiping,
-	  paymentStatus: paymentStatus,
-	  payment: payment,
-	  orderStatus = [
+	let orderStatus = [
         {
           type: "ordered",
           date: new Date(),
@@ -65,7 +50,22 @@ exports.addOrder = async (req, res) => {
           type: "delivered",
           isCompleted: false,
         },
-      ]
+    ];
+	//tạo mới order
+	const new_order = new order({
+	  id_user: id_user,
+	  cart: cartFind.products,
+	  city: city,
+	  order_subtotal: Number(cartFind.grandTotal) + Number(shiping),
+	  posteCode: posteCode,
+	  address: address,
+	  phone: phone,
+	  name: getDataUser.name,
+	  email: getDataUser.email,
+	  shiping: shiping,
+	  paymentStatus: paymentStatus,
+	  payment: payment,
+	  orderStatus: orderStatus
 	});
 	try {
 	  await cartFind.remove();
