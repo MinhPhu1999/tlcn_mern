@@ -23,6 +23,7 @@
     "mongoose": "^5.10.12",
     "multer": "^1.4.2",
     "nodemailer": "^6.4.14",
+    "nodemon": "^2.0.6",
     "randomstring": "^1.1.5",
     "sendgrid": "^5.2.3"
   },
@@ -30,7 +31,6 @@
     "@babel/cli": "^7.12.1",
     "@babel/core": "^7.12.3",
     "@babel/node": "^7.12.6",
-    "@babel/preset-env": "^7.12.1",
-    "nodemon": "^2.0.6"
+    "@babel/preset-env": "^7.12.1"
   }
 }
