@@ -1,6 +1,7 @@
+const passport = require('passport');
 const user_controller = require('../controllers/user.controller');
 const auth = require('../utils/auth');
-const {authLogin} = require('../utils/auth')
+require('../../passport')(passport);
 module.exports = (app) => {
 
    app.route('/user/register')
@@ -13,7 +14,7 @@ module.exports = (app) => {
       .post(user_controller.login);
 
    app.route('/user/:id')
-      .get(authLogin,user_controller.getUser);
+      .get(auth.authLogin,user_controller.getUser);
 
    app.route('/user/request/forgotpassword/:email')
       .get(user_controller.requestForgotPassword)
@@ -28,12 +29,19 @@ module.exports = (app) => {
       .post(auth.verify)
 
    app.route('/user/updateinfor')
-      .put(authLogin, user_controller.updateInfor)
+      .put(auth.authLogin, user_controller.updateInfor)
 
    app.route('/user/updatepassword')
-      .put(authLogin, user_controller.updatePassword)
+      .put(auth.authLogin, user_controller.updatePassword)
 
-   app.route('/user/addcart')
-      .post(user_controller.addToCart);
+   app.route('/auth/facebook')
+      .get(passport.authenticate('facebook', {scope: ['email']}));
+      
+   app.route('/auth/facebook/callback')
+      .get(passport.authenticate('facebook', {
+          successRedirect: '/profile',
+          failureRedirect: '/'
+      })
+  );
 
 }

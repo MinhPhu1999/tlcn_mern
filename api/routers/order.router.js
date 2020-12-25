@@ -12,6 +12,9 @@ module.exports = (app) => {
         .get(order_controller.getAllOrder);
     app.route('/order/all')
         .get(order_controller.getAllorder);
+
+    app.route('/order/getCustomerOrders')
+        .post(order_controller.getCustomerOrders);
     // app.route('/order/deleteorder/:id')
     //     .put(order_controller.deleteOrder);
     // app.route('/order/verify/:id_order')

@@ -4,7 +4,6 @@ const cart = require("../models/cart.model")
 const userController = require("../controllers/user.controller");
 const randomstring = require("randomstring");
 const nodemailer = require("../utils/nodemailer");
-const { reset } = require("nodemon");
 
 exports.addOrder = async (req, res) => {
 	//kiểm tra có truyền tham số đủ hay không
@@ -124,6 +123,16 @@ exports.updateOrder = async (req, res) =>{
 			return res.status(422).send("Invalid Data");
 	}
 	const {id_order, type} = req.body;
+	// try {
+	// 	//lưu lại các thay đổi
+	//   await order.findOneAndUpdate({_id: id_order,"orderStatus.type": type},
+	// 	{ $set: {
+	// 		"orderStatus.$": [
+	// 			{ type: type, date: new Date(), isCompleted: true },]}});
+	// } catch (err) {
+	// 	return res.status(500).send({message: err });
+	// }
+	// res.status(201).send("Success");
 	order.updateOne(
 		{ _id: id_order, "orderStatus.type": type },
 		{
@@ -140,6 +149,13 @@ exports.updateOrder = async (req, res) =>{
 		}
 	  });
 
+};
+
+exports.getCustomerOrders = async (req, res) => {
+	const orders = await order.find({})
+	  .populate("cart._id", "name")
+	  .exec();
+	res.status(200).json({ orders });
 };
 
 exports.verifyPayment = async (req, res) => {

@@ -6,24 +6,20 @@ const user = new Schema({
         type:Boolean,
         default: false
     },
-    // cart: {
-    //     type: Array,
-    //     default: []
-    // },
-    // history: {
-    //     type: Array,
-    //     default: []
-    // },
     name:{
         type:String,
         required:[true,"Không được bỏ trống name"]
     },
     email: {
         type: String,
-        required: [true, "Không được bỏ trống email"],
-        index: true,
         lowercase: true,
         match: [/\S+@\S+\.\S+/, 'is invalid'],
+    },
+    fbEmail:{
+        type: String
+    },
+    fbId:{
+        type: String
     },
     password: {
         type: String,

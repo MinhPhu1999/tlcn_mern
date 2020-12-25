@@ -5,6 +5,7 @@ const port = process.env.PORT || 8080;
 const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const passport = require('passport');
 const cors = require('cors');
 const userRouter = require('./api/routers/user.router');
 const categoryRouter = require('./api/routers/category.router');
@@ -26,6 +27,8 @@ mongoose.connect(mongoURL,{ //kết nối tới database
 //có phép nhận dữ liệu từ form
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(passport.initialize());
+app.use(passport.session());
 //app.use(cors());
 
 //cors

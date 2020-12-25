@@ -361,18 +361,6 @@ exports.getDataByID = async(id_user)=>{
     return userFind ;
 }
 
-exports.addToCart = async (req, res) => {
-    if (typeof req.body.id === 'undefined'
-      || typeof req.body.cart === 'undefined') {
-        res.status(422).send({message: "invalid data" });
-      return;
-    }
-    const { id, cart} = req.body;
-    let userFind = null;
-    userFind = await user.findById(id);
-    if(!userFind)
-      return res.status(400).json({ msg: "User does not exists" });
-  
-    await user.findOneAndUpdate({_id: id}, {cart: cart})
-    res.status(200).send({message: "add cart success" });
-  }
+exports.loginFB = async(req, res) =>{
+    
+}
