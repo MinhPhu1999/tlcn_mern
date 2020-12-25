@@ -10,7 +10,7 @@ module.exports = (app) => {
         .post(order_controller.updateOrder);
     app.route('/order/getall/:page')
         .get(order_controller.getAllOrder);
-    app.route('/order')
+    app.route('/order/all')
         .get(order_controller.getAllorder);
     // app.route('/order/deleteorder/:id')
     //     .put(order_controller.deleteOrder);
