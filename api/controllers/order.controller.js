@@ -135,11 +135,11 @@ exports.updateOrder = async (req, res) =>{
 	  ).exec((error, order) => {
 		if (error) 
 			return res.status(400).send({ error });
-		if(order)
-			res.status(201).send("Success");
+		// if(order)
+		// 	res.status(201).send("Success");
 	});
-	// const orderFind = await order.findOne({ _id: id_order, "orderStatus.type": type });
-	// res.status(201).send({orderFind});
+	const orderFind = await order.findOne({ _id: id_order, "orderStatus.type": type });
+	res.status(201).send({orderFind});
 };
 
 exports.getCustomerOrders = async (req, res) => {
