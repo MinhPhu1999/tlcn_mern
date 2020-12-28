@@ -398,8 +398,7 @@ exports.addBrand = async (req, res) => {
         return;
     }
     const newBrand = new brand({ //tạo brand mới
-        name: name,
-        status:true });
+        name: name});
     try {
         await newBrand.save();//lưu brand
     }
@@ -514,8 +513,7 @@ exports.getAllBrand = async (req, res) => {
 // category
 exports.addCategory = async (req, res) => {
     //kiểm tra có truyền đủ tham số hay không
-    if (typeof req.body.name === 'undefined'
-        || typeof req.body.path === 'undefined') {
+    if (typeof req.body.name === 'undefined') {
         res.status(422).send({message: 'Invalid data' });
         return;
     }
@@ -534,9 +532,7 @@ exports.addCategory = async (req, res) => {
         return;
     }
     const newCategory = new category({ //nếu không thấy thì sẽ tiến hành thêm mới category
-        name: name,
-        path:path,
-        status:true });
+        name: name });
     try {
         await newCategory.save();//lưu category mới thêm vào database
     }
@@ -769,8 +765,7 @@ exports.addUser = async (req, res) => {
         name: name,
         is_verify: true,
         password: password,
-        is_admin: is_admin,
-        status: true
+        is_admin: is_admin
     });
     try {
         await newUser.save();//lưu user vào database

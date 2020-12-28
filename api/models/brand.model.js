@@ -6,7 +6,8 @@ const brand = new Schema({
         required: [true, "Không được bỏ trống"],
     },
     status:{
-        type:Boolean
+        type:Boolean,
+        default: true
     }
 });
 module.exports = mongoose.model('brand', brand);
