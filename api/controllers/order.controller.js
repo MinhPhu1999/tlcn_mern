@@ -123,16 +123,6 @@ exports.updateOrder = async (req, res) =>{
 			return res.status(422).send("Invalid Data");
 	}
 	const {id_order, type} = req.body;
-	// try {
-	// 	//lưu lại các thay đổi
-	//   await order.findOneAndUpdate({_id: id_order,"orderStatus.type": type},
-	// 	{ $set: {
-	// 		"orderStatus.$": [
-	// 			{ type: type, date: new Date(), isCompleted: true },]}});
-	// } catch (err) {
-	// 	return res.status(500).send({message: err });
-	// }
-	// res.status(201).send("Success");
 	order.updateOne(
 		{ _id: id_order, "orderStatus.type": type },
 		{
@@ -143,12 +133,13 @@ exports.updateOrder = async (req, res) =>{
 		  },
 		}
 	  ).exec((error, order) => {
-		if (error) return res.status(400).send({ error });
-		if (order) {
-		  res.status(201).send("Success");
-		}
-	  });
-
+		if (error) 
+			return res.status(400).send({ error });
+		if(order)
+			res.status(201).send("Success");
+	});
+	// const orderFind = await order.findOne({ _id: id_order, "orderStatus.type": type });
+	// res.status(201).send({orderFind});
 };
 
 exports.getCustomerOrders = async (req, res) => {

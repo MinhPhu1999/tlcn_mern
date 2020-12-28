@@ -22,8 +22,7 @@ const user = new Schema({
         type: String
     },
     password: {
-        type: String,
-        required: [true, "Không được bỏ trống mk"]
+        type: String
     },
     is_verify: {
         type: Boolean,
