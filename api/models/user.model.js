@@ -7,8 +7,7 @@ const user = new Schema({
         default: false
     },
     name:{
-        type:String,
-        required:[true,"Không được bỏ trống name"]
+        type:String
     },
     email: {
         type: String,

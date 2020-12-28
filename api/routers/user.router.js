@@ -1,8 +1,8 @@
-const passport = require('passport');
+//const passport = require('passport');
 const user_controller = require('../controllers/user.controller');
 const auth = require('../utils/auth');
-require('../../passport')(passport);
-module.exports = (app) => {
+//require('../../passport')(passport);
+module.exports = (app, passport) => {
 
    app.route('/user/register')
       .post(user_controller.register);
@@ -39,9 +39,13 @@ module.exports = (app) => {
       
    app.route('/auth/facebook/callback')
       .get(passport.authenticate('facebook', {
-          successRedirect: '/profile',
-          failureRedirect: '/'
+          successRedirect: '/',
+          failureRedirect: '/fail'
       })
   );
+
+  app.route('/fail')
+      .get(user_controller.fail);
+      
 
 }

@@ -361,6 +361,6 @@ exports.getDataByID = async(id_user)=>{
     return userFind ;
 }
 
-exports.loginFB = async(req, res) =>{
-    
+exports.fail = async(req, res)=>{
+    res.status(401).send("Fail");
 }

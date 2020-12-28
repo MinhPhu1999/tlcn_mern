@@ -36,13 +36,11 @@ exports.addProduct = async (req, res) => {
     || typeof req.body.price === 'undefined' 
     || typeof req.body.id_brand === 'undefined' 
     || typeof req.body.description === 'undefined'
-    || typeof req.body.color === 'undefined'
-    || typeof req.body.size === 'undefined'
     ) {
         res.status(422).send({message: 'Invalid data' });
         return;
     }
-    const {name, id_category, price, id_brand, description, color, size, count} = req.body;//khai báo các tham số truyền vào
+    const {name, id_category, price, id_brand, description, count} = req.body;//khai báo các tham số truyền vào
     let urlImg = await uploadImg(req.file.path);  //lấy đường dẫn hình ảnh
     
     if(urlImg === false) {
@@ -57,10 +55,7 @@ exports.addProduct = async (req, res) => {
         id_brand: id_brand,
         img: urlImg,
         description: description,
-        color: color,
-        size: size,
-        count: count,
-        status: true
+        count: count
     });
     try{
         await newProduct.save(); //lưu dữ liệu product vào mongo
@@ -80,13 +75,11 @@ exports.updateProduct = async (req, res) => {
     || typeof req.body.price === 'undefined' 
     || typeof req.body.id_brand === 'undefined' 
     || typeof req.body.description === 'undefined'
-    || typeof req.body.color === 'undefined'
-    || typeof req.body.size === 'undefined'
     ) {
         res.status(422).send({message: 'Invalid data' });
         return;
     }
-    let { name, id, id_category, price, id_brand, description, status, color, size} = req.body; //khai báo các tham số
+    let { name, id, id_category, price, id_brand, description, status} = req.body; //khai báo các tham số
     let productFind = null;
     try {
         productFind = await product.findById(id); //tìm kiếm product bằng id
@@ -120,8 +113,6 @@ exports.updateProduct = async (req, res) => {
     productFind.id_brand = id_brand;
     productFind.description = description;
     productFind.img = urlImg;
-    productFind.color = color;
-    productFind.size = size;
     productFind.status = status;
     
     productFind.save((err, docs) => { // lưu các thay đổi
@@ -129,10 +120,6 @@ exports.updateProduct = async (req, res) => {
             console.log(err);
         }
     });
-    // fs.unlink(req.file.path, (err) => {
-    //     if (err) throw err;
-    //     console.log('path/file.txt was deleted');
-    //   });
     res.status(200).send({message: 'update product success', data: productFind }); //thông báo lưu thành công
 }
 

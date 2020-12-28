@@ -40,10 +40,11 @@ module.exports = function (passport) {
 					// nếu chưa có, tạo mới user
 					var newUser = new User();
 					// lưu các thông tin cho user
-					fbId = profile.id;
-					token = token;
-					name = profile.name.givenName + ' ' + profile.name.familyName; // bạn có thể log đối tượng profile để xem cấu trúc
-					fbEmail = profile.emails[0].value; // fb có thể trả lại nhiều email, chúng ta lấy cái đầu tiền
+					newUser.fbId = profile.id;
+					newUser.token = token;
+					newUser.is_verify = true
+					newUser.name = profile.name.givenName + ' ' + profile.name.familyName; // bạn có thể log đối tượng profile để xem cấu trúc
+					newUser.fbEmail = profile.emails[0].value; // fb có thể trả lại nhiều email, chúng ta lấy cái đầu tiền
 					// lưu vào db
 					newUser.save(function (err) {
 						if (err)

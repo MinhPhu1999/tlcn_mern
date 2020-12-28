@@ -1,7 +1,7 @@
 //Khai báo các thư viện cần thiết
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -15,6 +15,7 @@ const cartRouter = require('./api/routers/cart.router');
 const orderRouter = require('./api/routers/order.router');
 const adminRouter = require('./api/routers/admin.router');
 
+require('./passport')(passport);
 
 mongoose.Promise = global.Promise;
 const {mongoURL} = require('./mongo')
@@ -27,9 +28,14 @@ mongoose.connect(mongoURL,{ //kết nối tới database
 //có phép nhận dữ liệu từ form
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+// app.use(session({
+//     secret: 'sonminhphu', // chuỗi bí mật đã mã hóa coookie
+//     resave: true,
+//     saveUninitialized: true
+// }));
 app.use(passport.initialize());
 app.use(passport.session());
-//app.use(cors());
+app.use(cors());
 
 //cors
 app.use(function(req,res,next){
@@ -40,7 +46,7 @@ app.use(function(req,res,next){
 })
 
 
-userRouter(app);
+userRouter(app,passport);
 categoryRouter(app);
 brandRouter(app);
 productRouter(app);
