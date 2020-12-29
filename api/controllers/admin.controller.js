@@ -484,7 +484,7 @@ exports.getAllBrand = async (req, res) => {
     }
     let count = null;//khai báo biến
     try { 
-        count = await brand.countDocuments({})//đếm brand 
+        count = await brand.countDocuments()//đếm brand 
     }
     catch(err) {//xuất lỗi
         console.log(err);
@@ -622,7 +622,7 @@ exports.getAllCategory=async(req,res)=>{
     //khai báo biến cần thiết
     let count = null;
     try{
-        count = await category.countDocuments({});//đém category
+        count = await category.countDocuments();//đém category
     }
     catch(err){
         console.log(err);

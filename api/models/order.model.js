@@ -35,7 +35,7 @@ const order=new Schema({
     ],
     paymentStatus: {
         type: String,
-        enum: ["pending", "completed", "cancelled", "refund"],
+        enum: ["pending", "cancelled", "paid"],
         required: true,
     },
     order_subtotal:{
