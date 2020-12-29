@@ -354,7 +354,7 @@ exports.getAllStock = async(req,res)=>{
         res.status(200).send({ data: [], message: 'Invalid page', totalPage });
         return;
     }
-    stock.find({status:true}) //lấy stock
+    stock.find() //lấy stock
     .skip(9 * (parseInt(page) - 1))
     .limit(9)
     .exec((err, docs) => {
@@ -497,7 +497,7 @@ exports.getAllBrand = async (req, res) => {
         res.status(200).send({ data: [], message: 'Invalid page', totalPage });
         return;
     }
-    brand.find({status:true})//lấy brand
+    brand.find()//lấy brand
     .skip(5 * (parseInt(page) - 1))
     .limit(5)
     .exec((err, docs) => {
@@ -635,7 +635,7 @@ exports.getAllCategory=async(req,res)=>{
         res.status(200).send({ data: [], message: 'Invalid page', totalPage });
         return;
     }
-    category.find({status:true})//get category them status = true
+    category.find()//get category them status = true
     .skip(5 * (parseInt(page) - 1))
     .limit(5)
     .exec((err, docs) => {
@@ -838,7 +838,7 @@ exports.getAllUser = async(req, res) => {
     //khai báo biến cần thiết
     let count = null;
     try { 
-        count = await user.countDocuments({});//đếm user
+        count = await user.countDocuments({is_admin: true});//đếm admin
     }
     catch(err) {
         console.log(err);
@@ -852,7 +852,7 @@ exports.getAllUser = async(req, res) => {
         return;
     }
     //get user
-    user.find({status: true})
+    user.find({is_admin: true})
     .skip(9 * (parseInt(page) - 1))
     .limit(9)
     .exec((err, docs) => {

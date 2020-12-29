@@ -20,6 +20,12 @@ const user = new Schema({
     fbId:{
         type: String
     },
+    ggEmail:{
+        type: String
+    },
+    ggId:{
+        type: String
+    },
     password: {
         type: String
     },

@@ -42,8 +42,17 @@ module.exports = (app, passport) => {
           successRedirect: '/',
           failureRedirect: '/fail'
       })
-  );
+   );
 
+   app.route('/auth/google')
+      .get(passport.authenticate('google', {scope: ['profile','email']}));
+      
+   app.route('/auth/google/callback')
+      .get(passport.authenticate('google', {
+          successRedirect: '/',
+          failureRedirect: '/fail'
+      })
+   );
   app.route('/fail')
       .get(user_controller.fail);
       

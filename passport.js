@@ -1,6 +1,7 @@
 require('dotenv').config();
 // load những thứ chúng ta cần
 const FacebookStrategy = require('passport-facebook').Strategy;
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 // load  user model
 const User = require('./api/models/user.model');
 
@@ -50,6 +51,40 @@ module.exports = function (passport) {
 						if (err)
 							throw err;
 						// nếu thành công, trả lại user
+						return done(null, newUser);
+					});
+				}
+			});
+		});
+	}));
+
+	//Google
+	passport.use(new GoogleStrategy({
+		clientID: process.env.GOOGLE_API_KEY,
+		clientSecret: process.env.GOOGLE_API_SECRET,
+		callbackURL: process.env.GOOGLE_CALLBACK_URL,
+	},
+	function (token, refreshToken, profile, done) {
+		process.nextTick(function () {
+			// // tìm trong db xem có user nào đã sử dụng google id này chưa
+			User.findOne({'ggId': profile.id}, function (err, user) {
+				if (err)
+					return done(err);
+				if (user) {
+					// if a user is found, log them in
+					return done(null, user);
+				} else {
+					// if the user isnt in our database, create a new user
+					var newUser = new User();
+					// set all of the relevant information
+					newUser.ggId = profile.id;
+					newUser.token = token;
+					newUser.name = profile.displayName;
+					newUser.ggEmail = profile.emails[0].value; // pull the first email
+					// save the user
+					newUser.save(function (err) {
+						if (err)
+							throw err;
 						return done(null, newUser);
 					});
 				}
