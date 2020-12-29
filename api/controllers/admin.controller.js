@@ -654,16 +654,15 @@ exports.updateUser = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
     if (typeof req.body.email === 'undefined'
         || typeof req.body.name === 'undefined'
-        || typeof req.body.is_admin === 'undefined'
     ) {
         res.status(422).send({message: 'Invalid data' });
         return;
     }
     //khai báo biến cần thiết
-    let { email, name, is_admin, status} = req.body;
+    let { email, name, status} = req.body;
     let userFind;
     try {
-        userFind = await user.findOne({ 'email': email })//tiến hành tìm kiếm user theo email
+        userFind = await user.findOne({ 'email': email, 'is_admin': true})//tiến hành tìm kiếm user theo email
     }
     catch (err) {
         res.status(500).send({message: err });
@@ -675,7 +674,6 @@ exports.updateUser = async (req, res) => {
     }
     //update thông tin cho user
     userFind.name = name;
-    userFind.is_admin = is_admin;
     userFind.status = status;
     try {
         await userFind.save()//lưu lại các thay đổi	
@@ -688,8 +686,7 @@ exports.updateUser = async (req, res) => {
     res.status(200).send({
         message: 'update user success', user: {
             email: userFind.email,
-            name: userFind.name,
-            is_admin: userFind.is_admin
+            name: userFind.name
         }
     });
 }

@@ -45,6 +45,8 @@ module.exports = (app) => {
         .post(admin_controller.addUser);
     app.route('/admin/deleteuser')
         .put(admin_controller.deleteUser);
+    app.route('/admin/updateuser')
+        .put(admin_controller.updateUser);
     app.route('/admin/getAllUser/:page')
         .get(admin_controller.getAllUser);
     app.route('/admin/getuser')
