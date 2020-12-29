@@ -46,8 +46,7 @@ exports.register = async (req, res) => {
     const newUser = new user({
         email: email,
         name: name,
-        password: password,
-        status: true
+        password: password
     });
     try {
         await newUser.save()//lưu user
@@ -61,10 +60,6 @@ exports.register = async (req, res) => {
         return;
     }
     let sendEmail = await nodemailer.sendEmail(email, newUser.token);//gửi mail để verify account
-    //let token = '123456789';
-    //let sendMail = await sendgrid.sendEmail(email, token);
-    //console.log(email,token);
-    //console.log(sendMail);
     if (!sendEmail) {//trường hợp gửi mail fail
         res.status(500).send({message: 'Send email fail' });
         return;
@@ -169,6 +164,7 @@ exports.getUser = async (req, res) =>{
     }});
 
 }
+
 exports.requestForgotPassword = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
     if(typeof req.params.email === 'undefined'){
