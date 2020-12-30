@@ -32,12 +32,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(passport.initialize());
 app.use(passport.session());
-if (process.env.NODE_ENV === 'development') {
-    app.use(cors({
-        origin: process.env.CLIENT_URL
-    }))
-    //app.use(morgan('dev'))
-}
+app.use(cors({
+    origin: process.env.CLIENT_URL
+}))
 //cors
 // app.use(function(req,res,next){
 //     res.setHeader('Access-Control-Allow-Origin', '*');
