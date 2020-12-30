@@ -26,6 +26,9 @@ const user = new Schema({
     ggId:{
         type: String
     },
+    role: {
+        type: String
+    },
     password: {
         type: String
     },
@@ -47,7 +50,7 @@ const user = new Schema({
 user.methods.generateJWT = async function() {
     const user = this;
     const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY,{
-                    expiresIn: '2h'
+                    expiresIn: '1h'
     });
     
     user.token = token;

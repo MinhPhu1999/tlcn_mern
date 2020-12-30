@@ -34,6 +34,12 @@ module.exports = (app, passport) => {
    app.route('/user/updatepassword')
       .put(auth.authLogin, user_controller.updatePassword)
 
+   app.route('/googlelogin')
+      .post(user_controller.googleController);
+   
+   app.route('facebooklogin')
+      .post(user_controller.facebookController);
+      
    app.route('/auth/facebook')
       .get(passport.authenticate('facebook', {scope: ['email']}));
       
