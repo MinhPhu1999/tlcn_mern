@@ -1,7 +1,8 @@
 //Khai báo các thư viện cần thiết
+require('dotenv').config();
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -31,15 +32,19 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors());
-
+if (process.env.NODE_ENV === 'development') {
+    app.use(cors({
+        origin: process.env.CLIENT_URL
+    }))
+    //app.use(morgan('dev'))
+}
 //cors
-app.use(function(req,res,next){
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
-    next();
-});
+// app.use(function(req,res,next){
+//     res.setHeader('Access-Control-Allow-Origin', '*');
+//     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
+//     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type, Authorization');
+//     next();
+// });
 
 userRouter(app,passport);
 categoryRouter(app);
