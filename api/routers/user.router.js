@@ -40,7 +40,7 @@ module.exports = (app, passport) => {
    app.route('/auth/facebook/callback')
       .get(passport.authenticate('facebook', {
           successRedirect: '/',
-          failureRedirect: '/fail'
+          failureRedirect: '/login'
       })
    );
 
@@ -50,11 +50,7 @@ module.exports = (app, passport) => {
    app.route('/auth/google/callback')
       .get(passport.authenticate('google', {
           successRedirect: '/',
-          failureRedirect: '/fail'
+          failureRedirect: '/login'
       })
    );
-  app.route('/fail')
-      .get(user_controller.fail);
-      
-
 }

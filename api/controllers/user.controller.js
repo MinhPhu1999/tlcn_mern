@@ -356,7 +356,3 @@ exports.getDataByID = async(id_user)=>{
     let userFind = await user.findOne({_id: id_user});
     return userFind ;
 }
-
-exports.fail = async(req, res)=>{
-    res.status(401).send("Fail");
-}
