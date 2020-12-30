@@ -1,8 +1,7 @@
 //Khai báo các thư viện cần thiết
-require('dotenv').config();
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 8080;
 const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
