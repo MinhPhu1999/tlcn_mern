@@ -359,7 +359,7 @@ exports.getDataByID = async(id_user)=>{
     return userFind ;
 }
 
-exports.googleController = async(req, res) => {
+exports.googleController = (req, res) => {
     const { idToken } = req.body;
   
     client
@@ -386,7 +386,7 @@ exports.googleController = async(req, res) => {
                             ggEmail: email, 
                             password: password,
                             is_verify: true});
-                    await user.save((err, data) => {
+                    user.save((err, data) => {
                         if (err) {
                             console.log('ERROR GOOGLE LOGIN ON USER SAVE', err);
                             return res.status(400).json({
