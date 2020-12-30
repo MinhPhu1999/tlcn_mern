@@ -368,17 +368,16 @@ exports.googleController = (req, res) => {
         // console.log('GOOGLE LOGIN RESPONSE',response)
         const { email_verified, name, email } = response.payload;
         if (email_verified) {
-            User.findOne({'ggEmail': email }).exec((err, newUser, done) => {
+            user.findOne({'ggEmail': email }).exec((err, newUser) => {
                 if (newUser) {
-                    return done(null, newUser);
-                    // const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY, {
-                    //     expiresIn: '1h'
-                    // });
-                    // const { _id, email, name, role } = user;
-                    // return res.json({
-                    //     token,
-                    //     user: { _id, email, name, role }
-                    // });
+                    const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
+                        expiresIn: '1h'
+                    });
+                    const { _id, email, name, role } = newUser;
+                    return res.json({
+                        token,
+                        newUser: { _id, email, name, role }
+                    });
                 } else {
                     let password = email + process.env.JWT_KEY;
                     newUser = new user({
@@ -386,25 +385,23 @@ exports.googleController = (req, res) => {
                             ggEmail: email, 
                             password: password,
                             is_verify: true});
-                    user.save((err, data) => {
+                    newUser.save((err, data) => {
                         if (err) {
                             console.log('ERROR GOOGLE LOGIN ON USER SAVE', err);
                             return res.status(400).json({
                                 error: 'User signup failed with google'
                             });
                         }
-                        // const token = jwt.sign(
-                        //     { _id: data._id },
-                        //     process.env.JWT_KEY,
-                        //     { expiresIn: '1h' }
-                        // );
+                        const token = jwt.sign(
+                            { _id: data._id },
+                            process.env.JWT_KEY,
+                            { expiresIn: '1h' }
+                        );
                         const { _id, email, name, role } = data;
                         return res.json({
                             token,
-                            user: { _id, email, name, role }
-                        });
-                    }).then(function() {
-                        newUser.generateJWT(); //tạo token                       
+                            newUser: { _id, email, name, role }
+                        });                       
                     });
                 }
           });
@@ -430,24 +427,24 @@ exports.facebookController = (req, res) => {
         // .then(response => console.log(response))
         .then(response => {
           const { email, name } = response;
-          User.findOne({'fbEmail': email }).exec((err, user) => {
-            if (user) {
-              const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY, {
+          user.findOne({'fbEmail': email }).exec((err, newUser) => {
+            if (newUser) {
+              const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
                 expiresIn: '1h'
               });
-              const { _id, email, name, role } = user;
+              const { _id, email, name, role } = newUser;
               return res.json({
                 token,
-                user: { _id, email, name, role }
+                newUser: { _id, email, name, role }
               });
             } else {
               let password = email + process.env.JWT_KEY;
-              user = new User({ 
+              newUser = new user({ 
                     name: name,
                     fbEmail: email, 
                     password: password,
                     is_verify: true });
-              user.save((err, data) => {
+                    newUser.save((err, data) => {
                 if (err) {
                   console.log('ERROR FACEBOOK LOGIN ON USER SAVE', err);
                   return res.status(400).json({
@@ -462,7 +459,7 @@ exports.facebookController = (req, res) => {
                 const { _id, email, name, role } = data;
                 return res.json({
                   token,
-                  user: { _id, email, name, role }
+                  newUser: { _id, email, name, role }
                 });
               });
             }
