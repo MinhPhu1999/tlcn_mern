@@ -1,6 +1,7 @@
 const user = require('../models/user.model');
 const nodemailer = require('../utils/nodemailer');
 const { OAuth2Client } = require('google-auth-library');
+const fetch = require('node-fetch');
 const sendgrid = require('../utils/sendgrid');
 const randomstring = require('randomstring');
 const jwt = require('jsonwebtoken');
@@ -444,7 +445,7 @@ exports.facebookController = (req, res) => {
                     fbEmail: email, 
                     password: password,
                     is_verify: true });
-                    newUser.save((err, data) => {
+                newUser.save((err, data) => {
                 if (err) {
                   console.log('ERROR FACEBOOK LOGIN ON USER SAVE', err);
                   return res.status(400).json({
