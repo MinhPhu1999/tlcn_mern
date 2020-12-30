@@ -37,9 +37,9 @@ module.exports = (app, passport) => {
    app.route('/googlelogin')
       .post(user_controller.googleController);
    
-   app.route('facebooklogin')
+   app.route('/facebooklogin')
       .post(user_controller.facebookController);
-      
+
    app.route('/auth/facebook')
       .get(passport.authenticate('facebook', {scope: ['email']}));
       
