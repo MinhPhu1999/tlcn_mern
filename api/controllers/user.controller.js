@@ -360,7 +360,7 @@ exports.getDataByID = async(id_user)=>{
     return userFind ;
 }
 
-exports.googleController = (req, res) => {
+exports.googleController = async (req, res) => {
     const { idToken } = req.body;
   
     client
@@ -371,9 +371,11 @@ exports.googleController = (req, res) => {
         if (email_verified) {
             user.findOne({'ggEmail': email }).exec((err, newUser) => {
                 if (newUser) {
-                    const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
-                        expiresIn: '1h'
-                    });
+                    newUser.generateJWT();
+                    // const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
+                    //     expiresIn: '1h'
+                    // });
+                    const token = newUser.token;
                     const { _id, email, name, role } = newUser;
                     return res.json({
                         token,
@@ -393,17 +395,23 @@ exports.googleController = (req, res) => {
                                 error: 'User signup failed with google'
                             });
                         }
-                        const token = jwt.sign(
-                            { _id: data._id },
-                            process.env.JWT_KEY,
-                            { expiresIn: '1h' }
-                        );
-                        const { _id, email, name, role } = data;
-                        return res.json({
-                            token,
-                            newUser: { _id, email, name, role }
-                        });                       
+                        // const token = jwt.sign(
+                        //     { _id: data._id },
+                        //     process.env.JWT_KEY,
+                        //     { expiresIn: '1h' }
+                        // );
+                        // const { _id, email, name, role } = data;
+                        // return res.json({
+                        //     token,
+                        //     newUser: { _id, email, name, role }
+                        // });                       
+                    }).then(function() {
+                        newUser.generateJWT(); //tạo token                       
                     });
+                    res.status(200).send({
+                        token,
+                        newUser: {_id, email, name, role}
+                    })
                 }
           });
         }else {

@@ -50,7 +50,7 @@ const user = new Schema({
 user.methods.generateJWT = async function() {
     const user = this;
     const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY,{
-                    expiresIn: '1h'
+                    expiresIn: '3m'
     });
     
     user.token = token;
