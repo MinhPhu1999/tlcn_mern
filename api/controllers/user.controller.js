@@ -371,12 +371,12 @@ exports.googleController = async (req, res) => {
         if (email_verified) {
             user.findOne({'ggEmail': email }).exec((err, newUser) => {
                 if (newUser) {
-                    newUser.generateJWT();
-                    // const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
-                    //     expiresIn: '3m'
-                    // });
-                    // newUser.token = token;
-                    // newUser.save();
+                    //newUser.generateJWT();
+                    const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
+                        expiresIn: '3m'
+                    });
+                    newUser.token = token;
+                    newUser.save();
                     //const token = newUser.token;
                     const { _id, email, name, token} = newUser;
                     return res.json({
@@ -399,23 +399,18 @@ exports.googleController = async (req, res) => {
                                 error: 'User signup failed with google'
                             });
                         }
-                        // const token = jwt.sign(
-                        //     { _id: data._id },
-                        //     process.env.JWT_KEY,
-                        //     { expiresIn: '3m' }
-                        // );
-                        // const { _id, email, name, role } = data;
-                        // return res.json({
-                        //     token,
-                        //     newUser: { _id, email, name, role }
-                        // });                       
-                    }).then(function() {
-                        newUser.generateJWT(); //tạo token                       
-                    });
-                    const { _id, ggEmail, name, token } = newUser;
-                    return res.json({
+                        const token = jwt.sign(
+                            { _id: data._id },
+                            process.env.JWT_KEY,
+                            { expiresIn: '3m' }
+                        );
+                        data.token = token;
+                        data.save();
+                        const { _id, email, name, role } = data;
+                        return res.json({
                             token,
-                            newUser: {_id, ggEmail, name }
+                            newUser: { _id, email, name, role }
+                        });                       
                     }); 
                 }
           });
@@ -443,11 +438,12 @@ exports.facebookController = (req, res) => {
           const { email, name } = response;
           user.findOne({'fbEmail': email }).exec((err, newUser) => {
             if (newUser) {
-                newUser.generateJWT();
-                // const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
-                //     expiresIn: '3m'
-                // });
-                // newUser.token = token;
+                //newUser.generateJWT();
+                const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
+                    expiresIn: '3m'
+                });
+                newUser.token = token;
+                newUser.save();
                 const { _id, email, name, token} = newUser;
                 return res.json({
                     token,
@@ -467,24 +463,19 @@ exports.facebookController = (req, res) => {
                             error: 'User signup failed with facebook'
                     });
                 }
-                // const token = jwt.sign(
-                //     { _id: data._id },
-                //     process.env.JWT_KEY,
-                //     { expiresIn: '3m' }
-                // );
-                // const { _id, email, name} = data;
-                // return res.json({
-                //     token,
-                //     newUser: { _id, email, name}
-                // });
-              }).then(function() {
-                    newUser.generateJWT(); //tạo token                       
-                });
-                const { _id, fbEmail, name, token } = newUser;
+                const token = jwt.sign(
+                    { _id: data._id },
+                    process.env.JWT_KEY,
+                    { expiresIn: '3m' }
+                );
+                data.token = token;
+                data.save();
+                const { _id, email, name} = data;
                 return res.json({
-                        token,
-                        newUser: {_id, fbEmail, name }
-                }); 
+                    token,
+                    newUser: { _id, email, name}
+                });
+              }); 
             }
           });
         })
