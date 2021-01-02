@@ -31,18 +31,18 @@ exports.register = async (req, res) => {
         res.status(422).send({message: 'password incorect'});
         return;
     }
-    // let userFind = null;
-    // try {
-    //     userFind = await user.find({ 'email': email });//tìm kiếm user theo email
-    // }
-    // catch (err) {
-    //     res.status(500).send({message: err });
-    //     return;
-    // }
-    // if (userFind.length > 0) {//trường hợp có user trong db
-    //     res.status(409).send({message: 'Email already exist' }); 
-    //     return;
-    // }
+    let userFind = null;
+    try {
+        userFind = await user.find({ 'email': email });//tìm kiếm user theo email
+    }
+    catch (err) {
+        res.status(500).send({message: err });
+        return;
+    }
+    if (userFind.length > 0) {//trường hợp có user trong db
+        res.status(409).send({message: 'Email already exist' }); 
+        return;
+    }
     //hash password
     password = bcrypt.hashSync(password, 10);
     //tạo mới user
@@ -113,7 +113,7 @@ exports.login = async (req, res) => {
     let { email, password } = req.body;
     let userFind = null;
     try{
-        userFind = await user.findOne({'email': email, 'password': password});//tìm kiếm user theo email
+        userFind = await user.findOne({'email': email});//tìm kiếm user theo email
     }
     catch(err){
         res.status(402).send({message:"loi"});
@@ -128,10 +128,10 @@ exports.login = async (req, res) => {
         return;
     }
     
-    // if(!bcrypt.compareSync(password, userFind.password)){//trường hợp sai mật  khẩu
-    //     res.status(422).send({message: 'password wrong'});
-    //     return;
-    // }
+    if(!bcrypt.compareSync(password, userFind.password)){//trường hợp sai mật  khẩu
+        res.status(422).send({message: 'password wrong'});
+        return;
+    }
     userFind.generateJWT();//tạo token
     //thông báo login success
     res.status(200).send({message: 'login success', token: userFind.token, newUser: {
@@ -250,7 +250,7 @@ exports.forgotPassword = async (req, res) => {
     let { email, otp, newPassword } = req.body;
     let userFind = null;
     try{
-        userFind = await user.findOne({'email': email, 'otp': otp});//tìm kiếm user theo email
+        userFind = await user.findOne({'email': email});//tìm kiếm user theo email
     }
     catch(err){
         res.send({message: err});
@@ -291,12 +291,12 @@ exports.updateInfor = async (req, res) => {
     let { email, name, id} = req.body;
     let newUser = await user.findById(id);
     //tìm kiếm user theo email
-    //let userFind = await user.findOne({'email': email});
+    let userFind = await user.findOne({'email': email});
     //trường hợp email đã có trong db
-    // if(userFind != null && newUser.email !== email) {
-    //     res.status(422).send({ message: "Email already exist" });
-    //     return;
-    // }
+    if(userFind != null && newUser.email !== email) {
+        res.status(422).send({ message: "Email already exist" });
+        return;
+    }
     //cập nhật thay đổi
     newUser.name = name;
     newUser.email = email;
@@ -369,7 +369,7 @@ exports.googleController = async (req, res) => {
         // console.log('GOOGLE LOGIN RESPONSE',response)
         const { email_verified, name, email } = response.payload;
         if (email_verified) {
-            user.findOne({'email': email }).exec((err, newUser) => {
+            user.findOne({'ggEmail': email }).exec((err, newUser) => {
                 if (newUser) {
                     newUser.generateJWT();
                     // const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
@@ -387,7 +387,7 @@ exports.googleController = async (req, res) => {
                     let password = email + process.env.JWT_KEY;
                     newUser = new user({
                             name: name, 
-                            email: email, 
+                            ggEmail: email, 
                             password: password,
                             is_verify: true
                     });
@@ -412,10 +412,10 @@ exports.googleController = async (req, res) => {
                     }).then(function() {
                         newUser.generateJWT(); //tạo token                       
                     });
-                    const { _id, email, name, token } = newUser;
+                    const { _id, ggEmail, name, token } = newUser;
                     return res.json({
                             token,
-                            newUser: {_id, email, name }
+                            newUser: {_id, ggEmail, name }
                     }); 
                 }
           });
@@ -441,7 +441,7 @@ exports.facebookController = (req, res) => {
         // .then(response => console.log(response))
         .then(response => {
           const { email, name } = response;
-          user.findOne({'email': email }).exec((err, newUser) => {
+          user.findOne({'fbEmail': email }).exec((err, newUser) => {
             if (newUser) {
                 newUser.generateJWT();
                 // const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
@@ -457,7 +457,7 @@ exports.facebookController = (req, res) => {
                 let password = email + process.env.JWT_KEY;
                 newUser = new user({ 
                     name: name,
-                    email: email, 
+                    fbEmail: email, 
                     password: password,
                     is_verify: true });
                 newUser.save((err, data) => {
@@ -480,10 +480,10 @@ exports.facebookController = (req, res) => {
               }).then(function() {
                     newUser.generateJWT(); //tạo token                       
                 });
-                const { _id, email, name, token } = newUser;
+                const { _id, fbEmail, name, token } = newUser;
                 return res.json({
                         token,
-                        newUser: {_id, email, name }
+                        newUser: {_id, fbEmail, name }
                 }); 
             }
           });

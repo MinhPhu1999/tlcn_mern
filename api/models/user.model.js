@@ -14,21 +14,12 @@ const user = new Schema({
         lowercase: true,
         match: [/\S+@\S+\.\S+/, 'is invalid'],
     },
-    // fbEmail:{
-    //     type: String  //comment bỏ các phần không cần thiết
-    // },
-    // fbId:{
-    //     type: String
-    // },
-    // ggEmail:{
-    //     type: String
-    // },
-    // ggId:{
-    //     type: String
-    // },
-    // role: {
-    //     type: String
-    // },
+    fbEmail:{
+        type: String 
+    },
+    ggEmail:{
+        type: String
+    },
     password: {
         type: String
     },
