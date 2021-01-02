@@ -765,7 +765,10 @@ exports.addUser = async (req, res) => {
         is_admin: is_admin
     });
     try {
-        await newUser.save();//lưu user vào database
+        await newUser.save()
+                    .then(function() {
+                        newUser.generateJWT(); //tạo token                       
+                    });//lưu user vào database
     }
     catch (err) {//xuất lỗi nếu không lưu lại được
         res.status(500).send({message: err });
