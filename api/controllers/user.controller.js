@@ -369,26 +369,26 @@ exports.googleController = async (req, res) => {
         // console.log('GOOGLE LOGIN RESPONSE',response)
         const { email_verified, name, email } = response.payload;
         if (email_verified) {
-            user.findOne({'ggEmail': email }).exec((err, user) => {
-                if (user) {
-                    user.generateJWT();
+            user.findOne({'ggEmail': email }).exec((err, newUser) => {
+                if (newUser) {
+                    newUser.generateJWT();
                     // const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
                     //     expiresIn: '1h'
                     // });
-                    const token = user.token;
-                    const { _id, email, name, role } = user;
+                    const token = newUser.token;
+                    const { _id, email, name, role } = newUser;
                     return res.json({
                         token,
-                        user: { _id, email, name, role }
+                        newUser: { _id, email, name, role }
                     });
                 } else {
                     let password = email + process.env.JWT_KEY;
-                    user = new user({
+                    newUser = new user({
                             name: name, 
                             ggEmail: email, 
                             password: password,
                             is_verify: true});
-                    user.save((err, data) => {
+                    newUser.save((err, data) => {
                         if (err) {
                             console.log('ERROR GOOGLE LOGIN ON USER SAVE', err);
                             return res.status(400).json({
@@ -406,12 +406,12 @@ exports.googleController = async (req, res) => {
                         //     newUser: { _id, email, name, role }
                         // });                       
                     }).then(function() {
-                        user.generateJWT(); //tạo token                       
+                        newUser.generateJWT(); //tạo token                       
                     });
-                    let token = user.token;
+                    let token = newUser.token;
                     res.status(200).send({
                         token,
-                        user: {_id, email, name, role}
+                        newUser: {_id, email, name, role}
                     })
                 }
           });
