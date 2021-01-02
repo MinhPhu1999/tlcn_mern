@@ -12,10 +12,10 @@ module.exports = (app, passport) => {
 
    app.route('/user/login')
       .post(user_controller.login);
-   app.route('/user/:id')
-      .get(user_controller.getUser);
    // app.route('/user/:id')
-   //    .get(auth.authLogin,user_controller.getUser);
+   //    .get(user_controller.getUser);
+   app.route('/user/:id')
+      .get(auth.authLogin,user_controller.getUser);
 
    app.route('/user/request/forgotpassword/:email')
       .get(user_controller.requestForgotPassword)
