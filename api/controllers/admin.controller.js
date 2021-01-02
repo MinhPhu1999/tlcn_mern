@@ -810,7 +810,7 @@ exports.login = async (req, res) => {
     }
     //tạo token cho user khi đăng nhập
     //let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
-    userFind.generateJWT();
+    //userFind.generateJWT();
     //thông báo đăng nhập thành công
     res.status(200).send({message: 'success', token: userFind.token, user: {
         email: userFind.email,
