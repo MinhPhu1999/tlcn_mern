@@ -11,14 +11,14 @@ module.exports = (app) => {
 		.post(auth.authLogin, cart_controller.addToCart);
 		
     app.route('/cart/updatetang')
-		.put(cart_controller.updateTang);
+		.put(auth.authLogin , cart_controller.updateTang);
 
     app.route('/cart/updategiam')
-		.put(cart_controller.updateGiam);
+		.put(auth.authLogin ,cart_controller.updateGiam);
 		
     app.route('/cart/delete/:id_user')
-		.delete(cart_controller.deleteCart);
+		.delete(auth.authLogin ,cart_controller.deleteCart);
 		
 	app.route('/cart/remove')
-		.put(cart_controller.deleteProductInCart);
+		.put(auth.authLogin ,cart_controller.deleteProductInCart);
 }

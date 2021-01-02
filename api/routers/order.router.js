@@ -1,11 +1,11 @@
 const order_controller = require('../controllers/order.controller');
 module.exports = (app) => {
     app.route('/order/addorder')
-        .post(order_controller.addOrder);
+        .post(auth.authLogin ,order_controller.addOrder);
     app.route('/order/detail/:id')
-        .get(order_controller.getOrderDetail);
+        .get(auth.authLogin ,order_controller.getOrderDetail);
     app.route('/order/:id')
-        .put(order_controller.deleteOrder);
+        .put(auth.authLogin ,order_controller.deleteOrder);
     app.route('/order/update')
         .post(order_controller.updateOrder);
     app.route('/order/getall/:page')
@@ -14,7 +14,7 @@ module.exports = (app) => {
         .get(order_controller.getAllorder);
 
     app.route('/order/getCustomerOrders')
-        .post(order_controller.getCustomerOrders);
+        .post(auth.authLogin ,order_controller.getCustomerOrders);
     // app.route('/order/deleteorder/:id')
     //     .put(order_controller.deleteOrder);
     // app.route('/order/verify/:id_order')
@@ -26,7 +26,7 @@ module.exports = (app) => {
     // app.route('/order/status/false')
     //     .get(order_controller.getOrderNoVerify);
     app.route('/order/getorder/:id_user')
-        .get(order_controller.getOrder);
+        .get(auth.authLogin ,order_controller.getOrder);
     // app.route('/order/status/true')
     //     .get(order_controller.getOrderVerify);
         
