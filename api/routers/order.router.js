@@ -1,4 +1,5 @@
 const order_controller = require('../controllers/order.controller');
+const auth = require('../utils/auth');
 module.exports = (app) => {
     app.route('/order/addorder')
         .post(auth.authLogin ,order_controller.addOrder);
