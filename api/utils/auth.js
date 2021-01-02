@@ -31,20 +31,23 @@ exports.authLogin = (req, res, next) => {
         user.findOne({ _id: data._id, 'token': token })
             .then((user) => {
                 if (!user) {
-                    return res.status(401).send({
-                        message: "Please login"
-                    });
+                    return res.redirect('/login');
+                    // return res.status(401).send({
+                    //     message: "Please login"
+                    // });
                 }
                 req.user = user;
                 next();
             })
             .catch((err) => {
-                return res.status(401).send({
-                    message: "Not authorized to access this resource",
-                });
+                return res.redirect('/login');
+                // return res.status(401).send({
+                //     message: "Not authorized to access this resource",
+                // });
             });
     } catch (error) {
-        res.status(401).send({ message: 'Time out, Please login again' })
+        res.redirect('/login');
+        //res.status(401).send({ message: 'Time out, Please login again' })
     }
 }
 

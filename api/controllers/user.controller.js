@@ -134,7 +134,7 @@ exports.login = async (req, res) => {
     }
     userFind.generateJWT();//tạo token
     //thông báo login success
-    res.status(200).send({message: 'login success', token: userFind.token, user: {
+    res.status(200).send({message: 'login success', token: userFind.token, newUser: {
         email: userFind.email,
         name: userFind.name,
         id: userFind._id
@@ -434,8 +434,9 @@ exports.facebookController = (req, res) => {
           user.findOne({'fbEmail': email }).exec((err, newUser) => {
             if (newUser) {
               const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
-                expiresIn: '1h'
+                expiresIn: '3m'
               });
+              newUser.token = token;
               const { _id, email, name, role } = newUser;
               return res.json({
                 token,
@@ -458,7 +459,7 @@ exports.facebookController = (req, res) => {
                 const token = jwt.sign(
                   { _id: data._id },
                   process.env.JWT_KEY,
-                  { expiresIn: '1h' }
+                  { expiresIn: '3m' }
                 );
                 const { _id, email, name, role } = data;
                 return res.json({

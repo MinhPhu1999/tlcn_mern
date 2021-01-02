@@ -1,5 +1,5 @@
-
 const cart_controller = require('../controllers/cart.controller');
+const auth = require('../utils/auth');
 module.exports = (app) => {
     app.route('/cart/:id_user')
 		.get(cart_controller.getCart);
@@ -8,7 +8,7 @@ module.exports = (app) => {
 		.get(cart_controller.getAll);
 		
 	app.route('/cart/addcart')
-		.post(cart_controller.addToCart);
+		.post(auth.authLogin, cart_controller.addToCart);
 		
     app.route('/cart/updatetang')
 		.put(cart_controller.updateTang);
