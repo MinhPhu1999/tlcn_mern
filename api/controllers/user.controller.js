@@ -378,7 +378,7 @@ exports.googleController = async (req, res) => {
                     newUser.token = token;
                     newUser.save();
                     //const token = newUser.token;
-                    const { _id, email, name, token} = newUser;
+                    const { _id, email, name} = newUser;
                     return res.json({
                         token,
                         newUser: { _id, email, name}
@@ -444,7 +444,7 @@ exports.facebookController = (req, res) => {
                 });
                 newUser.token = token;
                 newUser.save();
-                const { _id, email, name, token} = newUser;
+                const { _id, email, name} = newUser;
                 return res.json({
                     token,
                     newUser: { _id, email, name}
