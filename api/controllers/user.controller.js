@@ -149,6 +149,7 @@ exports.getUser = async (req, res) =>{
     }
     //khai báo các biến cần thiết
     let id = req.params.id;
+    let email;
     let userFind = null;
     try{
         userFind = await user.findOne({_id: id});//tìm kiếm user theo id
@@ -161,8 +162,21 @@ exports.getUser = async (req, res) =>{
         res.status(422).send({message: "Invalid data"});
         return;
     }
+    if(userFind.fbEmail != null)
+    {
+        email = userFind.fbEmail;
+    }
+    else if(userFind.ggEmail != null)
+    {
+        email = userFind.ggEmail;
+    }
+    else
+    {
+        email = userFind.email;
+    }
+
     res.status(200).send({ user: {//trả về email và name của user
-        email: userFind.email,
+        email: email,
         name: userFind.name,
     }});
 
