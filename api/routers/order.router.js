@@ -5,6 +5,8 @@ module.exports = (app) => {
         .post(auth.authLogin ,order_controller.addOrder);
     app.route('/order/detail/:id')
         .get(auth.authLogin ,order_controller.getOrderDetail);
+    app.route('/order/admindetail/:id')
+        .get(order_controller.getOrderDetail);
     app.route('/order/:id')
         .put(auth.authLogin ,order_controller.deleteOrder);
     app.route('/order/update')
