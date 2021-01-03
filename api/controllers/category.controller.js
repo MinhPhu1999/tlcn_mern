@@ -1,7 +1,7 @@
 const category = require('../models/category.model');
 
 exports.getCategory= async (req,res)=>{
-    category.find({status:true},(err,res)=>{
+    category.find({status:true},(err,docs)=>{
         if(err){
             res.status(422).send({message:err});
             return;

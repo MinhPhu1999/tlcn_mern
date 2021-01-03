@@ -1,6 +1,6 @@
 const brand_controller = require('../controllers/brand.controller');
 module.exports = (app) => {
-    app.route('/brand/all')
+    app.route('/brand')
         .get(brand_controller.getBrand);
 
     app.route('/brand/name/:id')
