@@ -8,14 +8,15 @@ const stockController = require('../controllers/stock.controller')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const cloudinary = require('cloudinary').v2; 
+//const cloudinary = require('cloudinary').v2; 
+const cloudinary = require('../config/cloudinary');
 
 // product
-cloudinary.config({ //set up cloudinary
-    cloud_name: process.env.CLOUD_NAME,
-    api_key: process.env.API_KEY,
-    api_secret: process.env.API_SECRECT
-});
+// cloudinary.config({ //set up cloudinary
+//     cloud_name: process.env.CLOUD_NAME,
+//     api_key: process.env.API_KEY,
+//     api_secret: process.env.API_SECRECT
+// });
 
 const uploadImg = async (path) => {
     let res;

@@ -1,8 +1,7 @@
-//const passport = require('passport');
 const user_controller = require('../controllers/user.controller');
 const auth = require('../utils/auth');
-//require('../../passport')(passport);
-module.exports = (app, passport) => {
+
+module.exports = (app) => {
 
    app.route('/user/register')
       .post(user_controller.register);
@@ -43,23 +42,4 @@ module.exports = (app, passport) => {
    app.route('/facebooklogin')
       .post(user_controller.facebookController);
 
-   app.route('/auth/facebook')
-      .get(passport.authenticate('facebook', {scope: ['email']}));
-      
-   app.route('/auth/facebook/callback')
-      .get(passport.authenticate('facebook', {
-          successRedirect: '/',
-          failureRedirect: '/login'
-      })
-   );
-
-   app.route('/auth/google')
-      .get(passport.authenticate('google', {scope: ['profile','email']}));
-      
-   app.route('/auth/google/callback')
-      .get(passport.authenticate('google', {
-          successRedirect: '/',
-          failureRedirect: '/login'
-      })
-   );
 }

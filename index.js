@@ -6,8 +6,8 @@ const port = process.env.PORT || 8080;
 const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const passport = require('passport');
 const cors = require('cors');
+const connectDB = require('./api/config/connectDB');
 const userRouter = require('./api/routers/user.router');
 const categoryRouter = require('./api/routers/category.router');
 const productRouter = require('./api/routers/product.router');
@@ -16,22 +16,20 @@ const cartRouter = require('./api/routers/cart.router');
 const orderRouter = require('./api/routers/order.router');
 const adminRouter = require('./api/routers/admin.router');
 
-require('./passport')(passport);
+connectDB();
 
-mongoose.Promise = global.Promise;
-const {mongoURL} = require('./mongo')
-mongoose.connect(mongoURL,{ //kết nối tới database
-    useNewUrlParser: true,
-    useFindAndModify: false,
-    useUnifiedTopology:true,
-    useCreateIndex: true}).catch(error => console.log(error.reason));
+// mongoose.Promise = global.Promise;
+// const {mongoURL} = require('./mongo')
+// mongoose.connect(mongoURL,{ //kết nối tới database
+//     useNewUrlParser: true,
+//     useFindAndModify: false,
+//     useUnifiedTopology:true,
+//     useCreateIndex: true}).catch(error => console.log(error.reason));
 
 //có phép nhận dữ liệu từ form
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.use(passport.initialize());
-app.use(passport.session());
 app.use(cors({
     origin: process.env.CLIENT_URL
 }))
@@ -43,7 +41,7 @@ app.use(cors({
 //     next();
 // });
 
-userRouter(app,passport);
+userRouter(app);
 categoryRouter(app);
 brandRouter(app);
 productRouter(app);

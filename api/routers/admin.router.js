@@ -1,13 +1,14 @@
 const admin_controller = require('../controllers/admin.controller');
-const multer = require('multer')
-const storage = multer.diskStorage({
-  destination: './files/',
-  filename: (req, file, cb) =>{
-      let filename=`${Date.now()}-${file.originalname}`;
-     cb(null,filename);
-  }
-})
-const upload = multer({ storage:storage });
+const upload = require('../config/multer');
+// const multer = require('multer')
+// const storage = multer.diskStorage({
+//   destination: './files/',
+//   filename: (req, file, cb) =>{
+//       let filename=`${Date.now()}-${file.originalname}`;
+//      cb(null,filename);
+//   }
+// })
+// const upload = multer({ storage:storage });
 
 module.exports = (app) => {
   //product
