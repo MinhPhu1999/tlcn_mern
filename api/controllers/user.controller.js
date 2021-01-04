@@ -322,10 +322,10 @@ exports.updateInfor = async (req, res) => {
         return;
     }
     //thông báo update infor thành công
-    res.status(200).send({message: 'success', token: newUser.token, user: {
+    res.status(200).send({message: 'success', token: newUser.token, newUser: {
         email: newUser.email,
         name: newUser.name,
-        id: newUser._id
+        _id: newUser._id
     }});
 }
 
