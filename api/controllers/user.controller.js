@@ -387,7 +387,7 @@ exports.googleController = async (req, res) => {
                 if (newUser) {
                     //newUser.generateJWT();
                     const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
-                        expiresIn: '3m'
+                        expiresIn: '3h'
                     });
                     newUser.token = token;
                     newUser.save();
@@ -416,7 +416,7 @@ exports.googleController = async (req, res) => {
                         const token = jwt.sign(
                             { _id: data._id },
                             process.env.JWT_KEY,
-                            { expiresIn: '3m' }
+                            { expiresIn: '3h' }
                         );
                         data.token = token;
                         data.save();
@@ -454,7 +454,7 @@ exports.facebookController = (req, res) => {
             if (newUser) {
                 //newUser.generateJWT();
                 const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
-                    expiresIn: '3m'
+                    expiresIn: '3h'
                 });
                 newUser.token = token;
                 newUser.save();
@@ -480,7 +480,7 @@ exports.facebookController = (req, res) => {
                 const token = jwt.sign(
                     { _id: data._id },
                     process.env.JWT_KEY,
-                    { expiresIn: '3m' }
+                    { expiresIn: '3h' }
                 );
                 data.token = token;
                 data.save();
