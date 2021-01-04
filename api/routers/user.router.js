@@ -29,10 +29,10 @@ module.exports = (app, passport) => {
    app.route('/auth')
       .post(auth.verify)
 
-   // app.route('/user/updateinfor')
-   //    .put(auth.authLogin, user_controller.updateInfor)
    app.route('/user/updateinfor')
-      .put(user_controller.updateInfor)
+      .put(auth.authLogin, user_controller.updateInfor)
+   // app.route('/user/updateinfor')
+   //    .put(user_controller.updateInfor)
 
    app.route('/user/updatepassword')
       .put(auth.authLogin, user_controller.updatePassword)

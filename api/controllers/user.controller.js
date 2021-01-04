@@ -137,7 +137,7 @@ exports.login = async (req, res) => {
     res.status(200).send({message: 'login success', token: userFind.token, newUser: {
         email: userFind.email,
         name: userFind.name,
-        id: userFind._id
+        _id: userFind._id
     }});
 }
 
