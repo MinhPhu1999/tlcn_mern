@@ -47,6 +47,6 @@ const order=new Schema({
     // status:{
     //     type:Boolean
     // }
-});
+},{timestamps: true});
 
 module.exports = mongoose.model('bill', order);

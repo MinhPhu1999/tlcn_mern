@@ -24,6 +24,6 @@ const stock = new Schema({
     status:{
         type:Boolean
     }
-});
+},{timestamps: true});
 
 module.exports = mongoose.model('stock', stock);

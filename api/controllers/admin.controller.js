@@ -8,15 +8,7 @@ const stockController = require('../controllers/stock.controller')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-//const cloudinary = require('cloudinary').v2; 
 const cloudinary = require('../config/cloudinary');
-
-// product
-// cloudinary.config({ //set up cloudinary
-//     cloud_name: process.env.CLOUD_NAME,
-//     api_key: process.env.API_KEY,
-//     api_secret: process.env.API_SECRECT
-// });
 
 const uploadImg = async (path) => {
     let res;
@@ -41,7 +33,9 @@ exports.addProduct = async (req, res) => {
         res.status(422).send({message: 'Invalid data' });
         return;
     }
-    const {name, id_category, price, id_brand, description, count} = req.body;//khai báo các tham số truyền vào
+    //const {name, id_category, price, id_brand, description, count, size, color} = req.body;
+    //console.log(size.length);
+    const {name, id_category, price, id_brand, description, count, sizeS, sizeM, sizeL, sizeXL, size2XL, color} = req.body;//khai báo các tham số truyền vào
     let urlImg = await uploadImg(req.file.path);  //lấy đường dẫn hình ảnh
     
     if(urlImg === false) {
@@ -49,6 +43,28 @@ exports.addProduct = async (req, res) => {
         return;
     }
 
+    let size = [
+        {
+          type: "S",
+          quantity: sizeS,
+        },
+        {
+            type: "M",
+            quantity: sizeM,
+        },
+        {
+            type: "L",
+            quantity: sizeL,
+        },
+        {
+            type: "XL",
+            quantity: sizeXL,
+        },
+        {
+            type: "2XL",
+            quantity: size2XL,
+        }
+    ];
     const newProduct = new product({ //tạo mới product
         id_category:id_category,
         name: name,
@@ -56,7 +72,9 @@ exports.addProduct = async (req, res) => {
         id_brand: id_brand,
         img: urlImg,
         description: description,
-        count: count
+        count: count,
+        size: size,
+        color: color
     });
     try{
         await newProduct.save(); //lưu dữ liệu product vào mongo
@@ -67,6 +85,7 @@ exports.addProduct = async (req, res) => {
     }
     res.status(201).send({message: 'add product success'})
 }
+
 
 exports.updateProduct = async (req, res) => {
     // kiểm tra có đủ tham số truyền vào hay không

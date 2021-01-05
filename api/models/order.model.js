@@ -79,6 +79,6 @@ const order=new Schema({
     payment: {
         type: String
     }
-});
+},{timestamps: true});
 
-module.exports = mongoose.model('order', order);
+module.exports = mongoose.model('order', order);  

@@ -30,7 +30,7 @@ const cart = new Schema ({
         default: Date.now()
     }
 
-});
+},{timestamps: true});
 
 cart.methods.updateCountProduct = async function() {
     const cart = this;

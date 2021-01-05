@@ -37,7 +37,7 @@ const user = new Schema({
         type:Boolean,
         default: true
     }
-});
+},{timestamps: true});
 user.methods.generateJWT = async function() {
     const user = this;
     const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY,{

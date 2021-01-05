@@ -21,6 +21,7 @@ module.exports = (app) => {
     app.route('/admin/getallproduct/:page')
         .get(admin_controller.getAllProduct);
 
+
     //brand
     app.route('/admin/addbrand')
         .post(admin_controller.addBrand);
