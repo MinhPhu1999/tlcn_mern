@@ -18,6 +18,11 @@ exports.register = async (req, res) => {
     }
     //khai báo các biến cần thiết
     let { email, password, name, repassword} = req.body;
+    function isValidName(p) {
+        var phoneRe = /^[a-zA-Z\-]+$/;
+        //var digits = p.replace(/\D/g, "");
+        return phoneRe.test(p);
+    }
     //kiểm tra điều kiện email và password
     if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
         || password.length < 6 ){

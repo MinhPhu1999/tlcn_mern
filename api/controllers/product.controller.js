@@ -29,12 +29,6 @@ exports.getProductByID = async(req, res) =>{
 }
 
 exports.getProduct = async(req,res)=>{
-    // const productFind = await product.find({status: true});
-    // if(productFind){
-    //     res.status(200).send(productFind);
-    //     return;
-    // }
-    // res.status(404).send({message: "product not found"});
     if(typeof req.params.page === 'undefined') {
         res.status(402).send({message: 'Data invalid'});
         return;
@@ -65,6 +59,15 @@ exports.getProduct = async(req,res)=>{
         }
         res.status(200).send({data: docs, totalPage});
     })
+}
+
+exports.getAllProduct = async(req, res) =>{
+    const productFind = await product.find({status: true});
+    if(productFind){
+        res.status(200).send(productFind);
+        return;
+    }
+    res.status(404).send({message: "product not found"});
 }
 
 exports.searchProduct = async(req,res)=>{

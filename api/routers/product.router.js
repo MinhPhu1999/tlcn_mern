@@ -3,6 +3,8 @@ const product_controller = require('../controllers/product.controller');
 module.exports = (app) => {
     app.route('/product/getproduct/:page')
         .get(product_controller.getProduct);
+    app.route('/product')
+        .get(product_controller.getAllProduct);
 
     app.route('/product/:id')
         .get(product_controller.getProductByID);
