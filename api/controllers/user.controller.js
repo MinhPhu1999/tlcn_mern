@@ -27,10 +27,10 @@ exports.register = async (req, res) => {
         return re.test(string)
     }
     if(!isValidPassWord(password)){
-        return res.status(422).send("Mật khẩu có độ dài từ 8-12 kí tự phải chứa số,chữ thường và chữ hoa ")
+        return res.status(422).send({message: "Mật khẩu có độ dài từ 8-12 kí tự phải chứa số,chữ thường và chữ hoa "})
     }
     if(!isValidName(name)){
-        return res.status(422).send("Nhập đầy đủ họ và tên");
+        return res.status(422).send({message: "Nhập đầy đủ họ và tên"});
     }
     //kiểm tra điều kiện email và password
     if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
