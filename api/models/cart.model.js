@@ -13,6 +13,7 @@ const cart = new Schema ({
                 price: Number,
                 img: String,
                 count: Number,
+                size: String,
                 _id: String
             }
         ],

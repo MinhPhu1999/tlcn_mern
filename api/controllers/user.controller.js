@@ -18,10 +18,19 @@ exports.register = async (req, res) => {
     }
     //khai báo các biến cần thiết
     let { email, password, name, repassword} = req.body;
-    function isValidName(p) {
-        var phoneRe = /^[a-zA-Z\-]+$/;
-        //var digits = p.replace(/\D/g, "");
-        return phoneRe.test(p);
+    function isValidName (string) {
+        var re = /[^a-z0-9A-Z_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ]/u
+        return re.test(string)
+    }
+    function isValidPassWord (string) {
+        var re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,12}$/
+        return re.test(string)
+    }
+    if(!isValidPassWord(password)){
+        return res.status(422).send("Mật khẩu có độ dài từ 8-12 kí tự phải chứa số,chữ thường và chữ hoa ")
+    }
+    if(!isValidName(name)){
+        return res.status(422).send("Nhập đầy đủ họ và tên");
     }
     //kiểm tra điều kiện email và password
     if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 

@@ -18,19 +18,7 @@ module.exports = (app) => {
 
     app.route('/order/getCustomerOrders')
         .post(auth.authLogin ,order_controller.getCustomerOrders);
-    // app.route('/order/deleteorder/:id')
-    //     .put(order_controller.deleteOrder);
-    // app.route('/order/verify/:id_order')
-    //     .get(order_controller.isVerify);
-    // app.route('/order/shiping/:id_order')
-    //     .get(order_controller.isShiping);
-    // app.route('/order/deliver/:id_order')
-    //     .get(order_controller.isDelever);
-    // app.route('/order/status/false')
-    //     .get(order_controller.getOrderNoVerify);
     app.route('/order/getorder/:id_user')
         .get(auth.authLogin ,order_controller.getOrder);
-    // app.route('/order/status/true')
-    //     .get(order_controller.getOrderVerify);
         
 }

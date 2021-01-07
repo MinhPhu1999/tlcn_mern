@@ -35,7 +35,7 @@ exports.addProduct = async (req, res) => {
         return;
     }
     //console.log("vfsvs");
-    const {name, id_category, price, id_brand, description, count, sizeS, sizeM, sizeL, sizeXL, size2XL, color} = req.body;//khai báo các tham số truyền vào
+    const {name, id_category, price, id_brand, description, sizeS, sizeM, sizeL, sizeXL, size2XL, color} = req.body;//khai báo các tham số truyền vào
     //let urlImg = await uploadImg(req.file.path);  //lấy đường dẫn hình ảnh
     const urls = [];
     const files = req.files;
@@ -81,7 +81,6 @@ exports.addProduct = async (req, res) => {
         img: urlImg,
         detailImage: urls,
         description: description,
-        count: count,
         size: size,
         color: color
     });
@@ -89,23 +88,6 @@ exports.addProduct = async (req, res) => {
         if(err) return res.status(500).send({message: 'add product fail'}); // thông báo nếu lưu thất bại
         res.status(201).send({message: 'add product success'})
     })
-    // newProduct.save((err, doc) =>{
-    //     if(err) return res.status(500).send({message: 'add product fail'});
-    //     if(doc){
-    //         image_product.findOne({_id:req.body.product},(error, data)
-    //         if(data){
-    //             data.image_product.push(image_product)
-    //         })
-    //     }
-    // })
-    // try{
-    //     await newProduct.save(); //lưu dữ liệu product vào mongo
-    // }
-    // catch(err) {
-    //     res.status(500).send({message: 'add product fail'}); // thông báo nếu lưu thất bại
-    //     return;
-    // }
-    // res.status(201).send({message: 'add product success'})
 }
 
 exports.addProductTest = async(req, res) =>{
@@ -140,7 +122,7 @@ exports.updateProduct = async (req, res) => {
         res.status(422).send({message: 'Invalid data' });
         return;
     }
-    let { name, id, id_category, price, id_brand, description, status} = req.body; //khai báo các tham số
+    let { name, id, id_category, price, id_brand, description, sizeS, sizeM, sizeL, sizeXL, size2XL, color, status} = req.body; //khai báo các tham số
     let productFind = null;
     try {
         productFind = await product.findById(id); //tìm kiếm product bằng id
@@ -154,18 +136,48 @@ exports.updateProduct = async (req, res) => {
         res.status(404).send({message: "not found product" }); //thông báo nếu không tìm thấy
         return;
     }
-    let urlImg = null;
-    if(typeof req.file !== 'undefined' ) {
-        urlImg = await uploadImg(req.file.path)
-    }
-    if(urlImg !== null) {
-        if(urlImg === false) {
-            res.status(500).send({message: 'not update image'});
-            return;
+    let size = [
+        {
+          type: "S",
+          quantity: sizeS,
+        },
+        {
+            type: "M",
+            quantity: sizeM,
+        },
+        {
+            type: "L",
+            quantity: sizeL,
+        },
+        {
+            type: "XL",
+            quantity: sizeXL,
+        },
+        {
+            type: "2XL",
+            quantity: size2XL,
         }
+    ];
+    const urls = [];
+    const files = req.files;
+    for(const file of files){
+        const {path} = file;
+        const result = await uploadImg(path);
+        urls.push(result);
     }
-    if(urlImg === null)
-        urlImg = productFind.img; //thay hình cũ bằng hình mới
+    let urlImg = urls[0];
+    // let urlImg = null;
+    // if(typeof req.file !== 'undefined' ) {
+    //     urlImg = await uploadImg(req.file.path)
+    // }
+    // if(urlImg !== null) {
+    //     if(urlImg === false) {
+    //         res.status(500).send({message: 'not update image'});
+    //         return;
+    //     }
+    // }
+    // if(urlImg === null)
+    //     urlImg = productFind.img; //thay hình cũ bằng hình mới
     
     //update product
     productFind.id_category = id_category;
@@ -174,6 +186,9 @@ exports.updateProduct = async (req, res) => {
     productFind.id_brand = id_brand;
     productFind.description = description;
     productFind.img = urlImg;
+    productFind.detailImage = urls;
+    productFind.size = size;
+    productFind.color = color;
     productFind.status = status;
     
     productFind.save((err, docs) => { // lưu các thay đổi
@@ -185,27 +200,15 @@ exports.updateProduct = async (req, res) => {
 }
 
 exports.deleteProduct = async (req, res) => {
-    //kiểm tra có truyền vào tham số id của sản phảm hay không
-    if (typeof req.params.id === 'undefined') {
-        res.status(422).send({message: 'Invalid data' });
-        return;
-    }
-    let productFind = null;
-    productFind = await product.findById(req.params.id); //tìm kiếm sản phẩm bằng id
-    if (productFind === null) {
-        res.status(404).send({message: "not found product" }); //thông báo nếu không tìm thấy sản phẩm
-        return;
-    }
-    productFind.status = false; //update lại status của sản phẩm, true là còn, false là đã xóa
-    try {
-        productFind.save(); //lưu các thay đổi
-    }
-    catch (err) {
-        //console.log(err)
-        res.status(500).send({message: err })
-        return;
-    }
-    res.status(200).send({message: 'delete product success', });// thông báo xóa thành công
+    product.updateOne(
+		{ _id: req.params.id},
+		{ $set: {status: false},
+		}
+	).exec((error) => {
+		if (error) 
+			return res.status(400).send({ error });
+		res.status(201).send("delete product success");
+	});
 }
 
 exports.getAllProduct = async(req,res)=>{
@@ -506,35 +509,15 @@ exports.updateBrand = async (req, res) => {
 }
 
 exports.deleteBrand = async(req,res)=>{
-    //kiểm tra có truyền đủ tham số hay không
-    if (typeof req.params.id === "undefined") {
-        res.status(402).send({message: "data invalid" });
-        return;
-    }
-    let id=req.params.id;//khai báo biến
-    let brandFind = null;
-    try {
-        brandFind = await brand.findById(id);//tìm kiếm brand theo id
-    } catch (err) {//xuất lỗi
-        console.log(err);
-        res.status(500).send({message: "server found" });
-        return;
-    }
-    if (brandFind === null) {//không tìm thấy brand
-        res.status(400).send({message: "brand ot found" });
-        return;
-    }
-    //update lại status
-    brandFind.status = false;
-    try {
-        await brandFind.save();//lưu lại các thay đổi
-    }
-    catch (err) {//xuất lỗi
-        console.log(err);
-        res.status(500).send({message: err });
-        return;
-    }
-    res.status(200).send({message: "delete brand success" });//thông báo xóa thành công
+    brand.updateOne(
+		{ _id: req.params.id},
+		{ $set: {status: false},
+		}
+	).exec((error) => {
+		if (error) 
+			return res.status(400).send({ error });
+		res.status(201).send("delete brand success");
+	});
 }
 
 exports.getAllBrand = async (req, res) => {
@@ -642,36 +625,15 @@ exports.updateCategory = async (req, res) => {
 }
 
 exports.deleteCategory = async(req,res)=>{
-    //kiểm tra có truyền tham số đủ hay không
-    if (typeof req.params.id === "undefined") {
-        res.status(402).send({message: "data invalid" });
-        return;
-    }
-     //khai báo biến cần thiết
-    let id = req.params.id;
-    let categoryFind = null;
-    try {
-        categoryFind = await category.findById(id);//tiến hành tìm kiếm category theo id
-    } catch (err) {
-        console.log(err);
-        res.status(500).send({message: "server found" });
-        return;
-    }
-    if (categoryFind === null) {//trường hợp không có category trong cơ sở dữ liệu
-        res.status(400).send({message: "category not found" });
-        return;
-    }
-    //update status cho category
-    categoryFind.status = false;
-    try {
-        await categoryFind.save();//lưu lại các thay đổi
-    }
-    catch (err) {//xuất lỗi nếu không lưu lại được
-        console.log(err);
-        res.status(500).send({message: err });
-        return;
-    }
-    res.status(200).send({message: "delete category success" });//thông báo xóa thành công
+    category.updateOne(
+		{ _id: req.params.id},
+		{ $set: {status: false},
+		}
+	).exec((error) => {
+		if (error) 
+			return res.status(400).send({ error });
+		res.status(201).send("delete product success");
+	});
 }
 
 exports.getAllCategory=async(req,res)=>{
@@ -753,36 +715,15 @@ exports.updateUser = async (req, res) => {
 }
 
 exports.deleteUser = async (req, res) => {
-    //kiểm tra có truyền tham số đủ hay không
-    if (typeof req.body.email === 'undefined') {
-        res.status(422).send({message: 'Invalid data' });
-        return;
-    }
-    //khai báo biến cần thiết
-    let { email} = req.body;
-    let userFind;
-    try {
-        userFind = await user.findOne({email: email})//tiến hành tìm kiếm user theo email
-    }
-    catch(err) {
-        res.status(500).send({message: err });
-        return;
-    }
-    if (userFind === null) {//trường hợp không có user trong cơ sở dữ liệu
-        res.status(400).send({message: "user not found" });
-        return;
-    }
-    //update status cho user
-    userFind.status = false;
-    try{
-        await userFind.save();//lưu lại các thay đổi	
-    }
-    catch (err) {//xuất lỗi nếu không lưu lại được
-        console.log(err);
-        res.status(500).send({message: err });
-        return;
-    }
-    res.status(200).send({message: 'delete user success'});//thông báo xóa thành công
+    user.updateOne(
+		{ _id: req.params.id},
+		{ $set: {status: false},
+		}
+	).exec((error) => {
+		if (error) 
+			return res.status(400).send({ error });
+		res.status(201).send("delete product success");
+	});
 }
 
 exports.addUser = async (req, res) => {
@@ -870,8 +811,7 @@ exports.login = async (req, res) => {
         return;
     }
     //tạo token cho user khi đăng nhập
-    //let token = jwt.sign({email: email,  iat: Math.floor(Date.now() / 1000) - 60 * 30}, process.env.JWT_KEY);
-    //userFind.generateJWT();
+    userFind.generateJWT();
     //thông báo đăng nhập thành công
     res.status(200).send({message: 'success', token: userFind.token, user: {
         email: userFind.email,
