@@ -31,7 +31,6 @@ exports.authLogin = (req, res, next) => {
         user.findOne({ _id: data._id, 'token': token })
             .then((user) => {
                 if (!user) {
-                    //return res.redirect('/login');
                     return res.status(401).send({
                         message: "Please login"
                     });

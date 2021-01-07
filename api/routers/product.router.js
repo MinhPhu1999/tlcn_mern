@@ -1,7 +1,7 @@
 const product_controller = require('../controllers/product.controller');
 
 module.exports = (app) => {
-    app.route('/product')
+    app.route('/product/getproduct/:page')
         .get(product_controller.getProduct);
 
     app.route('/product/:id')

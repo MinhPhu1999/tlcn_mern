@@ -29,12 +29,42 @@ exports.getProductByID = async(req, res) =>{
 }
 
 exports.getProduct = async(req,res)=>{
-    const productFind = await product.find({status: true});
-    if(productFind){
-        res.status(200).send(productFind);
+    // const productFind = await product.find({status: true});
+    // if(productFind){
+    //     res.status(200).send(productFind);
+    //     return;
+    // }
+    // res.status(404).send({message: "product not found"});
+    if(typeof req.params.page === 'undefined') {
+        res.status(402).send({message: 'Data invalid'});
         return;
     }
-    res.status(404).send({message: "product not found"});
+    let count = null;
+    try { 
+        count = await product.countDocuments({status: true});// đém sản phẩm có bao nhiêu
+    }
+    catch(err) {
+        console.log(err);
+        res.status(500).send({message: err});
+        return;
+    }
+    let totalPage = parseInt(((count - 1) / 8) + 1); // từ số lượng sản phẩm sẽ tính ra số trang 
+    let { page } = req.params;
+    if ((parseInt(page) < 1) || (parseInt(page) > totalPage)) {
+        res.status(200).send({ data: [], message: 'Invalid page', totalPage });
+        return;
+    }
+    product.find({status: true})
+    .skip(8 * (parseInt(page) - 1))
+    .limit(8) // giới hạn hiển thị sản phẩm mỗi trang
+    .exec((err, docs) => {
+        if(err) {
+            console.log(err);
+                    res.status(500).send({message: err });
+                    return;
+        }
+        res.status(200).send({data: docs, totalPage});
+    })
 }
 
 exports.searchProduct = async(req,res)=>{
@@ -84,11 +114,6 @@ exports.getProductByCategory = async(req,res)=>{
     res.status(404).send({message: "product not found"});
 }
 
-// exports.getProductByPrice = async(req, res) =>{
-//     let giaTren = req.body.giaTren;
-//     let giaDuoi = req.body.giaDuoi;
-//     const productFind = product.find({price > giaTren})
-// }
 
 exports.getNameByID = async (req, res) => {
     if(req.params.id === 'undefined') {

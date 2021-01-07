@@ -4,6 +4,7 @@ const category=require('../models/category.model');
 const brand = require('../models/brand.model');
 const user = require('../models/user.model');
 const stock = require('../models/stock.model');
+const image_product = require('../models/image_product');
 const stockController = require('../controllers/stock.controller')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -23,7 +24,7 @@ const uploadImg = async (path) => {
 
 exports.addProduct = async (req, res) => {
     //kiểm tra có đủ tham số truyền vào hay không
-    if(typeof req.file === 'undefined' 
+    if(typeof req.files === 'undefined' 
     || typeof req.body.name === 'undefined' 
     || typeof req.body.id_category === 'undefined' 
     || typeof req.body.price === 'undefined' 
@@ -33,15 +34,22 @@ exports.addProduct = async (req, res) => {
         res.status(422).send({message: 'Invalid data' });
         return;
     }
-    //const {name, id_category, price, id_brand, description, count, size, color} = req.body;
-    //console.log(size.length);
+    //console.log("vfsvs");
     const {name, id_category, price, id_brand, description, count, sizeS, sizeM, sizeL, sizeXL, size2XL, color} = req.body;//khai báo các tham số truyền vào
-    let urlImg = await uploadImg(req.file.path);  //lấy đường dẫn hình ảnh
-    
-    if(urlImg === false) {
-        res.status(500).send({message: 'khong upload duoc anh len cloudinary'});
-        return;
+    //let urlImg = await uploadImg(req.file.path);  //lấy đường dẫn hình ảnh
+    const urls = [];
+    const files = req.files;
+    for(const file of files){
+        const {path} = file;
+        const result = await uploadImg(path);
+        urls.push(result);
     }
+    let urlImg = urls[0];
+    // if(urlImg === false) {
+    //     res.status(500).send({message: 'khong upload duoc anh len cloudinary'});
+    //     return;
+    // }
+    
 
     let size = [
         {
@@ -71,21 +79,54 @@ exports.addProduct = async (req, res) => {
         price: price,
         id_brand: id_brand,
         img: urlImg,
+        detailImage: urls,
         description: description,
         count: count,
         size: size,
         color: color
     });
-    try{
-        await newProduct.save(); //lưu dữ liệu product vào mongo
-    }
-    catch(err) {
-        res.status(500).send({message: 'add product fail'}); // thông báo nếu lưu thất bại
-        return;
-    }
-    res.status(201).send({message: 'add product success'})
+    newProduct.save((err, doc) =>{
+        if(err) return res.status(500).send({message: 'add product fail'}); // thông báo nếu lưu thất bại
+        res.status(201).send({message: 'add product success'})
+    })
+    // newProduct.save((err, doc) =>{
+    //     if(err) return res.status(500).send({message: 'add product fail'});
+    //     if(doc){
+    //         image_product.findOne({_id:req.body.product},(error, data)
+    //         if(data){
+    //             data.image_product.push(image_product)
+    //         })
+    //     }
+    // })
+    // try{
+    //     await newProduct.save(); //lưu dữ liệu product vào mongo
+    // }
+    // catch(err) {
+    //     res.status(500).send({message: 'add product fail'}); // thông báo nếu lưu thất bại
+    //     return;
+    // }
+    // res.status(201).send({message: 'add product success'})
 }
 
+exports.addProductTest = async(req, res) =>{
+    const urls = [];
+    const files = req.files;
+    for(const file of files){
+        const {path} = file;
+        const result = await uploadImg(path);
+        //console.log(result.secure_url);
+        urls.push(result);
+    }
+    //console.log(urls);
+    //let urlImg = await uploadImg(req.file.path);
+    const newProduct = new product({
+        detailImage: urls
+    });
+    newProduct.save((err, doc) =>{
+        if(err) return res.status(500).send("Add Fail");
+        res.status(200).send({data: doc})
+    });
+}
 
 exports.updateProduct = async (req, res) => {
     // kiểm tra có đủ tham số truyền vào hay không
