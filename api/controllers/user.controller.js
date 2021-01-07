@@ -247,7 +247,7 @@ exports.verifyForgotPassword = async (req, res) => {
     let { email, otp } = req.body;
     let userFind = null;
     try{
-        userFind = await user.findOne({'opt': otp});//tìm kiếm user theo email
+        userFind = await user.findOne({'otp': otp});//tìm kiếm user theo email
     }
     catch(err){
         res.send({message: err});

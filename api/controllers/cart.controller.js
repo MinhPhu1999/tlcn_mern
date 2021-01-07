@@ -282,28 +282,36 @@ exports.deleteProductInCart = async (req, res) => {
     return;
   }
   //tìm kiếm vị trí id_product truyền vào bằng với id_product có trong cart
-  let index = cartFind.products.findIndex(
-    element => element._id === id_product
-  );
-  //trường hợp không tìm thấy product có trong cart
-  if (index === -1) {
-    res.status(404).send({message: "product not found in list" });
+  if(cartFind.products.length === 1){
+    cartFind.remove();
+    cartFind.save();
     return;
   }
-  cartFind.grandTotal -= (cartFind.products[index].count * cartFind.products[index].price );//update lại grandtotal
-  cartFind.products.splice(index, 1);//xóa sản phẩm trong cart
-
-  try {
-    //lưu lại các thay đổi
-    await cart.findByIdAndUpdate(cartFind._id, {
-      $set: { products: cartFind.products,
-              grandTotal: cartFind.grandTotal }
-    });
-
-  } catch (err) {
-    console.log(err);
-    res.status(500).send({message: err });
-    return;
+  else{
+    let index = cartFind.products.findIndex(
+      element => element._id === id_product
+    );
+    //trường hợp không tìm thấy product có trong cart
+    if (index === -1) {
+      res.status(404).send({message: "product not found in list" });
+      return;
+    }
+    cartFind.grandTotal -= (cartFind.products[index].count * cartFind.products[index].price );//update lại grandtotal
+    cartFind.products.splice(index, 1);//xóa sản phẩm trong cart
+  
+    try {
+      //lưu lại các thay đổi
+      await cart.findByIdAndUpdate(cartFind._id, {
+        $set: { products: cartFind.products,
+                grandTotal: cartFind.grandTotal }
+      });
+  
+    } catch (err) {
+      console.log(err);
+      res.status(500).send({message: err });
+      return;
+    }
   }
+  
   res.status(200).send({message: "delete success" });//thông báo xóa thành công
 };
