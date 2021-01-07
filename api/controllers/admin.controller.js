@@ -90,24 +90,99 @@ exports.addProduct = async (req, res) => {
     })
 }
 
-exports.addProductTest = async(req, res) =>{
-    const urls = [];
-    const files = req.files;
-    for(const file of files){
-        const {path} = file;
-        const result = await uploadImg(path);
-        //console.log(result.secure_url);
-        urls.push(result);
+exports.addProductTest = async (req, res) => {
+    //kiểm tra có đủ tham số truyền vào hay không
+    if(typeof req.file === 'undefined' 
+    || typeof req.body.name === 'undefined' 
+    || typeof req.body.id_category === 'undefined' 
+    || typeof req.body.price === 'undefined' 
+    || typeof req.body.id_brand === 'undefined' 
+    || typeof req.body.description === 'undefined'
+    ) {
+        res.status(422).send({message: 'Invalid data' });
+        return;
     }
-    //console.log(urls);
-    //let urlImg = await uploadImg(req.file.path);
-    const newProduct = new product({
-        detailImage: urls
+    const {name, id_category, price, id_brand, description, count} = req.body;//khai báo các tham số truyền vào
+    let urlImg = await uploadImg(req.file.path);  //lấy đường dẫn hình ảnh
+
+    if(urlImg === false) {
+        res.status(500).send({message: 'khong upload duoc anh len cloudinary'});
+        return;
+    }
+    
+    const newProduct = new product({ //tạo mới product
+        id_category:id_category,
+        name: name,
+        price: price,
+        id_brand: id_brand,
+        img: urlImg,
+        count: count,
+        description: description,
+        status: true
+
     });
     newProduct.save((err, doc) =>{
-        if(err) return res.status(500).send("Add Fail");
-        res.status(200).send({data: doc})
+        if(err) return res.status(500).send({message: 'add product fail'}); // thông báo nếu lưu thất bại
+        res.status(201).send({message: 'add product success'})
+    })
+}
+
+
+exports.updateProductTest = async (req, res) => {
+    // kiểm tra có đủ tham số truyền vào hay không
+    if( typeof req.body.name === 'undefined' 
+    || typeof req.body.id === 'undefined' 
+    || typeof req.body.id_category === 'undefined' 
+    || typeof req.body.price === 'undefined' 
+    || typeof req.body.id_brand === 'undefined' 
+    || typeof req.body.description === 'undefined'
+    ) {
+        res.status(422).send({message: 'Invalid data' });
+        return;
+    }
+    let { name, id, id_category, price, id_brand, description, count, status} = req.body; //khai báo các tham số
+    let productFind = null;
+    try {
+        productFind = await product.findById(id); //tìm kiếm product bằng id
+    }
+    catch (err) {
+        //console.log(err)
+        res.status(500).send({message: err })
+        return;
+    }
+    if (productFind === null) {
+        res.status(404).send({message: "not found product" }); //thông báo nếu không tìm thấy
+        return;
+    }
+    let urlImg = null;
+    if(typeof req.file !== 'undefined' ) {
+        urlImg = await uploadImg(req.file.path)
+    }
+    if(urlImg !== null) {
+        if(urlImg === false) {
+            res.status(500).send({message: 'not update image'});
+            return;
+        }
+    }
+    if(urlImg === null)
+        urlImg = productFind.img; //thay hình cũ bằng hình mới
+    
+    //update product
+    productFind.id_category = id_category;
+    productFind.name = name;
+    productFind.price = parseFloat(price)
+    productFind.id_brand = id_brand;
+    productFind.description = description;
+    productFind.img = urlImg;
+    productFind.count = count;
+    productFind.status = status;
+    
+    productFind.save((err, docs) => { // lưu các thay đổi
+        if (err) {
+            console.log(err);
+        }
     });
+    res.status(200).send({message: 'update product success', data: productFind }); //thông báo lưu thành công
 }
 
 exports.updateProduct = async (req, res) => {
@@ -198,7 +273,6 @@ exports.updateProduct = async (req, res) => {
     });
     res.status(200).send({message: 'update product success', data: productFind }); //thông báo lưu thành công
 }
-
 exports.deleteProduct = async (req, res) => {
     product.updateOne(
 		{ _id: req.params.id},

@@ -3,10 +3,12 @@ const upload = require('../config/multer');
 
 module.exports = (app) => {
   //product
+    // app.route('/admin/addproduct')
+    //     .post(upload.array('files'),admin_controller.addProduct); 
     app.route('/admin/addproduct')
-        .post(upload.array('files'),admin_controller.addProduct); 
+        .post(upload.single('file'),admin_controller.addProductTest); 
     app.route('/admin/updateproduct')
-        .put(upload.array('files'),admin_controller.updateProduct);
+        .put(upload.single('file'),admin_controller.updateProductTest);
     app.route('/admin/deleteproduct/:id')
         .put(admin_controller.deleteProduct);
     app.route('/admin/getallproduct/:page')
