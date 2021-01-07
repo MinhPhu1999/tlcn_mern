@@ -283,9 +283,9 @@ exports.deleteProductInCart = async (req, res) => {
   }
   //tìm kiếm vị trí id_product truyền vào bằng với id_product có trong cart
   if(cartFind.products.length === 1){
-    cartFind.remove();
-    cartFind.save();
-    return;
+    await cartFind.remove();
+    await cartFind.save();
+    //return;
   }
   else{
     let index = cartFind.products.findIndex(
