@@ -18,7 +18,7 @@ exports.addOrder = async (req, res) => {
 	  return;
 	}
 	//khai báo các biến cần thiết
-	const {id_user, city, posteCode, address, phone, payment, shiping, paymentStatus} = req.body;
+	const {id_user, city, posteCode, address, phone, payment, shiping} = req.body;
 	// function isValidPhone(p) {
 	// 	var phoneRe = /((09|03|07|08|05)+([0-9]{8})\b)/g;
 	// 	return phoneRe.test(p);
@@ -31,10 +31,10 @@ exports.addOrder = async (req, res) => {
 	// if(!isValidPhone(phone)){
 	// 	return res.status(422).send("Số điện thoại không hợp lệ");
 	// }
-	// let paymentStatus = 'pending'
-	// if(payment === 'paypal'){
-	// 	paymentStatus = 'paid'
-	// }
+	let paymentStatus = 'pending'
+	if(payment === 'paypal'){
+		paymentStatus = 'paid'
+	}
 	const getDataUser = await userController.getDataByID(id_user);
 	let cartFind = null;
 	try {
