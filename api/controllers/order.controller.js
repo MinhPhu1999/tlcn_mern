@@ -18,7 +18,7 @@ exports.addOrder = async (req, res) => {
 	  return;
 	}
 	//khai báo các biến cần thiết
-	const {id_user, city, posteCode, address, phone, payment, shiping} = req.body;
+	const {id_user, city, posteCode, address, phone, payment, shiping, paymentStatus} = req.body;
 	// function isValidPhone(p) {
 	// 	var phoneRe = /((09|03|07|08|05)+([0-9]{8})\b)/g;
 	// 	return phoneRe.test(p);
