@@ -20,14 +20,6 @@ const product = new Schema({
         type:String,
         required:[true,"Không được bỏ trống"]
     },
-    // detailImage: {
-    //     type: Array,
-    //     default: []
-    // },
-    // count: {
-    //     type: Number,
-    //     required:[true,"Không được bỏ trống"]
-    // },
     id_brand:{
         type:String,
         required:[true,"Không được bỏ trống"],
@@ -40,23 +32,9 @@ const product = new Schema({
     color: {
         type: String
     },
-    size: [
-        {
-          type: {
-            type: String,
-            enum: ["S", "M", "L", "XL", "2XL"]
-          },
-          quantity: {
-            type: Number
-          },
-        },
-    ],
-    // rating:{
-    //     type:Number
-    // },
-    // numReviews:{
-    //     type:Number
-    // },
+    quantity: {
+        type: Number
+    },
     status:{
         type:Boolean,
         default: true

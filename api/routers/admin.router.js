@@ -1,4 +1,5 @@
 const admin_controller = require('../controllers/admin.controller');
+const order_controller = require('../controllers/order.controller');
 const upload = require('../config/multer');
 
 module.exports = (app) => {
@@ -48,6 +49,10 @@ module.exports = (app) => {
         .get(admin_controller.getUser);
     app.route('/admin/login')
         .post(admin_controller.login);
+
+    //order
+    app.route('/admin/order/:id')
+        .put(order_controller.deleteOrder);
 
     //stock
     app.route('/admin/addstock')

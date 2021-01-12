@@ -13,7 +13,6 @@ const cart = new Schema ({
                 price: Number,
                 img: String,
                 quantity: Number,
-                size: String,
                 _id: String
             }
         ],
@@ -57,29 +56,19 @@ cart.methods.minusProduct = async function(req, res){
           element => cart.products[i]._id === element._id
         );
     }
-    const productfind = await product.findOne({ _id: cart.products[index]._id, "size.type": cart.products[index].size });
-    let index1;
-    for(let i =0; i< productfind.size.length; i++){
-        if(productfind.size[i].type === cart.products[index].size){
-            index1 = i;
-        }
+    let productFind = await product.findById(cart.products[index]._id);
+    if(productFind.quantity <=0)
+    {
+        return res.status(500).send("Sản phẩm đã hết");
     }
-    let quantity = productfind.size[index1].quantity;
-    quantity -= 1;
-    product.updateOne(
-		{ _id: cart.products[index]._id, "size.type": cart.products[index].size },
-		{
-		  $set: {
-			"size.$": [
-			  {type:cart.products[index].size, quantity: quantity },
-			],
-		  },
-		}
-	).exec((error, product) => {
-		if (error) 
-			return res.status(400).send({ error });
-    });
-    
+    productFind.quantity -= 1;
+    try{
+        await productFind.save();
+    }
+    catch(err){
+        console.log(err);
+        return;
+    }    
 }
 
 
@@ -91,28 +80,16 @@ cart.methods.plusProduct = async function(){
           element => cart.products[i]._id === element._id
         );
     }
-    const productfind = await product.findOne({ _id: cart.products[index]._id, "size.type": cart.products[index].size });
-    let index1;
-    for(let i =0; i< productfind.size.length; i++){
-        if(productfind.size[i].type === cart.products[index].size){
-            index1 = i;
-        }
+
+    let productFind = await product.findById(cart.products[index]._id);
+    productFind.quantity += 1;
+    try{
+        await productFind.save();
     }
-    let quantity = productfind.size[index1].quantity;
-    quantity += 1;
-    product.updateOne(
-		{ _id: cart.products[index]._id, "size.type": cart.products[index].size },
-		{
-		  $set: {
-			"size.$": [
-			  {type:cart.products[index].size, quantity: quantity },
-			],
-		  },
-		}
-	).exec((error, product) => {
-		if (error) 
-			return res.status(400).send({ error });
-    });
+    catch(err){
+        console.log(err);
+        return;
+    } 
 
 }
 

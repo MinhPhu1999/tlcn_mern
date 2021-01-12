@@ -11,7 +11,6 @@ const order=new Schema({
                 price: Number,
                 img: String,
                 quantity: Number,
-                size: String,
                 total: Number,
                 _id: String
             }
