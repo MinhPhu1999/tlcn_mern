@@ -68,11 +68,12 @@ exports.updateProduct = async (req, res) => {
     || typeof req.body.price === 'undefined' 
     || typeof req.body.id_brand === 'undefined' 
     || typeof req.body.description === 'undefined'
+    || typeof req.body.quantity === 'undefined'
     ) {
         res.status(422).send({message: 'Invalid data' });
         return;
     }
-    let { name, id, id_category, price, id_brand, description, color, status} = req.body; //khai báo các tham số
+    let { name, id, id_category, price, id_brand, description, color, status, quantity} = req.body; //khai báo các tham số
     let productFind = null;
     try {
         productFind = await product.findById(id); //tìm kiếm product bằng id
@@ -106,6 +107,7 @@ exports.updateProduct = async (req, res) => {
     productFind.id_brand = id_brand;
     productFind.description = description;
     productFind.img = urlImg;
+    productFind.quantity = quantity
     productFind.color = color;
     productFind.status = status;
     
