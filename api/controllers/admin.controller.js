@@ -30,12 +30,13 @@ exports.addProduct = async (req, res) => {
     || typeof req.body.price === 'undefined' 
     || typeof req.body.id_brand === 'undefined' 
     || typeof req.body.description === 'undefined'
+    || typeof req.body.quantity === 'undefined'
     ) {
         res.status(422).send({message: 'Invalid data' });
         return;
     }
     
-    const {name, id_category, price, id_brand, description, color} = req.body;//khai báo các tham số truyền vào
+    const {name, id_category, price, id_brand, description, color, quantity} = req.body;//khai báo các tham số truyền vào
     let urlImg = await uploadImg(req.file.path);  //lấy đường dẫn hình ảnh
 
     if(urlImg === false) {
@@ -49,6 +50,7 @@ exports.addProduct = async (req, res) => {
         price: price,
         id_brand: id_brand,
         img: urlImg,
+        quantity: quantity,
         description: description,
         color: color
     });
