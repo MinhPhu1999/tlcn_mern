@@ -24,10 +24,10 @@ const product = new Schema({
     //     type: Array,
     //     default: []
     // },
-    count: {
-        type: Number,
-        required:[true,"Không được bỏ trống"]
-    },
+    // count: {
+    //     type: Number,
+    //     required:[true,"Không được bỏ trống"]
+    // },
     id_brand:{
         type:String,
         required:[true,"Không được bỏ trống"],
@@ -37,20 +37,20 @@ const product = new Schema({
         type:String,
         required:[true,"Không  được bỏ trống"]
     },
-    // color: {
-    //     type: String
-    // },
-    // size: [
-    //     {
-    //       type: {
-    //         type: String,
-    //         //enum: ["S", "M", "L", "XL", "2XL"]
-    //       },
-    //       quantity: {
-    //         type: Number
-    //       },
-    //     },
-    // ],
+    color: {
+        type: String
+    },
+    size: [
+        {
+          type: {
+            type: String,
+            enum: ["S", "M", "L", "XL", "2XL"]
+          },
+          quantity: {
+            type: Number
+          },
+        },
+    ],
     // rating:{
     //     type:Number
     // },

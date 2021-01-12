@@ -72,6 +72,7 @@ exports.getAllProduct = async(req, res) =>{
 
 exports.searchProduct = async(req,res)=>{
     let searchText = "";
+    console.log(typeof req.params.search);
     if (typeof req.params.search !== 'undefined') {
         searchText = req.params.search;
     }

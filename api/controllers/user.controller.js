@@ -5,6 +5,7 @@ const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const maotp = require('../utils/otp');
+const validate = require('../utils/validate');
 const client = new OAuth2Client(process.env.GOOGLE_API_KEY);
 
 exports.register = async (req, res) => {
@@ -18,23 +19,16 @@ exports.register = async (req, res) => {
     }
     //khai báo các biến cần thiết
     let { email, password, name, repassword} = req.body;
-    function isValidName (string) {
-        var re = /[^a-z0-9A-Z_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ]/u
-        return re.test(string)
+    //kiểm tra điều kiện password hợp lệ
+    if(!validate.isValidPassWord(password)){
+        return res.status(422).send({message: "Mật khẩu có độ dài từ 8-12 kí tự phải chứa số,chữ thường và chữ hoa "});
     }
-    function isValidPassWord (string) {
-        var re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,12}$/
-        return re.test(string)
-    }
-    if(!isValidPassWord(password)){
-        return res.status(422).send({message: "Mật khẩu có độ dài từ 8-12 kí tự phải chứa số,chữ thường và chữ hoa "})
-    }
-    if(!isValidName(name)){
+    //kiểm tra tên có hợp lệ không
+    if(!validate.isValidName(name)){
         return res.status(422).send({message: "Nhập đầy đủ họ và tên"});
     }
     //kiểm tra điều kiện email và password
-    if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 
-        || password.length < 6 ){
+    if (email.indexOf("@")=== -1 && email.indexOf('.') === -1 ){
         res.status(422).send({message: 'Invalid data' });
         return;
     }

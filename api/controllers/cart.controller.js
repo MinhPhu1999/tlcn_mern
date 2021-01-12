@@ -35,12 +35,12 @@ exports.addToCart = async (req, res) => {
       if (index === -1) {//trường hợp không tìm thấy
         cartFind.products.push(products[i]);//thêm sản phẩm vào trong cart
         //tính grand total
-        cartFind.grandTotal += (cartFind.products[cartFind.products.length - 1].price * cartFind.products[cartFind.products.length - 1].count);
+        cartFind.grandTotal += (cartFind.products[cartFind.products.length - 1].price * cartFind.products[cartFind.products.length - 1].quantity);
       }
     }    
     try{
-      await cartFind.save();//lưu những thay đổi
-                    //.then(cartFind.minusProduct(req, res));
+      await cartFind.save()//lưu những thay đổi
+                    .then(cartFind.minusProduct(req, res));
     }
     catch(err){//thông báo nếu add cart fail
       console.log(err);
@@ -112,11 +112,11 @@ exports.updateTang = async (req, res) => {
   let index = cartFind.products.findIndex(
     element => id_product === element._id
   );
-  cartFind.products[index].count += 1;//tăng số lượng lên 1
+  cartFind.products[index].quantity += 1;//tăng số lượng lên 1
   cartFind.grandTotal += cartFind.products[index].price;//cập nhật lại grandtotal
   try{
-    await cartFind.save();//lưu lại các thay đổi
-                  //.then(cartFind.minusProduct());
+    await cartFind.save()//lưu lại các thay đổi
+                  .then(cartFind.minusProduct()); //thực hiện trừ số lượng tương ứng với size trong product
   }
   catch(err){
     console.log(err);
@@ -159,11 +159,11 @@ exports.updateGiam = async (req, res) => {
     element => id_product === element._id
   );
   //giảm số lượng 1
-  cartFind.products[index].count -= 1;
+  cartFind.products[index].quantity -= 1;
   cartFind.grandTotal -= cartFind.products[index].price;//cập nhật lại grandtotal
   try{
-    await cartFind.save();//lưu các thay đổi
-                  //.then(cartFind.plusProduct());
+    await cartFind.save() //lưu các thay đổi
+                  .then(cartFind.plusProduct()); //thực hiện tăng số lượng tương ứng với size trong product
   }
   catch(err){//xuất thông báo lỗi nếu update fail
     console.log(err);
@@ -210,7 +210,7 @@ exports.updateCart = async (req, res) => {
       res.status(404).send({message: "product not found in list" });
     } else {
       // cartFind.products[index].count = Number(products[i].count);
-      cartFind.products[index].count += 1;
+      cartFind.products[index].quantity += 1;
     }
   }
   
@@ -296,17 +296,17 @@ exports.deleteProductInCart = async (req, res) => {
       res.status(404).send({message: "product not found in list" });
       return;
     }
-    cartFind.grandTotal -= (cartFind.products[index].count * cartFind.products[index].price );//update lại grandtotal
+    cartFind.grandTotal -= (cartFind.products[index].quantity * cartFind.products[index].price );//update lại grandtotal
     cartFind.products.splice(index, 1);//xóa sản phẩm trong cart
   
     try {
       //lưu lại các thay đổi
-      await cart.findByIdAndUpdate(cartFind._id, {
+      await cart.findByIdAndUpdate(cartFind._id, { //thục hiện lưu các thay đổi
         $set: { products: cartFind.products,
                 grandTotal: cartFind.grandTotal }
       });
   
-    } catch (err) {
+    } catch (err) { //xuất ra lỗi nếu xóa sản phẩm trong cart fail
       console.log(err);
       res.status(500).send({message: err });
       return;

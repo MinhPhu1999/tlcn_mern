@@ -4,6 +4,7 @@ const cart = require("../models/cart.model")
 const userController = require("../controllers/user.controller");
 const randomstring = require("randomstring");
 const nodemailer = require("../utils/nodemailer");
+const validate = require('../utils/validate');
 
 exports.addOrder = async (req, res) => {
 	//kiểm tra có truyền tham số đủ hay không
@@ -19,22 +20,17 @@ exports.addOrder = async (req, res) => {
 	}
 	//khai báo các biến cần thiết
 	const {id_user, city, posteCode, address, phone, payment, shiping} = req.body;
-	// function isValidPhone(p) {
-	// 	var phoneRe = /((09|03|07|08|05)+([0-9]{8})\b)/g;
-	// 	return phoneRe.test(p);
-	// }
-	// function isValidPosteCode(p) {
-	// 	var phoneRe = /(+([0-9]{6})\b)/g;
-	// 	return phoneRe.test(p);
-	// }
 
-	// if(!isValidPhone(phone)){
-	// 	return res.status(422).send("Số điện thoại không hợp lệ");
-	// }
-	let paymentStatus = 'pending'
-	if(payment === 'paypal'){
-		paymentStatus = 'paid'
+	if(!validate.isValidPhone(phone)){
+		return res.status(422).send({message: "Số điện thoại không hợp lệ"});
 	}
+	if(!validate.isValidPosteCode(posteCode)){
+		return res.status(422).send({message: "PosteCode không hợp lệ"})
+	}
+	let paymentStatus = 'pending'
+	// if(payment === 'paypal'){
+	// 	paymentStatus = 'paid'
+	// }
 	const getDataUser = await userController.getDataByID(id_user);
 	let cartFind = null;
 	try {

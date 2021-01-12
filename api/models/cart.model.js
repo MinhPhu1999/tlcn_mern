@@ -12,7 +12,8 @@ const cart = new Schema ({
                 name: String,
                 price: Number,
                 img: String,
-                count: Number,
+                quantity: Number,
+                size: String,
                 _id: String
             }
         ],
@@ -41,7 +42,7 @@ cart.methods.updateCountProduct = async function() {
         );
         if(index !== -1)
         {
-            cart.grandTotal = cart.products[index].price * cart.products[index].count
+            cart.grandTotal = cart.products[index].price * cart.products[index].quantity;
         }
     }
 
@@ -56,20 +57,32 @@ cart.methods.minusProduct = async function(req, res){
           element => cart.products[i]._id === element._id
         );
     }
-    let productFind = await product.findById(cart.products[index]._id);
-    if(productFind.count <=0)
-    {
-        return res.status(500).send("Sản phẩm đã hết");
+    const productfind = await product.findOne({ _id: cart.products[index]._id, "size.type": cart.products[index].size });
+    let index1;
+    for(let i =0; i< productfind.size.length; i++){
+        if(productfind.size[i].type === cart.products[index].size){
+            index1 = i;
+        }
     }
-    productFind.count -= 1;
-    try{
-        await productFind.save();
-    }
-    catch(err){
-        console.log(err);
-        return;
-    }
+    let quantity = productfind.size[index1].quantity;
+    quantity -= 1;
+    product.updateOne(
+		{ _id: cart.products[index]._id, "size.type": cart.products[index].size },
+		{
+		  $set: {
+			"size.$": [
+			  {type:cart.products[index].size, quantity: quantity },
+			],
+		  },
+		}
+	).exec((error, product) => {
+		if (error) 
+			return res.status(400).send({ error });
+    });
+    
 }
+
+
 cart.methods.plusProduct = async function(){
     const cart = this;
     let index;
@@ -78,15 +91,28 @@ cart.methods.plusProduct = async function(){
           element => cart.products[i]._id === element._id
         );
     }
-    let productFind = await product.findById(cart.products[index]._id);
-    productFind.count += 1;
-    try{
-        await productFind.save();
+    const productfind = await product.findOne({ _id: cart.products[index]._id, "size.type": cart.products[index].size });
+    let index1;
+    for(let i =0; i< productfind.size.length; i++){
+        if(productfind.size[i].type === cart.products[index].size){
+            index1 = i;
+        }
     }
-    catch(err){
-        console.log(err);
-        return;
-    }
+    let quantity = productfind.size[index1].quantity;
+    quantity += 1;
+    product.updateOne(
+		{ _id: cart.products[index]._id, "size.type": cart.products[index].size },
+		{
+		  $set: {
+			"size.$": [
+			  {type:cart.products[index].size, quantity: quantity },
+			],
+		  },
+		}
+	).exec((error, product) => {
+		if (error) 
+			return res.status(400).send({ error });
+    });
 
 }
 

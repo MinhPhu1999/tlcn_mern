@@ -36,15 +36,15 @@ exports.addProduct = async (req, res) => {
     }
     //console.log("vfsvs");
     const {name, id_category, price, id_brand, description, sizeS, sizeM, sizeL, sizeXL, size2XL, color} = req.body;//khai báo các tham số truyền vào
-    //let urlImg = await uploadImg(req.file.path);  //lấy đường dẫn hình ảnh
-    const urls = [];
-    const files = req.files;
-    for(const file of files){
-        const {path} = file;
-        const result = await uploadImg(path);
-        urls.push(result);
-    }
-    let urlImg = urls[0];
+    let urlImg = await uploadImg(req.file.path);  //lấy đường dẫn hình ảnh
+    // const urls = [];
+    // const files = req.files;
+    // for(const file of files){
+    //     const {path} = file;
+    //     const result = await uploadImg(path);
+    //     urls.push(result);
+    // }
+    // let urlImg = urls[0];
     // if(urlImg === false) {
     //     res.status(500).send({message: 'khong upload duoc anh len cloudinary'});
     //     return;
@@ -53,8 +53,8 @@ exports.addProduct = async (req, res) => {
 
     let size = [
         {
-          type: "S",
-          quantity: sizeS,
+            type: "S",
+            quantity: sizeS,
         },
         {
             type: "M",
@@ -79,13 +79,13 @@ exports.addProduct = async (req, res) => {
         price: price,
         id_brand: id_brand,
         img: urlImg,
-        detailImage: urls,
+        //detailImage: urls,
         description: description,
         size: size,
         color: color
     });
     newProduct.save((err, doc) =>{
-        if(err) return res.status(500).send({message: 'add product fail'}); // thông báo nếu lưu thất bại
+        if(err) return res.status(500).send({message: err}); // thông báo nếu lưu thất bại
         res.status(201).send({message: 'add product success'})
     })
 }
@@ -233,26 +233,26 @@ exports.updateProduct = async (req, res) => {
             quantity: size2XL,
         }
     ];
-    const urls = [];
-    const files = req.files;
-    for(const file of files){
-        const {path} = file;
-        const result = await uploadImg(path);
-        urls.push(result);
+    // const urls = [];
+    // const files = req.files;
+    // for(const file of files){
+    //     const {path} = file;
+    //     const result = await uploadImg(path);
+    //     urls.push(result);
+    // }
+    // let urlImg = urls[0];
+    let urlImg = null;
+    if(typeof req.file !== 'undefined' ) {
+        urlImg = await uploadImg(req.file.path)
     }
-    let urlImg = urls[0];
-    // let urlImg = null;
-    // if(typeof req.file !== 'undefined' ) {
-    //     urlImg = await uploadImg(req.file.path)
-    // }
-    // if(urlImg !== null) {
-    //     if(urlImg === false) {
-    //         res.status(500).send({message: 'not update image'});
-    //         return;
-    //     }
-    // }
-    // if(urlImg === null)
-    //     urlImg = productFind.img; //thay hình cũ bằng hình mới
+    if(urlImg !== null) {
+        if(urlImg === false) {
+            res.status(500).send({message: 'not update image'});
+            return;
+        }
+    }
+    if(urlImg === null)
+        urlImg = productFind.img; //thay hình cũ bằng hình mới
     
     //update product
     productFind.id_category = id_category;
@@ -261,7 +261,7 @@ exports.updateProduct = async (req, res) => {
     productFind.id_brand = id_brand;
     productFind.description = description;
     productFind.img = urlImg;
-    productFind.detailImage = urls;
+    // productFind.detailImage = urls;
     productFind.size = size;
     productFind.color = color;
     productFind.status = status;
@@ -269,6 +269,7 @@ exports.updateProduct = async (req, res) => {
     productFind.save((err, docs) => { // lưu các thay đổi
         if (err) {
             console.log(err);
+            return res.status(201).send({message: 'update product fail'});
         }
     });
     res.status(200).send({message: 'update product success', data: productFind }); //thông báo lưu thành công
@@ -276,8 +277,7 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
     product.updateOne(
 		{ _id: req.params.id},
-		{ $set: {status: false},
-		}
+		{ $set: {status: false}}
 	).exec((error) => {
 		if (error) 
 			return res.status(400).send({ error });

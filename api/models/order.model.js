@@ -10,7 +10,8 @@ const order=new Schema({
                 name: String,
                 price: Number,
                 img: String,
-                count: Number,
+                quantity: Number,
+                size: String,
                 total: Number,
                 _id: String
             }
