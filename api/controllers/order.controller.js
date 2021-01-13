@@ -21,16 +21,16 @@ exports.addOrder = async (req, res) => {
 	//khai báo các biến cần thiết
 	const {id_user, city, posteCode, address, phone, payment, shiping} = req.body;
 
-	if(!validate.isValidPhone(phone)){
-		return res.status(422).send({message: "Số điện thoại không hợp lệ"});
-	}
-	if(!validate.isValidPosteCode(posteCode)){
-		return res.status(422).send({message: "PosteCode không hợp lệ"})
-	}
-	let paymentStatus = 'pending'
-	// if(payment === 'paypal'){
-	// 	paymentStatus = 'paid'
+	// if(!validate.isValidPhone(phone)){
+	// 	return res.status(422).send({message: "Số điện thoại không hợp lệ"});
 	// }
+	// if(!validate.isValidPosteCode(posteCode)){
+	// 	return res.status(422).send({message: "PosteCode không hợp lệ"})
+	// }
+	let paymentStatus = 'pending'
+	if(payment === 'Paypal'){
+		paymentStatus = 'paid'
+	}
 	const getDataUser = await userController.getDataByID(id_user);
 	let cartFind = null;
 	try {
