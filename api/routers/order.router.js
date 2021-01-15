@@ -8,7 +8,7 @@ module.exports = (app) => {
     app.route('/order/admindetail/:id')
         .get(order_controller.getOrderDetail);
     app.route('/order/:id')
-        .put(auth.authLogin ,order_controller.deleteOrder);
+        .put(order_controller.deleteOrder);
     app.route('/order/update')
         .post(order_controller.updateOrder);
     app.route('/order/getall/:page')
