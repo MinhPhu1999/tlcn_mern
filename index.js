@@ -30,9 +30,7 @@ connectDB();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.use(cors({
-    origin: process.env.CLIENT_URL
-}))
+app.use(cors());
 //cors
 // app.use(function(req,res,next){
 //     res.setHeader('Access-Control-Allow-Origin', '*');
