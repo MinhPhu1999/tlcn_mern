@@ -382,7 +382,7 @@ exports.getDataByID = async(id_user)=>{
 
 exports.googleController = async (req, res) => {
     const { idToken } = req.body;
-  
+    console.log(idToken);
     client
       .verifyIdToken({ idToken, audience: process.env.GOOGLE_API_KEY })
       .then(response => {
