@@ -377,7 +377,19 @@ exports.updatePassword = async (req, res) => {
 
 exports.getDataByID = async(id_user)=>{
     let userFind = await user.findOne({_id: id_user});
-    return userFind ;
+    if(userFind.fbEmail != null)
+    {
+        email = userFind.fbEmail;
+    }
+    else if(userFind.ggEmail != null)
+    {
+        email = userFind.ggEmail;
+    }
+    else
+    {
+        email = userFind.email;
+    }
+    return [userFind.name, email] ;
 }
 
 exports.googleController = async (req, res) => {
