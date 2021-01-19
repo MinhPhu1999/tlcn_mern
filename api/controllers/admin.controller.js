@@ -24,7 +24,7 @@ const uploadImg = async (path) => {
 
 exports.addProduct = async (req, res) => {
     //kiểm tra có đủ tham số truyền vào hay không
-    if(typeof req.files === 'undefined' 
+    if(typeof req.file === 'undefined' 
     || typeof req.body.name === 'undefined' 
     || typeof req.body.id_category === 'undefined' 
     || typeof req.body.price === 'undefined' 
