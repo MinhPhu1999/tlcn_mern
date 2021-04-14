@@ -8,6 +8,9 @@ module.exports = (app) => {
 
     app.route('/product/:id')
         .get(product_controller.getProductByID);
+
+    app.route('/updateRate/:id')
+        .patch(product_controller.reView);
         
     app.route('/product/search/:search')
         .get(product_controller.searchProduct);

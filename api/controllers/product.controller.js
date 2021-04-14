@@ -61,6 +61,31 @@ exports.getProduct = async(req,res)=>{
     })
 }
 
+exports.reView = async(req, res) => {
+    try {
+        const {rating} = req.body
+
+        if(rating && rating !== 0){
+            const productFind = await product.findById(req.params.id);
+            if(!product) 
+                return res.status(400).json({msg: 'Product does not exist.'});
+
+            let num = productFind.numReviews;
+            let rate = productFind.rating;
+
+            await product.findOneAndUpdate({_id: req.params.id}, {
+                rating: rate + rating, numReviews: num + 1
+            })
+
+            res.json({msg: 'Update success'})
+
+        }
+
+    } catch (err) {
+        return res.status(500).json({msg: err.message})
+    }
+}
+
 exports.getAllProduct = async(req, res) =>{
     const productFind = await product.find({status: true});
     if(productFind){
@@ -117,7 +142,6 @@ exports.getProductByCategory = async(req,res)=>{
     }
     res.status(404).send({message: "product not found"});
 }
-
 
 exports.getNameByID = async (req, res) => {
     if(req.params.id === 'undefined') {

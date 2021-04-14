@@ -35,6 +35,8 @@ const product = new Schema({
     quantity: {
         type: Number
     },
+    numReviews: Number,
+    rating: Number,
     status:{
         type:Boolean,
         default: true
