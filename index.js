@@ -17,6 +17,7 @@ const brandRouter = require('./api/routers/brand.router');
 const cartRouter = require('./api/routers/cart.router');
 const orderRouter = require('./api/routers/order.router');
 const adminRouter = require('./api/routers/admin.router');
+const commentRouter = require('./api/routers/comment.router');
 
 //model comment
 const Comments = require('./api/models/comment.model');
@@ -101,6 +102,7 @@ productRouter(app);
 cartRouter(app);
 orderRouter(app);
 adminRouter(app);
+commentRouter(app);
 
 
 app.get('/', (req, res) => {res.send('welcome to e_store')})
