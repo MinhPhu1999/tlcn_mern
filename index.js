@@ -27,8 +27,8 @@ connectDB();
 
 
 //có phép nhận dữ liệu từ form
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 //cors
 app.use(cors());
@@ -36,9 +36,14 @@ app.use(cors());
 const http = require('http').createServer(app)
 const io = require('socket.io')(http)
 
+// const server = app.listen(port, () => console.log("server running on port " + port));
+// const io = require('socket.io').listen(http);
+
 // Soketio
 let users = []
 io.on('connection', socket => {
+
+    console.log(socket.id + 'connected');
 	
 
     // socket.on('joinRoom', id => {
@@ -63,6 +68,7 @@ io.on('connection', socket => {
     // })
 
     socket.on('createComment', async msg => {
+        console.log('abc');
         // const {username, content, product_id, createdAt, rating, send} = msg
         const {username, content, product_id, createdAt, rating} = msg
 
@@ -70,6 +76,7 @@ io.on('connection', socket => {
             username, content, product_id, createdAt, rating
         })
 
+        console.log(newComment);
         await newComment.save();
 
         // if(send === 'replyComment'){
@@ -93,8 +100,8 @@ io.on('connection', socket => {
     })
 
     socket.on('disconnect', () => {
-		
-        users = users.filter(user => user.userId !== socket.id)
+		console.log(socket.id + 'disconnect');
+        // users = users.filter(user => user.userId !== socket.id)
     })
 })
 
