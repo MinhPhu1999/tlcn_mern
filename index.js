@@ -41,51 +41,55 @@ let users = []
 io.on('connection', socket => {
 	
 
-    socket.on('joinRoom', id => {
-        const user = {userId: socket.id, room: id}
+    // socket.on('joinRoom', id => {
+    //     const user = {userId: socket.id, room: id}
 
-        const check = users.every(user => user.userId !== socket.id)
+    //     const check = users.every(user => user.userId !== socket.id)
 
-        if(check){
-            users.push(user)
-            socket.join(user.room)
-        }else{
-            users.map(user => {
-                if(user.userId === socket.id){
-                    if(user.room !== id){
-                        socket.leave(user.room)
-                        socket.join(id)
-                        user.room = id
-                    }
-                }
-            })
-        }
-    })
+    //     if(check){
+    //         users.push(user)
+    //         socket.join(user.room)
+    //     }else{
+    //         users.map(user => {
+    //             if(user.userId === socket.id){
+    //                 if(user.room !== id){
+    //                     socket.leave(user.room)
+    //                     socket.join(id)
+    //                     user.room = id
+    //                 }
+    //             }
+    //         })
+    //     }
+    // })
 
     socket.on('createComment', async msg => {
-        const {username, content, product_id, createdAt, rating, send} = msg
+        // const {username, content, product_id, createdAt, rating, send} = msg
+        const {username, content, product_id, createdAt, rating} = msg
 
         const newComment = new Comments({
             username, content, product_id, createdAt, rating
         })
 
-        if(send === 'replyComment'){
-            const {_id, username, content, product_id, createdAt, rating} = newComment
+        await newComment.save();
 
-            const comment = await Comments.findById(product_id)
+        // if(send === 'replyComment'){
+        //     const {_id, username, content, product_id, createdAt, rating} = newComment
 
-            if(comment){
-                comment.reply.push({_id, username, content, createdAt, rating})
+        //     const comment = await Comments.findById(product_id)
 
-                await comment.save()
-                io.to(comment.product_id).emit('sendReplyCommentToClient', comment)
-            }
-        }else{
-            await newComment.save()
-            io.to(newComment.product_id).emit('sendCommentToClient', newComment)
-        }
+        //     if(comment){
+        //         comment.reply.push({_id, username, content, createdAt, rating})
 
-        
+        //         await comment.save()
+        //         io.to(comment.product_id).emit('sendReplyCommentToClient', comment)
+        //     }
+        // }else{
+        //     await newComment.save()
+        //     io.to(newComment.product_id).emit('sendCommentToClient', newComment)
+        // }
+
+
+
     })
 
     socket.on('disconnect', () => {
