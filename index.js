@@ -118,4 +118,5 @@ commentRouter(app);
 
 app.get('/', (req, res) => {res.send('welcome to e_store')})
 
-app.listen(port, () => console.log("server running on port " + port));
+// app.listen(port, () => console.log("server running on port " + port));
+http.listen(port, () => console.log("server running on port " + port));
