@@ -36,41 +36,38 @@ app.use(cors());
 const http = require('http').createServer(app)
 const io = require('socket.io')(http)
 
-// const server = app.listen(port, () => console.log("server running on port " + port));
-// const io = require('socket.io').listen(http);
 
 // Soketio
 let users = []
 io.on('connection', socket => {
 
-    console.log(socket.id + 'connected');
+    // console.log(socket.id + 'connected');
 	
 
-    // socket.on('joinRoom', id => {
-    //     const user = {userId: socket.id, room: id}
+    socket.on('joinRoom', id => {
+        const user = {userId: socket.id, room: id}
 
-    //     const check = users.every(user => user.userId !== socket.id)
+        const check = users.every(user => user.userId !== socket.id)
 
-    //     if(check){
-    //         users.push(user)
-    //         socket.join(user.room)
-    //     }else{
-    //         users.map(user => {
-    //             if(user.userId === socket.id){
-    //                 if(user.room !== id){
-    //                     socket.leave(user.room)
-    //                     socket.join(id)
-    //                     user.room = id
-    //                 }
-    //             }
-    //         })
-    //     }
-    // })
+        if(check){
+            users.push(user)
+            socket.join(user.room)
+        }else{
+            users.map(user => {
+                if(user.userId === socket.id){
+                    if(user.room !== id){
+                        socket.leave(user.room)
+                        socket.join(id)
+                        user.room = id
+                    }
+                }
+            })
+        }
+    })
 
     socket.on('createComment', async msg => {
-        console.log('abc');
-        // const {username, content, product_id, createdAt, rating, send} = msg
-        const {username, content, product_id, createdAt, rating} = msg
+        
+        const {username, content, product_id, createdAt, rating, send} = msg
 
         const newComment = new Comments({
             username, content, product_id, createdAt, rating
@@ -79,29 +76,29 @@ io.on('connection', socket => {
         console.log(newComment);
         await newComment.save();
 
-        // if(send === 'replyComment'){
-        //     const {_id, username, content, product_id, createdAt, rating} = newComment
+        if(send === 'replyComment'){
+            const {_id, username, content, product_id, createdAt, rating} = newComment
 
-        //     const comment = await Comments.findById(product_id)
+            const comment = await Comments.findById(product_id)
 
-        //     if(comment){
-        //         comment.reply.push({_id, username, content, createdAt, rating})
+            if(comment){
+                comment.reply.push({_id, username, content, createdAt, rating})
 
-        //         await comment.save()
-        //         io.to(comment.product_id).emit('sendReplyCommentToClient', comment)
-        //     }
-        // }else{
-        //     await newComment.save()
-        //     io.to(newComment.product_id).emit('sendCommentToClient', newComment)
-        // }
+                await comment.save()
+                io.to(comment.product_id).emit('sendReplyCommentToClient', comment)
+            }
+        }else{
+            await newComment.save()
+            io.to(newComment.product_id).emit('sendCommentToClient', newComment)
+        }
 
 
 
     })
 
     socket.on('disconnect', () => {
-		console.log(socket.id + 'disconnect');
-        // users = users.filter(user => user.userId !== socket.id)
+		// console.log(socket.id + 'disconnect');
+        users = users.filter(user => user.userId !== socket.id)
     })
 })
 
