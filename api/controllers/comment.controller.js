@@ -19,18 +19,27 @@ class APIfeatures{
 }
 
 exports.getComment = async(req, res) => {
-	try {
-		const features = new APIfeatures(Comments.find({product_id: req.params.id}), req.query).sorting().paginating()
+    try{
+        const comments = await comment.findById(req.params.id);
+
+        res.status(200).send({comments})
+    }catch(err) {
+        return res.status(500).send({message: err });
+    }
+
+
+	// try {
+	// 	const features = new APIfeatures(Comments.find({product_id: req.params.id}), req.query).sorting().paginating()
 		
-		const comments = await features.query
+	// 	const comments = await features.query
 
-		res.json({
-			status: 'success',
-			result: comments.length,
-			comments
-		})
+	// 	res.json({
+	// 		status: 'success',
+	// 		result: comments.length,
+	// 		comments
+	// 	})
 
-	} catch (err) {
-		return res.status(500).json({msg: err.message})
-	}
+	// } catch (err) {
+	// 	return res.status(500).json({msg: err.message})
+	// }
 }

@@ -11,6 +11,8 @@ const product = new Schema({
         type:Number,
         required:[true,"Không được bỏ trống"],
     },
+    discount: Number,
+    date_discount: Date,
     id_category:{
         type:String,
         required:[true,"Không được bỏ trống"],

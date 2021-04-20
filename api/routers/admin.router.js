@@ -53,7 +53,15 @@ module.exports = (app) => {
     //order
     app.route('/admin/order/:id')
         .put(order_controller.deleteOrder);
-
+    app.route('/admin/order/byday')
+        .get(order_controller.getOrderByDay);
+    app.route('/admin/order/bymonth')
+        .get(order_controller.getOrderByMonth);
+    app.route('/admin/order/byyear')
+        .get(order_controller.getOrderByYear);
+    app.route('/admin/order/top10')
+        .get(order_controller.getOrderTop10);
+    
     //stock
     app.route('/admin/addstock')
         .post(admin_controller.addStock);
