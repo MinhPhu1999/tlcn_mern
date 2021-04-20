@@ -20,9 +20,10 @@ class APIfeatures{
 
 exports.getComment = async(req, res) => {
     try{
-        const comments = await comment.findById(req.params.id);
+        const comments = await comment.find({product_id: req.params.id, status: true});
 
-        res.status(200).send({comments})
+        res.status(200).send({comments});
+
     }catch(err) {
         return res.status(500).send({message: err });
     }
@@ -42,4 +43,52 @@ exports.getComment = async(req, res) => {
 	// } catch (err) {
 	// 	return res.status(500).json({msg: err.message})
 	// }
+}
+
+exports.updateComment = async(req, res) =>{
+    if(typeof req.body.id === 'undefined' ||
+        typeof req.body.content === 'undefined'){
+        return res.status(422).send({message: "Invalid data" });
+    }
+
+    const {id, content} = req.body;
+
+    comment.updateOne(
+        {_id: id},
+        {
+            $set: {
+                content: content
+            }
+        }
+    ).exec((err) => {
+            if(err){
+                return res.status(400).send({ error });
+            }
+            res.status(201).send({message: "success" });
+    });
+}
+
+exports.deleteComment = async(req, res) => {
+    if(typeof req.body.id === 'undefined' ||
+        typeof req.body.user_id === 'undefined'){
+        return res.status(422).send({message: "Invalid data" });
+    }
+
+    const commentFind = await comment.find({id: id, user_id: user_id});
+    if(commentFind === null)
+        return res.status(404).send({message: "Bạn không thể xóa comment của người khác"});
+
+    comment.updateOne(
+        {_id: req.params.id},
+        {
+            $set: {
+                status: false
+            }
+        }
+    ).exec((err) => {
+        if(err){
+            return res.status(400).send({ error });
+        }
+        res.status(201).send({message: "success" });
+    });
 }
