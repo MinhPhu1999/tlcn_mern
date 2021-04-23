@@ -18,8 +18,8 @@ module.exports = (app) => {
     app.route('/product/brand/:brand')
         .get(product_controller.getProductByBrand);
 
-    app.route('/product/category/:category')
-        .get(product_controller.getProductByCategory);
+    app.route('/product/category')
+        .patch(product_controller.getProductByCategory);
 
     app.route('/product/amount/:id')
         .post(product_controller.getNameByID);

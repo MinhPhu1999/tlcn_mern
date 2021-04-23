@@ -17,6 +17,7 @@ exports.register = async (req, res) => {
         res.status(422).send({message: 'Invalid data' });
         return; 
     }
+
     //khai báo các biến cần thiết
     let { email, password, name, repassword} = req.body;
     //kiểm tra điều kiện password hợp lệ

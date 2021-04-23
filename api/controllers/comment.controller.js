@@ -19,30 +19,30 @@ class APIfeatures{
 }
 
 exports.getComment = async(req, res) => {
-    try{
-        const comments = await comment.find({product_id: req.params.id, status: true});
+    // try{
+    //     const comments = await comment.find({product_id: req.params.id, status: true});
 
-        res.status(200).send({comments});
+    //     res.status(200).send({comments});
 
-    }catch(err) {
-        return res.status(500).send({message: err });
-    }
+    // }catch(err) {
+    //     return res.status(500).send({message: err });
+    // }
 
 
-	// try {
-	// 	const features = new APIfeatures(Comments.find({product_id: req.params.id}), req.query).sorting().paginating()
+	try {
+		const features = new APIfeatures(comment.find({product_id: req.params.id}), req.query).sorting().paginating()
 		
-	// 	const comments = await features.query
+		const comments = await features.query
 
-	// 	res.json({
-	// 		status: 'success',
-	// 		result: comments.length,
-	// 		comments
-	// 	})
+		res.json({
+			status: 'success',
+			result: comments.length,
+			comments
+		})
 
-	// } catch (err) {
-	// 	return res.status(500).json({msg: err.message})
-	// }
+	} catch (err) {
+		return res.status(500).json({msg: err.message})
+	}
 }
 
 exports.updateComment = async(req, res) =>{
@@ -69,15 +69,18 @@ exports.updateComment = async(req, res) =>{
 }
 
 exports.deleteComment = async(req, res) => {
+    //kiểm tra tham số truyền vào đúng hay không
     if(typeof req.body.id === 'undefined' ||
         typeof req.body.user_id === 'undefined'){
         return res.status(422).send({message: "Invalid data" });
     }
 
+    //tìm kiếm theo id và user_id trong model comment
     const commentFind = await comment.find({id: id, user_id: user_id});
     if(commentFind === null)
         return res.status(404).send({message: "Bạn không thể xóa comment của người khác"});
-
+    
+    //update lại status của comment
     comment.updateOne(
         {_id: req.params.id},
         {
@@ -89,6 +92,6 @@ exports.deleteComment = async(req, res) => {
         if(err){
             return res.status(400).send({ error });
         }
-        res.status(201).send({message: "success" });
+        res.status(201).send({message: "delete success" });
     });
 }

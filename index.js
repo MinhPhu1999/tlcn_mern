@@ -73,7 +73,7 @@ io.on('connection', socket => {
             username, content, product_id, createdAt, rating
         })
 
-        console.log(newComment);
+        // console.log(newComment);
         await newComment.save();
 
         if(send === 'replyComment'){
@@ -91,9 +91,6 @@ io.on('connection', socket => {
             await newComment.save()
             io.to(newComment.product_id).emit('sendCommentToClient', newComment)
         }
-
-
-
     })
 
     socket.on('disconnect', () => {

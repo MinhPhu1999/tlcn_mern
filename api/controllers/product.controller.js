@@ -128,19 +128,28 @@ exports.getProductByBrand = async(req, res) =>{
 }
 
 exports.getProductByCategory = async(req,res)=>{
-    let categoryName = "";
-    if (typeof req.params.category !== 'undefined') {
-        categoryName = req.params.category;
+    if (typeof req.body.categoryName === 'undefined' ||
+        typeof req.body.disCount === 'undefined') {
+        return res.status(402).send({message: 'Data invalid'});
     }
+    
+    let {categoryName, disCount} = req.body;
 
     let searchIDCatefory = null;
     searchIDCatefory= await categoryController.getIDBySearchText(categoryName);
     let productFind = await product.find({ $or: [{id_category: new RegExp(searchIDCatefory, "i")}]});
-    if(productFind){
-        res.status(200).send(productFind);
-        return;
+
+    let lenProduct =productFind.length;
+
+    for(let i=0; i< lenProduct;i++){
+        productFind[i].disCount = disCount;
+        await productFind[i].save((err) => {
+            if(err) return res.status(500).json({msg: err.message})
+        });
     }
-    res.status(404).send({message: "product not found"});
+
+    res.status(200).send({productFind});
+
 }
 
 exports.getNameByID = async (req, res) => {

@@ -11,7 +11,10 @@ const product = new Schema({
         type:Number,
         required:[true,"Không được bỏ trống"],
     },
-    discount: Number,
+    disCount: {
+        type: Number,
+        default: 0
+    },
     startDate: Date,
     endDate: Date,
     id_category:{
