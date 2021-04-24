@@ -2,9 +2,13 @@
 const order = require("../models/order.model");
 const cart = require("../models/cart.model")
 const userController = require("../controllers/user.controller");
+
+const {performance} = require('perf_hooks');
+
 const randomstring = require("randomstring");
 const nodemailer = require("../utils/nodemailer");
 const validate = require('../utils/validate');
+const { Console } = require("console");
 
 exports.addOrder = async (req, res) => {
 	//kiểm tra có truyền tham số đủ hay không
@@ -158,6 +162,7 @@ exports.getOrderByMonth = async (req, res) =>{
 	}
 	
 	let { month, year } = req.body;
+
 	let orderFind = null;
 	try{
 		orderFind = await order.find({
@@ -178,21 +183,34 @@ exports.getOrderByYear = async (req, res) =>{
 	}
 
 	let { year } = req.body;
-	let orderFind = null;
+	var t0 = performance.now();
 
-	try {
-		orderFind = await order.find({
-		  	date: {
-				$gte: new Date(year, 0, 1),
-				$lt: new Date(parseInt(year) + 1, 0, 1)
-			},
-			paymentStatus: "paid"
-		});
-	}catch (err) {
-		return res.status(500).send({message: err });
+	let getOrder = await order.find({});
+	let index = 0;
+	let orderFind;
+	let arrOr = [];
+	let lenOrder = getOrder.length;
+
+	for(let i = 1; i < 13; i++){
+		orderFind = 0;
+
+		while(index < lenOrder){
+			if((getOrder[index].order_date >= new Date(year, i-1, 1)) && 
+				(getOrder[index].order_date < new Date(parseInt(year), i, 1))) {
+				orderFind ++;
+			}
+			index ++;
+		}
+		arrOr.push(orderFind);
+		index = orderFind;
+
+		let count = orderFind ++;
+		if(count >= lenOrder){
+			break;
+		}
+
 	}
-
-	res.status(200).json({ orderFind });
+	res.status(200).json({ arrOr });
 };
 
 exports.getOrderTop10 = async (req, res) => {
@@ -226,7 +244,7 @@ exports.getOrderTop10 = async (req, res) => {
 	});
 
 	res.status(200).json({ data: arr.length > 10 ? arr.slice(0, 10) : arr });
-  };
+};
 
 exports.getCustomerOrders = async (req, res) => {
 	const orders = await order.find({})
@@ -430,6 +448,7 @@ exports.getOrder = async(req, res) =>{
 exports.getAllorder = async(req, res) =>{
 	const orderFind = await order.find({});
     if(orderFind){
+		// console.log(typeof orderFind[0].order_subtotal)
         res.status(200).send(orderFind);
         return;
     }

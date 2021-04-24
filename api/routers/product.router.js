@@ -3,6 +3,7 @@ const product_controller = require('../controllers/product.controller');
 module.exports = (app) => {
     app.route('/product/getproduct/:page')
         .get(product_controller.getProduct);
+
     app.route('/product')
         .get(product_controller.getAllProduct);
 
@@ -27,4 +28,6 @@ module.exports = (app) => {
     app.route('/product/sort/:inc')
         .get(product_controller.sortProduct);
 
+    app.route('/product/banchay/top10')
+        .get(product_controller.getProductTop10);
 }

@@ -1,4 +1,5 @@
 const product = require('../models/product.model');
+const order = require('../models/order.model');
 const brandController = require('../controllers/brand.controller');
 const categoryController = require('../controllers/category.controller');
 
@@ -175,3 +176,35 @@ exports.getNameByID = async (req, res) => {
     res.status(200).send({name: result.name, count: result.count})
 }
 
+exports.getProductTop10 = async (req, res) => {
+	let orderFind = null;
+
+	try{
+	  	orderFind = await order.find({ paymentStatus: "paid" });
+	}catch (err) {
+		return res.status(500).send({message: err });
+	}
+
+	let arr = [];
+	let len = orderFind.length;
+
+	for (let i = 0; i < len; i++) {
+	  	let lenP = orderFind[i].cart.length;
+		for (let j = 0; j < lenP; j++) {
+			let index = arr.findIndex(
+				element => orderFind[i].cart[j]._id === element._id
+			);
+			if (index === -1) {
+				arr.push(orderFind[i].cart[j]);
+			} else {
+				arr[index].quantity += Number(orderFind[i].cart[j].quantity);
+			}
+		}
+	}
+
+	arr.sort(function(a, b) {
+	  	return b.quantity - a.quantity;
+	});
+
+	res.status(200).json({ data: arr.length > 10 ? arr.slice(0, 10) : arr });
+};

@@ -20,5 +20,6 @@ module.exports = (app) => {
         .post(auth.authLogin ,order_controller.getCustomerOrders);
     app.route('/order/getorder/:id_user')
         .get(auth.authLogin ,order_controller.getOrder);
+
         
 }
