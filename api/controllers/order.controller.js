@@ -19,8 +19,7 @@ exports.addOrder = async (req, res) => {
 		typeof req.body.payment === "undefined" ||
 		typeof req.body.shiping === "undefined" ||
 		typeof req.body.phone === "undefined" ) {
-	  res.status(422).send({message: "Invalid data" });
-	  return;
+	  return res.status(422).send({message: "Invalid data" });
 	}
 	//khai báo các biến cần thiết
 	const {id_user, city, posteCode, address, phone, payment, shiping} = req.body;
@@ -38,16 +37,14 @@ exports.addOrder = async (req, res) => {
 	const getDataUser = await userController.getDataByID(id_user);
 	let cartFind = null;
 	try {
-	  cartFind = await cart.findOne({ id_user: id_user });//tìm kiếm order theo id_user và status
-	} catch (err) {
-	  console.log("error ", err);
-	  res.status(500).send({message: err });
-	  return;
+	  	cartFind = await cart.findOne({ id_user: id_user });//tìm kiếm order theo id_user và status
+	}catch (err) {
+	  	return res.status(500).send({message: err });
 	}
 	if (cartFind === null) {//trường hợp không có cart trong db
-	  res.status(404).send({message: "user not found" });
-	  return;
+		return res.status(404).send({message: "user not found" });
 	}
+
 	let orderStatus = [
         {
           type: "ordered",
@@ -70,9 +67,9 @@ exports.addOrder = async (req, res) => {
 	//tạo mới order
 	const new_order = new order({
 	  id_user: id_user,
-	  cart: cartFind.cart,
+	  cart: cartFind.products,
 	  city: city,
-	  order_subtotal: Number(cartFind.grandquantity) + Number(shiping),
+	  order_subtotal: Number(cartFind.grandTotal) + Number(shiping),
 	  posteCode: posteCode,
 	  address: address,
 	  phone: phone,
@@ -83,20 +80,21 @@ exports.addOrder = async (req, res) => {
 	  payment: payment,
 	  orderStatus: orderStatus
 	});
+
 	try {
-	  await cartFind.remove();
-	} catch (err) {
-	  res.status(500).send({message: err });
-	  console.log("cart remove fail");
-	  return;
+		await cartFind.remove();
+		await new_order.save();
+	}catch (err) {
+	  	return res.status(500).send({message: err });
 	}
-	try {
-		new_order.save();//lưu order
-	} catch (err) {
-	  res.status(500).send({message: err });
-	  console.log("save order fail");
-	  return;
-	}
+
+	// try {
+	// 	new_order.save();//lưu order
+	// } catch (err) {
+	//   res.status(500).send({message: err });
+	//   console.log("save order fail");
+	//   return;
+	// }
 	res.status(201).send({message: "success" });//thông báo lưu thành công
 };
 
@@ -125,8 +123,6 @@ exports.updateOrder = async (req, res) =>{
 	  ).exec((error, order) => {
 		if (error) 
 			return res.status(400).send({ error });
-		// if(order)
-		// 	res.status(201).send("Success");
 	});
 	const orderFind = await order.findOne({ _id: id_order, "orderStatus.type": type });
 	res.status(201).send({orderFind});

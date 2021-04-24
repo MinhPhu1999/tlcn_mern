@@ -44,10 +44,8 @@ cart.methods.updateCountProduct = async function() {
             cart.grandTotal = cart.products[index].price * cart.products[index].quantity;
         }
     }
+};
 
-    //let productFind = await product.findById(cart.products[index]._id);
-
-}
 cart.methods.minusProduct = async function(req, res){
     const cart = this;
     let index;
@@ -69,8 +67,7 @@ cart.methods.minusProduct = async function(req, res){
         console.log(err);
         return;
     }    
-}
-
+};
 
 cart.methods.plusProduct = async function(){
     const cart = this;
@@ -91,6 +88,6 @@ cart.methods.plusProduct = async function(){
         return;
     } 
 
-}
+};
 
 module.exports = mongoose.model('cart', cart);

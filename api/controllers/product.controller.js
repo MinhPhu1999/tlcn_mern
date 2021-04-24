@@ -186,6 +186,9 @@ exports.getProductTop10 = async (req, res) => {
 		return res.status(500).send({message: err });
 	}
 
+    if(orderFind === null){
+        return res.status(404).send({message: "products not found"})
+    }
 	let arr = [];
 	let len = orderFind.length;
 
@@ -199,15 +202,8 @@ exports.getProductTop10 = async (req, res) => {
                 let productFind = await product.findById(orderFind[i].cart[j]._id)
 				arr.push(productFind);
 			} 
-            // else {
-			// 	arr[index].quantity += Number(orderFind[i].cart[j].quantity);
-			// }
 		}
 	}
-
-	// arr.sort(function(a, b) {
-	//   	return b.quantity - a.quantity;
-	// });
 
 	res.status(200).json({ data: arr.length > 10 ? arr.slice(0, 10) : arr });
 };
