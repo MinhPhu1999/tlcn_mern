@@ -177,6 +177,7 @@ exports.getNameByID = async (req, res) => {
 }
 
 exports.getProductTop10 = async (req, res) => {
+
 	let orderFind = null;
 
 	try{
@@ -195,16 +196,18 @@ exports.getProductTop10 = async (req, res) => {
 				element => orderFind[i].cart[j]._id === element._id
 			);
 			if (index === -1) {
-				arr.push(orderFind[i].cart[j]);
-			} else {
-				arr[index].quantity += Number(orderFind[i].cart[j].quantity);
-			}
+                let productFind = await product.findById(orderFind[i].cart[j]._id)
+				arr.push(productFind);
+			} 
+            // else {
+			// 	arr[index].quantity += Number(orderFind[i].cart[j].quantity);
+			// }
 		}
 	}
 
-	arr.sort(function(a, b) {
-	  	return b.quantity - a.quantity;
-	});
+	// arr.sort(function(a, b) {
+	//   	return b.quantity - a.quantity;
+	// });
 
 	res.status(200).json({ data: arr.length > 10 ? arr.slice(0, 10) : arr });
 };
