@@ -189,21 +189,28 @@ exports.getProductTop10 = async (req, res) => {
     if(orderFind === null){
         return res.status(404).send({message: "products not found"})
     }
-	let arr = [];
-	let len = orderFind.length;
 
+	let len = orderFind.length;
+    let productFind;
+    let arrProduct = [];	
+    let arr = [];
+
+    //lay id product trong order
 	for (let i = 0; i < len; i++) {
 	  	let lenP = orderFind[i].cart.length;
 		for (let j = 0; j < lenP; j++) {
-			let index = arr.findIndex(
-				element => orderFind[i].cart[j]._id === element._id
-			);
-			if (index === -1) {
-                let productFind = await product.findById(orderFind[i].cart[j]._id)
-				arr.push(productFind);
-			} 
+            arr.push(orderFind[i].cart[j]._id);
 		}
 	}
 
-	res.status(200).json({ data: arr.length > 10 ? arr.slice(0, 10) : arr });
+    //chi lay 1 phan tu trong nhung pnan tu trung nhau trong mang
+    arr = [...new Set(arr)];
+
+    //lay thong tin product theo id
+    for(let id_product of arr){
+        productFind = await product.findById(id_product);
+        arrProduct.push(productFind);
+    }
+
+	res.status(200).json({ data: arrProduct.length > 10 ? arrProduct.slice(0, 10) : arrProduct });
 };
