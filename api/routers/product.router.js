@@ -20,7 +20,7 @@ module.exports = (app) => {
         .get(product_controller.getProductByBrand);
 
     app.route('/product/category')
-        .patch(product_controller.getProductByCategory);
+        .put(product_controller.getProductByCategory);
 
     app.route('/product/amount/:id')
         .post(product_controller.getNameByID);

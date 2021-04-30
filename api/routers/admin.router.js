@@ -61,6 +61,8 @@ module.exports = (app) => {
         .get(order_controller.getOrderByYear);
     app.route('/admin/order/top10')
         .get(order_controller.getOrderTop10);
+    app.route('/admin/order/quantitybyyear')
+        .get(order_controller.getQuantityByYear);
     
     //stock
     app.route('/admin/addstock')

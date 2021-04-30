@@ -179,9 +179,9 @@ exports.getOrderByYear = async (req, res) =>{
 	}
 
 	let { year } = req.body;
-	var t0 = performance.now();
+	// var t0 = performance.now();
 
-	let getOrder = await order.find({});
+	let getOrder = await order.find({paymentStatus: "paid"});
 	let index = 0;
 	let orderFind;
 	let arrOr = [];
@@ -199,15 +199,55 @@ exports.getOrderByYear = async (req, res) =>{
 		}
 		arrOr.push(orderFind);
 		index = orderFind;
-
-		let count = orderFind ++;
-		if(count >= lenOrder){
-			break;
-		}
-
 	}
 	res.status(200).json({ arrOr });
 };
+
+exports.getQuantityByYear = async (req, res) =>{
+
+	if(typeof req.body.year === "undefined") {
+		return res.status(402).send({message: "!invalid" });
+	}
+
+	let { year } = req.body;
+	// var t0 = performance.now();
+
+	let getOrder = await order.find({paymentStatus: "paid"});
+	let index = 0;
+	let dem = 0;
+	let orderFind;
+	let arrOr = [];
+	let lenOrder = getOrder.length;
+
+	for(let i = 1; i < 13; i++){
+		orderFind = 0;
+		dem = 0;
+		
+		while(index < lenOrder){
+			let lenCart = getOrder[index].cart.length;
+			
+			if((getOrder[index].order_date >= new Date(year, i-1, 1)) && 
+				(getOrder[index].order_date < new Date(parseInt(year), i, 1))) {
+
+				for(let j = 0; j < lenCart; j++){
+					orderFind += getOrder[index].cart[j].quantity;
+				}
+
+				dem ++;
+			}
+			index ++;
+		}
+		
+		arrOr.push(orderFind);
+		index = dem;
+	}
+	// var t1 = performance.now();
+
+	// console.log(t1-t0);
+
+	res.status(200).json({ arrOr });
+};
+
 
 exports.getOrderTop10 = async (req, res) => {
 	let orderFind = null;

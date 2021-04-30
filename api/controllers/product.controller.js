@@ -134,20 +134,38 @@ exports.getProductByCategory = async(req,res)=>{
         return res.status(402).send({message: 'Data invalid'});
     }
     
-    let {categoryName, disCount} = req.body;
+    let {categoryName, disCount, startDate, endDate} = req.body;
 
+    // start = new Date(startDate);
+
+    // console.log( start);
     let searchIDCatefory = null;
     searchIDCatefory= await categoryController.getIDBySearchText(categoryName);
     let productFind = await product.find({ $or: [{id_category: new RegExp(searchIDCatefory, "i")}]});
 
-    let lenProduct =productFind.length;
 
-    for(let i=0; i< lenProduct;i++){
-        productFind[i].disCount = disCount;
-        await productFind[i].save((err) => {
-            if(err) return res.status(500).json({msg: err.message})
+    // for(let pro of productFind){
+    //     product.findOneAndUpdate({_id: pro._id},
+    //         {
+    //             '$set': {'startDate': new Date(startDate),
+    //                     'endDate': new Date(endDate),
+    //                     'disCount': disCount}
+    //         });
+        
+    //     console.log(Find);
+    // }
+
+    for(let i = 0; i < productFind.length; i++){
+        product.updateOne({_id: productFind[i]._id} ,
+            {
+                '$set': {'startDate': new Date(startDate),
+                        'endDate': new Date(endDate),
+                        'disCount': disCount}
         });
+
+        console.log(productFind[0]);
     }
+
 
     res.status(200).send({productFind});
 
