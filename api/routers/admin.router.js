@@ -6,7 +6,7 @@ module.exports = (app) => {
   //product
     app.route('/admin/addproduct')
         .post(upload.single('file'),admin_controller.addProduct); 
-    // app.route('/admin/addproduct')
+    // app.route('/admin/updateprice')
     //     .post(upload.single('file'),admin_controller.addProductTest); 
     app.route('/admin/updateproduct')
         .put(upload.single('file'),admin_controller.updateProduct);
@@ -57,12 +57,13 @@ module.exports = (app) => {
         .get(order_controller.getOrderByDay);
     app.route('/admin/order/bymonth')
         .get(order_controller.getOrderByMonth);
-    app.route('/admin/order/byyear')
+    app.route('/admin/order/byyear/:year')
         .get(order_controller.getOrderByYear);
     app.route('/admin/order/top10')
         .get(order_controller.getOrderTop10);
-    app.route('/admin/order/quantitybyyear')
+    app.route('/admin/order/quantitybyyear/:year')
         .get(order_controller.getQuantityByYear);
+
     
     //stock
     app.route('/admin/addstock')

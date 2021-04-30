@@ -174,11 +174,11 @@ exports.getOrderByMonth = async (req, res) =>{
 };
 
 exports.getOrderByYear = async (req, res) =>{
-	if(typeof req.body.year === "undefined") {
+	if(typeof req.params.year === "undefined") {
 		return res.status(402).send({message: "!invalid" });
 	}
 
-	let { year } = req.body;
+	let { year } = req.params;
 	// var t0 = performance.now();
 
 	let getOrder = await order.find({paymentStatus: "paid"});
@@ -205,11 +205,11 @@ exports.getOrderByYear = async (req, res) =>{
 
 exports.getQuantityByYear = async (req, res) =>{
 
-	if(typeof req.body.year === "undefined") {
+	if(typeof req.params.year === "undefined") {
 		return res.status(402).send({message: "!invalid" });
 	}
 
-	let { year } = req.body;
+	let { year } = req.params;
 	// var t0 = performance.now();
 
 	let getOrder = await order.find({paymentStatus: "paid"});

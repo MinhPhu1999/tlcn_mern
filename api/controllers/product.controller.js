@@ -136,9 +136,6 @@ exports.getProductByCategory = async(req,res)=>{
     
     let {categoryName, disCount, startDate, endDate} = req.body;
 
-    // start = new Date(startDate);
-
-    // console.log( start);
     let searchIDCatefory = null;
     searchIDCatefory= await categoryController.getIDBySearchText(categoryName);
     let productFind = await product.find({ $or: [{id_category: new RegExp(searchIDCatefory, "i")}]});
@@ -163,9 +160,38 @@ exports.getProductByCategory = async(req,res)=>{
                         'disCount': disCount}
         });
 
-        console.log(productFind[0]);
+        // console.log(productFind[0]);
     }
 
+
+    res.status(200).send({productFind});
+
+}
+
+exports.updatePriceByCategory = async(req,res)=>{
+    if (typeof req.body.categoryName === 'undefined' ||
+        typeof req.body.disCount === 'undefined' ||
+        typeof req.body.increase === 'undefined') {
+        return res.status(402).send({message: 'Data invalid'});
+    }
+    
+    let {categoryName, disCount, increase} = req.body;
+
+    let searchIDCatefory = null;
+    searchIDCatefory= await categoryController.getIDBySearchText(categoryName);
+    let productFind = await product.find({ $or: [{id_category: new RegExp(searchIDCatefory, "i")}]});
+
+    if(increase === false){
+        disCount = - disCount;
+    }
+
+    for(let i = 0; i < productFind.length; i++){
+        product.updateOne({_id: productFind[i]._id} ,
+            {
+                '$set': {'price': (price + (price * disCount)/100)}
+        });
+
+    }
 
     res.status(200).send({productFind});
 
