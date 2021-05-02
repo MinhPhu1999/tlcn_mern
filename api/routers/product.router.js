@@ -31,6 +31,7 @@ module.exports = (app) => {
     app.route('/product/banchay/top10')
         .get(product_controller.getProductTop10);
 
-    app.route('/product/updateprice')
-        .patch(product_controller.updatePriceByCategory);
+
+
+
 }

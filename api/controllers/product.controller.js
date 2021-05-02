@@ -141,27 +141,26 @@ exports.getProductByCategory = async(req,res)=>{
     let productFind = await product.find({ $or: [{id_category: new RegExp(searchIDCatefory, "i")}]});
 
 
-    // for(let pro of productFind){
-    //     product.findOneAndUpdate({_id: pro._id},
-    //         {
-    //             '$set': {'startDate': new Date(startDate),
-    //                     'endDate': new Date(endDate),
-    //                     'disCount': disCount}
-    //         });
-        
-    //     console.log(Find);
-    // }
 
-    for(let i = 0; i < productFind.length; i++){
-        product.updateOne({_id: productFind[i]._id} ,
-            {
-                '$set': {'startDate': new Date(startDate),
-                        'endDate': new Date(endDate),
-                        'disCount': disCount}
+    product.updateOne({_id: '603fa3044752e4001777c9f2'} ,
+        {
+            '$set': {'startDate':  new Date(startDate),
+                    'endDate':  new Date(endDate),
+                    'disCount': disCount
+                }
         });
 
-        // console.log(productFind[0]);
-    }
+    // for(let i in productFind){
+    //     product.updateOne({_id: productFind[i]._id} ,
+    //         {
+    //             $set: {startDate:  new Date(startDate),
+    //                     endDate:  new Date(endDate),
+    //                     disCount: disCount
+    //                 }
+    //         });
+
+    //     // console.log(pro);
+    // }
 
 
     res.status(200).send({productFind});
@@ -185,10 +184,12 @@ exports.updatePriceByCategory = async(req,res)=>{
         disCount = - disCount;
     }
 
-    for(let i = 0; i < productFind.length; i++){
-        product.updateOne({_id: productFind[i]._id} ,
-            {
-                '$set': {'price': (price + (price * disCount)/100)}
+    for(let i in productFind){
+        console.log(productFind[i].price + (productFind[i].price * disCount)/100);
+        productFind[i].price = productFind[i].price + (productFind[i].price * disCount)/100;
+
+        productFind[i].save((err) => {
+            if(err) return res.status(500).send({message: err})
         });
 
     }
@@ -257,4 +258,5 @@ exports.getProductTop10 = async (req, res) => {
     }
 
 	res.status(200).json({ data: arrProduct.length > 10 ? arrProduct.slice(0, 10) : arrProduct });
-};
+}
+

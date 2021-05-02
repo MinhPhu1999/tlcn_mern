@@ -1,7 +1,11 @@
 'use trict'
 const order = require("../models/order.model");
 const cart = require("../models/cart.model")
+const product = require('../models/product.model');
+
 const userController = require("../controllers/user.controller");
+const categoryController = require('../controllers/category.controller');
+
 
 const {performance} = require('perf_hooks');
 
@@ -248,6 +252,98 @@ exports.getQuantityByYear = async (req, res) =>{
 	res.status(200).json({ arrOr });
 };
 
+exports.getQuantityByYearAndCategory = async (req, res) =>{
+
+	if(typeof req.body.year === "undefined" ||
+	typeof req.body.categoryName === "undefined") {
+		return res.status(402).send({message: "!invalid" });
+	}
+
+
+	let { year, categoryName } = req.body;
+	let searchIDCatefory = null;
+    searchIDCatefory= await categoryController.getIDBySearchText(categoryName);
+    let productFind = await product.find({ $or: [{id_category: new RegExp(searchIDCatefory, "i")}]});
+	// var t0 = performance.now();
+
+	let getOrder = await order.find({paymentStatus: "paid"});
+	let index = 0;
+	let dem = 0;
+	let orderFind;
+	let arrOr = [];
+	let lenOrder = getOrder.length;
+	let lenProduct = productFind.length;
+
+	for(let i = 1; i < 13; i++){
+		orderFind = 0;
+		dem = 0;
+		
+		while(index < lenOrder){
+			let lenCart = getOrder[index].cart.length;
+			
+			if((getOrder[index].order_date >= new Date(year, i-1, 1)) && 
+				(getOrder[index].order_date < new Date(parseInt(year), i, 1))) {
+
+				for(let j = 0; j < lenCart; j++)
+				{
+					for(let lenP = 0; lenP < lenProduct; lenP++){
+						// console.log(`id product ${productFind[lenP]._id}`);
+						// console.log(`id product trong cart ${getOrder[index].cart[j]._id}`);
+						if(getOrder[index].cart[j]._id == productFind[lenP]._id){
+
+							orderFind += getOrder[index].cart[j].quantity;
+							
+						}
+						// console.log(orderFind);
+						
+					}
+				}
+				
+
+				dem ++;
+			}
+			index ++;
+		}
+		
+		arrOr.push(orderFind);
+		index = dem;
+	}
+	// var t1 = performance.now();
+
+	// console.log(t1-t0);
+
+	res.status(200).json({ arrOr });
+};
+
+exports.checkCanComment = async (req, res) => {
+    if (typeof req.body.id_user === 'undefined' ||
+        typeof req.body.id_product === 'undefined') {
+        return res.status(402).send({message: 'Data invalid'});
+    }
+
+    const {id_user, id_product} = req.body;
+
+    const orderFind = await order.find({id_user: id_user, paymentStatus: 'paid'});
+
+	let lenOr = orderFind.length;
+
+	for(let i = 0; i < lenOr; i++){
+		let lenCart = orderFind[i].cart.length;
+		for(let j = 0; j < lenCart; j++){
+			let index = orderFind[i].cart.findIndex(
+				element => id_product === element._id
+			);
+
+			if(index >= 0){
+				return res.status(200).send({message: 'true'});
+			}
+
+		}
+	}
+
+	res.status(200).send({message: 'false'});
+
+}
 
 exports.getOrderTop10 = async (req, res) => {
 	let orderFind = null;

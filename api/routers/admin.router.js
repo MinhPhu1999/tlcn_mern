@@ -14,6 +14,8 @@ module.exports = (app) => {
         .put(admin_controller.deleteProduct);
     app.route('/admin/getallproduct/:page')
         .get(admin_controller.getAllProduct);
+    app.route('/admin/product/updateprice')
+        .put(product_controller.updatePriceByCategory);
 
 
     //brand
@@ -63,6 +65,8 @@ module.exports = (app) => {
         .get(order_controller.getOrderTop10);
     app.route('/admin/order/quantitybyyear/:year')
         .get(order_controller.getQuantityByYear);
+    app.route('/admin/order/yearandcategory')
+        .get(order_controller.getQuantityByYearAndCategory)
 
     
     //stock
