@@ -1,5 +1,7 @@
 const admin_controller = require('../controllers/admin.controller');
 const order_controller = require('../controllers/order.controller');
+const product_controller = require('../controllers/product.controller');
+
 const upload = require('../config/multer');
 
 module.exports = (app) => {
