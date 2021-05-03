@@ -2,6 +2,7 @@ const product = require('../models/product.model');
 const order = require('../models/order.model');
 const brandController = require('../controllers/brand.controller');
 const categoryController = require('../controllers/category.controller');
+const {performance} = require('perf_hooks');
 
 exports.sortProduct = async(req, res)=>{
     //khai báo các biến cần thiết
@@ -133,7 +134,7 @@ exports.getProductByCategory = async(req,res)=>{
         typeof req.body.disCount === 'undefined') {
         return res.status(402).send({message: 'Data invalid'});
     }
-    
+    const t0 = performance.now();
     let {categoryName, disCount, startDate, endDate} = req.body;
 
     let searchIDCatefory = null;
@@ -141,29 +142,26 @@ exports.getProductByCategory = async(req,res)=>{
     let productFind = await product.find({ $or: [{id_category: new RegExp(searchIDCatefory, "i")}]});
 
 
+    for(let i in productFind){
+        product.updateOne({_id: productFind[i]._id} ,
+            {
+                $set: {
+                        startDate:  new Date(startDate),
+                        endDate:  new Date(endDate),
+                        disCount: disCount
+                    }
+            }, {upsert: true})
+            .then((err) => {
+                // if(err) console.log('');
+            });
 
-    product.updateOne({_id: '603fa3044752e4001777c9f2'} ,
-        {
-            '$set': {'startDate':  new Date(startDate),
-                    'endDate':  new Date(endDate),
-                    'disCount': disCount
-                }
-        });
+    }
 
-    // for(let i in productFind){
-    //     product.updateOne({_id: productFind[i]._id} ,
-    //         {
-    //             $set: {startDate:  new Date(startDate),
-    //                     endDate:  new Date(endDate),
-    //                     disCount: disCount
-    //                 }
-    //         });
+    let productFind1 = await product.find({ $or: [{id_category: new RegExp(searchIDCatefory, "i")}]});
 
-    //     // console.log(pro);
-    // }
-
-
-    res.status(200).send({productFind});
+    const t1 = performance.now();
+    console.log(t1-t0)
+    res.status(200).send({productFind1});
 
 }
 

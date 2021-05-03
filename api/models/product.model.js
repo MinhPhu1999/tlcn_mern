@@ -15,8 +15,14 @@ const product = new Schema({
         type: Number,
         default: 0
     },
-    startDate: Date,
-    endDate: Date,
+    startDate: {
+        type: Date,
+        timezone: "Asia/Ho_Chi_Minh"
+    },
+    endDate: {
+        type: Date,
+        timezone: "Asia/Ho_Chi_Minh"
+    },
     id_category:{
         type:String,
         required:[true,"Không được bỏ trống"],
