@@ -20,6 +20,7 @@ module.exports = (app) => {
         .put(product_controller.updatePriceByCategory);
 
 
+
     //brand
     app.route('/admin/addbrand')
         .post(admin_controller.addBrand);
@@ -69,6 +70,8 @@ module.exports = (app) => {
         .get(order_controller.getQuantityByYear);
     app.route('/admin/order/yearandcategory')
         .get(order_controller.getQuantityByYearAndCategory)
+    app.route('/admin/order/countorder')
+        .get(order_controller.getQuantityOrderByYearAndCategory);
 
     
     //stock

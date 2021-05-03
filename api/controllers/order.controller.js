@@ -315,6 +315,72 @@ exports.getQuantityByYearAndCategory = async (req, res) =>{
 	res.status(200).json({ arrOr });
 };
 
+exports.getQuantityOrderByYearAndCategory = async (req, res) =>{
+
+	if(typeof req.body.year === "undefined" ||
+	typeof req.body.categoryName === "undefined") {
+		return res.status(402).send({message: "!invalid" });
+	}
+
+
+	let { year, categoryName } = req.body;
+	let searchIDCatefory = null;
+    searchIDCatefory= await categoryController.getIDBySearchText(categoryName);
+    let productFind = await product.find({ $or: [{id_category: new RegExp(searchIDCatefory, "i")}]});
+	// var t0 = performance.now();
+
+	let getOrder = await order.find({paymentStatus: "paid"});
+	let index = 0;
+	let dem = 0;
+	let orderFind = 0;
+	let countOrder = 0;
+	let arrOr = [];
+	let arrGetOrder = [];
+	let lenOrder = getOrder.length;
+	let lenProduct = productFind.length;
+
+	for(let i = 1; i < 13; i++){
+		orderFind = 0;
+		countOrder = 0;
+		dem = 0;
+		
+		while(index < lenOrder){
+			let lenCart = getOrder[index].cart.length;
+			
+			if((getOrder[index].order_date >= new Date(year, i-1, 1)) && 
+				(getOrder[index].order_date < new Date(parseInt(year), i, 1))) {
+
+				for(let j = 0; j < lenCart; j++)
+				{
+					for(let lenP = 0; lenP < lenProduct; lenP++){
+						if(getOrder[index].cart[j]._id == productFind[lenP]._id){
+							arrGetOrder.push(getOrder[index]._id)							
+						}
+						
+					}
+				}
+				
+				dem ++;
+			}
+			index ++;
+			if(orderFind > 0){
+				countOrder ++;
+			}
+		}
+		
+		
+		arrOr.push(countOrder);
+		index = dem;
+	}
+	arrGetOrder = [...new Set(arrGetOrder)];
+
+	// var t1 = performance.now();
+
+	// console.log(t1-t0);
+
+	res.status(200).json({ arrOr });
+};
+
 exports.checkCanComment = async (req, res) => {
     if (typeof req.body.id_user === 'undefined' ||
         typeof req.body.id_product === 'undefined') {

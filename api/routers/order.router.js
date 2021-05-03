@@ -22,7 +22,7 @@ module.exports = (app) => {
         .get(auth.authLogin ,order_controller.getOrder);
     
     app.route('/order/checkcancomment')
-        .get(order_controller.checkCanComment);
+        .post(order_controller.checkCanComment);
 
         
 }
