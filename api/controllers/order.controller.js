@@ -336,6 +336,7 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) =>{
 	let countOrder = 0;
 	let arrOr = [];
 	let arrGetOrder = [];
+	let tang = 0;
 	let lenOrder = getOrder.length;
 	let lenProduct = productFind.length;
 
@@ -354,25 +355,36 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) =>{
 				{
 					for(let lenP = 0; lenP < lenProduct; lenP++){
 						if(getOrder[index].cart[j]._id == productFind[lenP]._id){
-							arrGetOrder.push(getOrder[index]._id)							
-						}
+							// arrGetOrder.push(getOrder[index]._id);
+							orderFind ++;
+							break;
 						
+						}
+					}
+					if(orderFind > 0){
+						break;
 					}
 				}
-				
 				dem ++;
+				
 			}
+			
+			// if(orderFind > 0){
+			// 	countOrder ++;
+			// 	console.log(`thang: ${i}`)
+			// 	console.log(`index: ${index}`);
+			// 	console.log(`orderFind: ${orderFind}`);
+			// 	console.log(`countOrder: ${countOrder}`);
+			// }
 			index ++;
-			if(orderFind > 0){
-				countOrder ++;
-			}
 		}
 		
+		// console.log(countOrder);
 		
-		arrOr.push(countOrder);
+		arrOr.push(orderFind);
 		index = dem;
 	}
-	arrGetOrder = [...new Set(arrGetOrder)];
+	// arrGetOrder = [...new Set(arrGetOrder)];
 
 	// var t1 = performance.now();
 
