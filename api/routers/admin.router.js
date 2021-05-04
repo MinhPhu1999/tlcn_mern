@@ -71,7 +71,7 @@ module.exports = (app) => {
     app.route('/admin/order/yearandcategory')
         .post(order_controller.getQuantityByYearAndCategory)
     app.route('/admin/order/countorder')
-        .get(order_controller.getQuantityOrderByYearAndCategory);
+        .post(order_controller.getQuantityOrderByYearAndCategory);
 
     
     //stock
