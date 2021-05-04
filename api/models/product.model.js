@@ -11,6 +11,7 @@ const product = new Schema({
         type:Number,
         required:[true,"Không được bỏ trống"],
     },
+    sellPrice: Number,
     disCount: {
         type: Number,
         default: 0

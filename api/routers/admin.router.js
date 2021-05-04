@@ -17,7 +17,7 @@ module.exports = (app) => {
     app.route('/admin/getallproduct/:page')
         .get(admin_controller.getAllProduct);
     app.route('/admin/product/updateprice')
-        .put(product_controller.updatePriceByCategory);
+        .post(product_controller.updatePriceByCategory);
 
 
 
