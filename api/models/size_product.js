@@ -1,19 +1,19 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 const sizeProductSchema = new mongoose.Schema({
-    quantity:{
+    quantity: {
         type: Number,
-        required: true
+        required: true,
     },
-    size:{
+    size: {
         type: Schema.Types.ObjectId,
-        ref: 'Size'
+        ref: 'Size',
     },
-    colorProduct:{
+    colorProduct: {
         type: Schema.Types.ObjectId,
-        ref: 'ColorProduct'
-    }
+        ref: 'ColorProduct',
+    },
 });
 
-module.exports = mongoose.model('SizeProduct', sizeProductSchema)
+module.exports = mongoose.model('SizeProduct', sizeProductSchema);

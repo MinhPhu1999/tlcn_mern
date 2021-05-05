@@ -1,15 +1,15 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 const imageProduct = new mongoose.Schema({
     images: {
         type: Array,
-        default:[]
+        default: [],
     },
     product: {
         type: Schema.Types.ObjectId,
-        ref: 'product'
-    }
+        ref: 'product',
+    },
 });
 
-module.exports = mongoose.model('image_product', imageProduct)
+module.exports = mongoose.model('image_product', imageProduct);
