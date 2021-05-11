@@ -1,7 +1,7 @@
 'usr strict';
 const stock = require('../models/stock.model');
 
-exports.getDataByID = async (id_stock) => {
+exports.getDataByID = async id_stock => {
     let result = null;
     try {
         result = await stock.findById(id_stock);

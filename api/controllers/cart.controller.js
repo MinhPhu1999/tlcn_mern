@@ -3,10 +3,7 @@ const cart = require('../models/cart.model');
 const product = require('../models/product.model');
 exports.addToCart = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
-    if (
-        typeof req.body.id_user === 'undefined' ||
-        typeof req.body.products === 'undefined'
-    ) {
+    if (typeof req.body.id_user === 'undefined' || typeof req.body.products === 'undefined') {
         return res.status(422).send({ message: 'invalid data' });
     }
     //khai báo các biến cần thiết
@@ -26,7 +23,7 @@ exports.addToCart = async (req, res) => {
         try {
             await cart_new
                 .save() //lưu lại cart vừa tạo
-                .then(cart_new.updateCountProduct(), cart_new.minusProduct());
+                .then(cart_new.updateCountProduct(), cart_new.minusProduct(req, res));
         } catch (err) {
             return res.status(500).send({ message: err });
         }
@@ -35,7 +32,7 @@ exports.addToCart = async (req, res) => {
         for (let i = 0; i < products.length; i++) {
             let index = cartFind.products.findIndex(
                 //tìm kiếm vị trí có id của product khi truyền vô bằng với id product của cart
-                (element) => products[i]._id === element._id
+                element => products[i]._id === element._id,
             );
 
             if (index === -1) {
@@ -88,10 +85,7 @@ exports.getAll = async (req, res) => {
 
 exports.updateTang = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
-    if (
-        typeof req.body.id_user === 'undefined' ||
-        typeof req.body.id_product === 'undefined'
-    ) {
+    if (typeof req.body.id_user === 'undefined' || typeof req.body.id_product === 'undefined') {
         return res.status(422).send({ message: 'invalid data' });
     }
     //khai báo các biến cần thiết
@@ -107,9 +101,7 @@ exports.updateTang = async (req, res) => {
         return res.status(404).send({ message: 'cart not found' });
     }
     //tìm kiếm vị trí id_product truyền vào bằng với id_product có trong cart
-    let index = cartFind.products.findIndex(
-        (element) => id_product === element._id
-    );
+    let index = cartFind.products.findIndex(element => id_product === element._id);
 
     cartFind.products[index].quantity += 1; //tăng số lượng lên 1
     cartFind.grandTotal += cartFind.products[index].price; //cập nhật lại grandtotal
@@ -117,7 +109,7 @@ exports.updateTang = async (req, res) => {
     try {
         await cartFind
             .save() //lưu lại các thay đổi
-            .then(cartFind.minusProduct()); //thực hiện trừ số lượng tương ứng với size trong product
+            .then(cartFind.minusProduct(req, res)); //thực hiện trừ số lượng tương ứng với size trong product
     } catch (err) {
         return res.status(500).send('Add cart fail');
     }
@@ -127,10 +119,7 @@ exports.updateTang = async (req, res) => {
 
 exports.updateGiam = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
-    if (
-        typeof req.body.id_user === 'undefined' ||
-        typeof req.body.id_product === 'undefined'
-    ) {
+    if (typeof req.body.id_user === 'undefined' || typeof req.body.id_product === 'undefined') {
         return res.status(422).send({ message: 'invalid data' });
     }
     //khai báo các biến cần thiết
@@ -149,17 +138,15 @@ exports.updateGiam = async (req, res) => {
     }
 
     //tìm kiếm vị trí id_product truyền vào bằng với id_product có trong cart
-    let index = cartFind.products.findIndex(
-        (element) => id_product === element._id
-    );
+    let index = cartFind.products.findIndex(element => id_product === element._id);
     //giảm số lượng 1
     cartFind.products[index].quantity -= 1;
-    cartFind.grandTotal -= cartFind.products[index].price; //cập nhật lại grandtotal
+	cartFind.grandTotal -= cartFind.products[index].price; //cập nhật lại grandtotal
 
     try {
         await cartFind
             .save() //lưu các thay đổi
-            .then(cartFind.plusProduct()); //thực hiện tăng số lượng tương ứng với size trong product
+            .then(cartFind.plusProduct(id_product)); //thực hiện tăng số lượng tương ứng với size trong product
     } catch (err) {
         //xuất thông báo lỗi nếu update fail
         return res.status(500).send('update cart fail');
@@ -169,10 +156,7 @@ exports.updateGiam = async (req, res) => {
 };
 
 exports.updateCart = async (req, res) => {
-    if (
-        typeof req.body.id_user === 'undefined' ||
-        typeof req.body.products === 'undefined'
-    ) {
+    if (typeof req.body.id_user === 'undefined' || typeof req.body.products === 'undefined') {
         return res.status(422).send({ message: 'invalid data' });
     }
     const { id_user, products } = req.body;
@@ -191,9 +175,7 @@ exports.updateCart = async (req, res) => {
     const productLen = products.length;
 
     for (i = 0; i < productLen; i++) {
-        index = cartFind.products.findIndex(
-            (element) => products[i]._id === element._id
-        );
+        index = cartFind.products.findIndex(element => products[i]._id === element._id);
         if (index === -1) {
             res.status(404).send({ message: 'product not found in list' });
         } else {
@@ -244,10 +226,7 @@ exports.deleteCart = async (req, res) => {
 
 exports.deleteProductInCart = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
-    if (
-        typeof req.body.id_user === 'undefined' ||
-        typeof req.body.id_product === 'undefined'
-    ) {
+    if (typeof req.body.id_user === 'undefined' || typeof req.body.id_product === 'undefined') {
         return res.status(422).send({ message: 'invalid data' });
     }
     //khai báo các biến cần thiết
@@ -268,31 +247,23 @@ exports.deleteProductInCart = async (req, res) => {
     //tìm kiếm vị trí id_product truyền vào bằng với id_product có trong cart
     if (cartFind.products.length === 1) {
         await cartFind.remove();
-        await cartFind.save();
+        await cartFind.save().then(cartFind.plusProduct(id_product));
     } else {
-        let index = cartFind.products.findIndex(
-            (element) => element._id === id_product
-        );
+        let index = cartFind.products.findIndex(element => element._id === id_product);
 
         //trường hợp không tìm thấy product có trong cart
         if (index === -1) {
-            return res
-                .status(404)
-                .send({ message: 'product not found in list' });
+            return res.status(404).send({ message: 'product not found in list' });
         }
-        cartFind.grandTotal -=
-            cartFind.products[index].quantity * cartFind.products[index].price; //update lại grandtotal
+        cartFind.grandTotal -= cartFind.products[index].quantity * cartFind.products[index].price; //update lại grandtotal
         cartFind.products.splice(index, 1); //xóa sản phẩm trong cart
 
         try {
             //lưu lại các thay đổi
-            await cart.findByIdAndUpdate(cartFind._id, {
-                //thục hiện lưu các thay đổi
-                $set: {
-                    products: cartFind.products,
-                    grandTotal: cartFind.grandTotal,
-                },
-            });
+			await cartFind
+				.save()
+				.then(cartFind.plusProduct(id_product));//xoa xong thi tang so luong san pham len 1
+
         } catch (err) {
             //xuất ra lỗi nếu xóa sản phẩm trong cart fail
             return res.status(500).send({ message: err });

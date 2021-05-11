@@ -24,8 +24,7 @@ exports.register = async (req, res) => {
     //kiểm tra điều kiện password hợp lệ
     if (!validate.isValidPassWord(password)) {
         return res.status(422).send({
-            message:
-                'Mật khẩu có độ dài từ 8-12 kí tự phải chứa số,chữ thường và chữ hoa ',
+            message: 'Mật khẩu có độ dài từ 8-12 kí tự phải chứa số,chữ thường và chữ hoa ',
         });
     }
     //kiểm tra tên có hợp lệ không
@@ -104,11 +103,7 @@ exports.verifyAccount = async (req, res) => {
     }
     try {
         //lưu các thay đổi
-        await user.findByIdAndUpdate(
-            tokenFind._id,
-            { $set: { is_verify: true } },
-            { new: true }
-        );
+        await user.findByIdAndUpdate(tokenFind._id, { $set: { is_verify: true } }, { new: true });
     } catch (err) {
         res.status(500).send({ message: err });
         return;
@@ -118,10 +113,7 @@ exports.verifyAccount = async (req, res) => {
 
 exports.login = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
-    if (
-        typeof req.body.email === 'undefined' ||
-        typeof req.body.password == 'undefined'
-    ) {
+    if (typeof req.body.email === 'undefined' || typeof req.body.password == 'undefined') {
         res.status(402).send({ message: 'email or password wrrong' });
         return;
     }
@@ -246,10 +238,7 @@ exports.requestForgotPassword = async (req, res) => {
 
 exports.verifyForgotPassword = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
-    if (
-        typeof req.body.email === 'undefined' ||
-        typeof req.body.otp === 'undefined'
-    ) {
+    if (typeof req.body.email === 'undefined' || typeof req.body.otp === 'undefined') {
         res.status(402).send({ message: 'Invalid data' });
         return;
     }
@@ -397,7 +386,7 @@ exports.updatePassword = async (req, res) => {
     res.status(200).send({ message: 'success' }); //thông báo đổi mật khẩu thành công
 };
 
-exports.getDataByID = async (id_user) => {
+exports.getDataByID = async id_user => {
     let userFind = await user.findOne({ _id: id_user });
     if (userFind.fbEmail != null) {
         email = userFind.fbEmail;
@@ -412,70 +401,59 @@ exports.getDataByID = async (id_user) => {
 exports.googleController = async (req, res) => {
     const { idToken } = req.body;
     console.log(idToken);
-    client
-        .verifyIdToken({ idToken, audience: process.env.GOOGLE_API_KEY })
-        .then((response) => {
-            // console.log('GOOGLE LOGIN RESPONSE',response)
-            const { email_verified, name, email } = response.payload;
-            if (email_verified) {
-                user.findOne({ ggEmail: email }).exec((err, newUser) => {
-                    if (newUser) {
-                        //newUser.generateJWT();
-                        const token = jwt.sign(
-                            { _id: newUser._id },
-                            process.env.JWT_KEY,
-                            {
-                                expiresIn: '3h',
-                            }
-                        );
-                        newUser.token = token;
-                        newUser.save();
-                        //const token = newUser.token;
-                        const { _id, email, name } = newUser;
+    client.verifyIdToken({ idToken, audience: process.env.GOOGLE_API_KEY }).then(response => {
+        // console.log('GOOGLE LOGIN RESPONSE',response)
+        const { email_verified, name, email } = response.payload;
+        if (email_verified) {
+            user.findOne({ ggEmail: email }).exec((err, newUser) => {
+                if (newUser) {
+                    //newUser.generateJWT();
+                    const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
+                        expiresIn: '3h',
+                    });
+                    newUser.token = token;
+                    newUser.save();
+                    //const token = newUser.token;
+                    const { _id, email, name } = newUser;
+                    return res.json({
+                        token,
+                        newUser: { _id, email, name },
+                    });
+                } else {
+                    let password = email + process.env.JWT_KEY;
+                    newUser = new user({
+                        name: name,
+                        ggEmail: email,
+                        password: password,
+                        is_verify: true,
+                    });
+
+                    newUser.save((err, data) => {
+                        if (err) {
+                            console.log('ERROR GOOGLE LOGIN ON USER SAVE', err);
+                            return res.status(400).json({
+                                error: 'User signup failed with google',
+                            });
+                        }
+                        const token = jwt.sign({ _id: data._id }, process.env.JWT_KEY, {
+                            expiresIn: '3h',
+                        });
+                        data.token = token;
+                        data.save();
+                        const { _id, email, name, role } = data;
                         return res.json({
                             token,
-                            newUser: { _id, email, name },
+                            newUser: { _id, email, name, role },
                         });
-                    } else {
-                        let password = email + process.env.JWT_KEY;
-                        newUser = new user({
-                            name: name,
-                            ggEmail: email,
-                            password: password,
-                            is_verify: true,
-                        });
-
-                        newUser.save((err, data) => {
-                            if (err) {
-                                console.log(
-                                    'ERROR GOOGLE LOGIN ON USER SAVE',
-                                    err
-                                );
-                                return res.status(400).json({
-                                    error: 'User signup failed with google',
-                                });
-                            }
-                            const token = jwt.sign(
-                                { _id: data._id },
-                                process.env.JWT_KEY,
-                                { expiresIn: '3h' }
-                            );
-                            data.token = token;
-                            data.save();
-                            const { _id, email, name, role } = data;
-                            return res.json({
-                                token,
-                                newUser: { _id, email, name, role },
-                            });
-                        });
-                    }
-                });
-            } else {
-                return res.status(400).json({
-                    error: 'Google login failed. Try again',
-                });
-            }
-        });
+                    });
+                }
+            });
+        } else {
+            return res.status(400).json({
+                error: 'Google login failed. Try again',
+            });
+        }
+    });
 };
 
 exports.facebookController = (req, res) => {
@@ -488,20 +466,16 @@ exports.facebookController = (req, res) => {
         fetch(url, {
             method: 'GET',
         })
-            .then((response) => response.json())
+            .then(response => response.json())
             // .then(response => console.log(response))
-            .then((response) => {
+            .then(response => {
                 const { email, name } = response;
                 user.findOne({ fbEmail: email }).exec((err, newUser) => {
                     if (newUser) {
                         //newUser.generateJWT();
-                        const token = jwt.sign(
-                            { _id: newUser._id },
-                            process.env.JWT_KEY,
-                            {
-                                expiresIn: '3h',
-                            }
-                        );
+                        const token = jwt.sign({ _id: newUser._id }, process.env.JWT_KEY, {
+                            expiresIn: '3h',
+                        });
                         newUser.token = token;
                         newUser.save();
                         const { _id, email, name } = newUser;
@@ -519,19 +493,14 @@ exports.facebookController = (req, res) => {
                         });
                         newUser.save((err, data) => {
                             if (err) {
-                                console.log(
-                                    'ERROR FACEBOOK LOGIN ON USER SAVE',
-                                    err
-                                );
+                                console.log('ERROR FACEBOOK LOGIN ON USER SAVE', err);
                                 return res.status(400).json({
                                     error: 'User signup failed with facebook',
                                 });
                             }
-                            const token = jwt.sign(
-                                { _id: data._id },
-                                process.env.JWT_KEY,
-                                { expiresIn: '3h' }
-                            );
+                            const token = jwt.sign({ _id: data._id }, process.env.JWT_KEY, {
+                                expiresIn: '3h',
+                            });
                             data.token = token;
                             data.save();
                             const { _id, email, name } = data;
@@ -543,7 +512,7 @@ exports.facebookController = (req, res) => {
                     }
                 });
             })
-            .catch((error) => {
+            .catch(error => {
                 res.json({
                     error: 'Facebook login failed. Try later',
                 });

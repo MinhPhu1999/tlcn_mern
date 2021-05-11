@@ -18,7 +18,7 @@ const stock = new Schema(
             type: Date,
             default: Date.now(),
         },
-        count_import: {
+        quantity: {
             type: Number,
             required: [true, 'Không được bỏ trống'],
         },

@@ -33,7 +33,7 @@ exports.getNameByID = async (req, res) => {
     res.status(200).send({ name: result.name }); //trả vể kết quả
 };
 
-exports.getIDBySearchText = async (searchText) => {
+exports.getIDBySearchText = async searchText => {
     //khai báo mảng
     let arr = [];
     try {
@@ -42,5 +42,5 @@ exports.getIDBySearchText = async (searchText) => {
         res.status(500).send({ message: err });
         return;
     }
-    return arr.map((i) => i.id); //trả về cái mảng
+    return arr.map(i => i.id); //trả về cái mảng
 };

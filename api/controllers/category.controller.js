@@ -37,5 +37,5 @@ exports.getIDBySearchText = async (searchText, res) => {
         res.status(500).send({ message: err });
         return;
     }
-    return arr.map((i) => i.id);
+    return arr.map(i => i.id);
 };

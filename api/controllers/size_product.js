@@ -11,7 +11,7 @@ module.exports.addSizeProduct = (req, res) => {
         (err, success) => {
             if (err) return res.json({ success: false, err });
             return res.json({ success: true, msg: 'New size has been added' });
-        }
+        },
     );
     // Product.findOne({"colorProducts._id": req.body.colorProduct},(err,product) =>{
 

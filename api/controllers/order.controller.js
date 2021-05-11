@@ -8,11 +8,6 @@ const categoryController = require('../controllers/category.controller');
 
 const { performance } = require('perf_hooks');
 
-const randomstring = require('randomstring');
-const nodemailer = require('../utils/nodemailer');
-const validate = require('../utils/validate');
-const { Console } = require('console');
-
 exports.addOrder = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
     if (
@@ -27,15 +22,7 @@ exports.addOrder = async (req, res) => {
         return res.status(422).send({ message: 'Invalid data' });
     }
     //khai báo các biến cần thiết
-    const {
-        id_user,
-        city,
-        posteCode,
-        address,
-        phone,
-        payment,
-        shiping,
-    } = req.body;
+    const { id_user, city, posteCode, address, phone, payment, shiping } = req.body;
 
     // if(!validate.isValidPhone(phone)){
     // 	return res.status(422).send({message: 'Số điện thoại không hợp lệ'});
@@ -113,10 +100,7 @@ exports.addOrder = async (req, res) => {
 };
 
 exports.updateOrder = async (req, res) => {
-    if (
-        typeof req.body.id_order === 'undefined' ||
-        typeof req.body.type === 'undefined'
-    ) {
+    if (typeof req.body.id_order === 'undefined' || typeof req.body.type === 'undefined') {
         return res.status(422).send('Invalid Data');
     }
     const { id_order, type } = req.body;
@@ -132,11 +116,9 @@ exports.updateOrder = async (req, res) => {
             { _id: id_order, 'orderStatus.type': type },
             {
                 $set: {
-                    'orderStatus.$': [
-                        { type: type, date: new Date(), isCompleted: true },
-                    ],
+                    'orderStatus.$': [{ type: type, date: new Date(), isCompleted: true }],
                 },
-            }
+            },
         )
         .exec((error, order) => {
             if (error) return res.status(400).send({ error });
@@ -175,10 +157,7 @@ exports.getOrderByDay = async (req, res) => {
 };
 
 exports.getOrderByMonth = async (req, res) => {
-    if (
-        typeof req.body.year === 'undefined' ||
-        typeof req.body.month === 'undefined'
-    ) {
+    if (typeof req.body.year === 'undefined' || typeof req.body.month === 'undefined') {
         return res.status(402).send({ message: '!invalid' });
     }
 
@@ -278,10 +257,7 @@ exports.getQuantityByYear = async (req, res) => {
 };
 
 exports.getQuantityByYearAndCategory = async (req, res) => {
-    if (
-        typeof req.body.year === 'undefined' ||
-        typeof req.body.categoryName === 'undefined'
-    ) {
+    if (typeof req.body.year === 'undefined' || typeof req.body.categoryName === 'undefined') {
         return res.status(402).send({ message: '!invalid' });
     }
 
@@ -316,9 +292,7 @@ exports.getQuantityByYearAndCategory = async (req, res) => {
                     for (let lenP = 0; lenP < lenProduct; lenP++) {
                         // console.log(`id product ${productFind[lenP]._id}`);
                         // console.log(`id product trong cart ${getOrder[index].cart[j]._id}`);
-                        if (
-                            getOrder[index].cart[j]._id == productFind[lenP]._id
-                        ) {
+                        if (getOrder[index].cart[j]._id == productFind[lenP]._id) {
                             orderFind += getOrder[index].cart[j].quantity;
                         }
                         // console.log(orderFind);
@@ -341,10 +315,7 @@ exports.getQuantityByYearAndCategory = async (req, res) => {
 };
 
 exports.getQuantityOrderByYearAndCategory = async (req, res) => {
-    if (
-        typeof req.body.year === 'undefined' ||
-        typeof req.body.categoryName === 'undefined'
-    ) {
+    if (typeof req.body.year === 'undefined' || typeof req.body.categoryName === 'undefined') {
         return res.status(402).send({ message: '!invalid' });
     }
 
@@ -381,9 +352,7 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) => {
             ) {
                 for (let j = 0; j < lenCart; j++) {
                     for (let lenP = 0; lenP < lenProduct; lenP++) {
-                        if (
-                            getOrder[index].cart[j]._id == productFind[lenP]._id
-                        ) {
+                        if (getOrder[index].cart[j]._id == productFind[lenP]._id) {
                             // arrGetOrder.push(getOrder[index]._id);
                             orderFind++;
                             break;
@@ -421,10 +390,7 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) => {
 };
 
 exports.checkCanComment = async (req, res) => {
-    if (
-        typeof req.body.id_user === 'undefined' ||
-        typeof req.body.id_product === 'undefined'
-    ) {
+    if (typeof req.body.id_user === 'undefined' || typeof req.body.id_product === 'undefined') {
         return res.status(402).send({ message: 'Data invalid' });
     }
 
@@ -440,9 +406,7 @@ exports.checkCanComment = async (req, res) => {
     for (let i = 0; i < lenOr; i++) {
         let lenCart = orderFind[i].cart.length;
         for (let j = 0; j < lenCart; j++) {
-            let index = orderFind[i].cart.findIndex(
-                (element) => id_product === element._id
-            );
+            let index = orderFind[i].cart.findIndex(element => id_product === element._id);
 
             if (index >= 0) {
                 return res.status(200).send({ message: 'true' });
@@ -468,9 +432,7 @@ exports.getOrderTop10 = async (req, res) => {
     for (let i = 0; i < len; i++) {
         let lenP = orderFind[i].cart.length;
         for (let j = 0; j < lenP; j++) {
-            let index = arr.findIndex(
-                (element) => orderFind[i].cart[j]._id === element._id
-            );
+            let index = arr.findIndex(element => orderFind[i].cart[j]._id === element._id);
             if (index === -1) {
                 arr.push(orderFind[i].cart[j]);
             } else {
@@ -511,11 +473,7 @@ exports.verifyPayment = async (req, res) => {
     }
     try {
         //lưu lại các thay đổi
-        await order.findByIdAndUpdate(
-            tokenFind._id,
-            { $set: { is_send: true } },
-            { new: true }
-        );
+        await order.findByIdAndUpdate(tokenFind._id, { $set: { is_send: true } }, { new: true });
     } catch (err) {
         res.status(500).send({ message: err });
         return;

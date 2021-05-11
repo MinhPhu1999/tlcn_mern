@@ -29,10 +29,7 @@ exports.getComment = async (req, res) => {
     // }
 
     try {
-        const features = new APIfeatures(
-            comment.find({ product_id: req.params.id }),
-            req.query
-        )
+        const features = new APIfeatures(comment.find({ product_id: req.params.id }), req.query)
             .sorting()
             .paginating();
 
@@ -49,10 +46,7 @@ exports.getComment = async (req, res) => {
 };
 
 exports.updateComment = async (req, res) => {
-    if (
-        typeof req.body.id === 'undefined' ||
-        typeof req.body.content === 'undefined'
-    ) {
+    if (typeof req.body.id === 'undefined' || typeof req.body.content === 'undefined') {
         return res.status(422).send({ message: 'Invalid data' });
     }
 
@@ -65,9 +59,9 @@ exports.updateComment = async (req, res) => {
                 $set: {
                     content: content,
                 },
-            }
+            },
         )
-        .exec((err) => {
+        .exec(err => {
             if (err) {
                 return res.status(400).send({ error });
             }
@@ -77,19 +71,14 @@ exports.updateComment = async (req, res) => {
 
 exports.deleteComment = async (req, res) => {
     //kiểm tra tham số truyền vào đúng hay không
-    if (
-        typeof req.body.id === 'undefined' ||
-        typeof req.body.user_id === 'undefined'
-    ) {
+    if (typeof req.body.id === 'undefined' || typeof req.body.user_id === 'undefined') {
         return res.status(422).send({ message: 'Invalid data' });
     }
 
     //tìm kiếm theo id và user_id trong model comment
     const commentFind = await comment.find({ id: id, user_id: user_id });
     if (commentFind === null)
-        return res
-            .status(404)
-            .send({ message: 'Bạn không thể xóa comment của người khác' });
+        return res.status(404).send({ message: 'Bạn không thể xóa comment của người khác' });
 
     //update lại status của comment
     comment
@@ -99,9 +88,9 @@ exports.deleteComment = async (req, res) => {
                 $set: {
                     status: false,
                 },
-            }
+            },
         )
-        .exec((err) => {
+        .exec(err => {
             if (err) {
                 return res.status(400).send({ error });
             }

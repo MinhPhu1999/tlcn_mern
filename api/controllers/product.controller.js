@@ -9,8 +9,7 @@ exports.sortProduct = async (req, res) => {
     let sapXep = req.params.inc;
     const listProduct = await product.find({ status: true });
     const sortListProduct = listProduct.sort(function (a, b) {
-        if (sapXep == 'increase')
-            return parseFloat(a.price) - parseFloat(b.price); //sắp xếp sản phẩm tăng dần theo giá
+        if (sapXep == 'increase') return parseFloat(a.price) - parseFloat(b.price); //sắp xếp sản phẩm tăng dần theo giá
         return parseFloat(b.price) - parseFloat(a.price); //sắp xếp sản phẩm giảm dần theo giá
     });
     if (sortListProduct) {
@@ -69,8 +68,7 @@ exports.reView = async (req, res) => {
 
         if (rating && rating !== 0) {
             const productFind = await product.findById(req.params.id);
-            if (!product)
-                return res.status(400).json({ msg: 'Product does not exist.' });
+            if (!product) return res.status(400).json({ msg: 'Product does not exist.' });
 
             let num = productFind.numReviews;
             let rate = productFind.rating;
@@ -80,7 +78,7 @@ exports.reView = async (req, res) => {
                 {
                     rating: rate + rating,
                     numReviews: num + 1,
-                }
+                },
             );
 
             res.json({ msg: 'Update success' });
@@ -133,10 +131,7 @@ exports.getProductByBrand = async (req, res) => {
 };
 
 exports.getProductByCategory = async (req, res) => {
-    if (
-        typeof req.body.categoryName === 'undefined' ||
-        typeof req.body.disCount === 'undefined'
-    ) {
+    if (typeof req.body.categoryName === 'undefined' || typeof req.body.disCount === 'undefined') {
         return res.status(402).send({ message: 'Data invalid' });
     }
     const t0 = performance.now();
@@ -159,9 +154,9 @@ exports.getProductByCategory = async (req, res) => {
                         disCount: disCount,
                     },
                 },
-                { upsert: true }
+                { upsert: true },
             )
-            .then((err) => {
+            .then(err => {
                 // if(err) console.log('');
             });
     }
@@ -188,10 +183,7 @@ exports.updatePriceByCategory = async (req, res) => {
     let discount = disCount;
 
     let searchIDCatefory = null;
-    searchIDCatefory = await categoryController.getIDBySearchText(
-        categoryName,
-        res
-    );
+    searchIDCatefory = await categoryController.getIDBySearchText(categoryName, res);
     let productFind = await product.find({
         $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
     });
@@ -206,14 +198,12 @@ exports.updatePriceByCategory = async (req, res) => {
                 { _id: productFind[i]._id },
                 {
                     $set: {
-                        sellPrice:
-                            productFind[i].price +
-                            (productFind[i].price * disCount) / 100,
+                        sellPrice: productFind[i].price + (productFind[i].price * disCount) / 100,
                     },
                 },
-                { upsert: true }
+                { upsert: true },
             )
-            .then((err) => {
+            .then(err => {
                 // console.log(err);
             });
     }

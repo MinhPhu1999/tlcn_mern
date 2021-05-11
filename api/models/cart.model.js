@@ -69,17 +69,10 @@ cart.methods.minusProduct = async function (req, res) {
     }
 };
 
-cart.methods.plusProduct = async function () {
-    const cart = this;
-    let index;
-    for (let i = 0; i < cart.products.length; i++) {
-        index = cart.products.findIndex(
-            (element) => cart.products[i]._id === element._id
-        );
-    }
-
-    let productFind = await product.findById(cart.products[index]._id);
+cart.methods.plusProduct = async function (id_product) {
+    let productFind = await product.findById(id_product);
     productFind.quantity += 1;
+	
     try {
         await productFind.save();
     } catch (err) {
