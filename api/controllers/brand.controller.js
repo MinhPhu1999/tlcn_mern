@@ -1,5 +1,5 @@
 const brand = require('../models/brand.model');
-exports.getBrand = async (req, res) => {
+exports.getBrands = async (req, res) => {
     //get tất cả brand theo status = true
     brand.find({ status: true }, (err, docs) => {
         if (err) {

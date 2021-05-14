@@ -4,6 +4,9 @@ const category = require('../models/category.model');
 const brand = require('../models/brand.model');
 const user = require('../models/user.model');
 const stock = require('../models/stock.model');
+const size = require('../models/size.model');
+const color = require('../models/color.model');
+
 const image_product = require('../models/image_product');
 const stockController = require('../controllers/stock.controller');
 const bcrypt = require('bcrypt');
@@ -23,41 +26,86 @@ const uploadImg = async path => {
 exports.addProduct = async (req, res) => {
     //kiểm tra có đủ tham số truyền vào hay không
     if (
-        typeof req.file === 'undefined' ||
+        typeof req.files === 'undefined' ||
         typeof req.body.name === 'undefined' ||
         typeof req.body.id_category === 'undefined' ||
         typeof req.body.price === 'undefined' ||
         typeof req.body.id_brand === 'undefined' ||
-        typeof req.body.description === 'undefined' ||
-        typeof req.body.quantity === 'undefined'
+        typeof req.body.description === 'undefined'
     ) {
         return res.status(422).send({ message: 'Invalid data' });
     }
 
-    const { name, id_category, price, id_brand, description, color, quantity } = req.body; //khai báo các tham số truyền vào
-    let urlImg = await uploadImg(req.file.path); //lấy đường dẫn hình ảnh
+    const { name, id_category, id_brand, price, description, sizeProduct, colorProduct } = req.body;
+    const urls = [];
+    let id_product;
+    const files = req.files;
 
-    if (urlImg === false) {
-        return res.status(500).send({
-            message: 'khong upload duoc anh len cloudinary',
-        });
+    for (const file of files) {
+        const { path } = file;
+        const result = await uploadImg(path);
+        urls.push(result);
     }
 
-    const newProduct = new product({
-        //tạo mới product
-        id_category: id_category,
+    const nColor = new color_product({ colorProduct });
+    const nSize = new size_product({ sizeProduct });
+
+    const nProduct = new product({
         name: name,
-        price: price,
+        id_category: id_category,
         id_brand: id_brand,
-        img: urlImg,
-        quantity: quantity,
         description: description,
-        color: color,
+        price: price,
     });
-    newProduct.save((err, doc) => {
-        if (err) return res.status(500).send({ message: err }); // thông báo nếu lưu thất bại
-        res.status(201).send({ message: 'add product success' });
+
+    nProduct.save((err, doc) => {
+        if (doc) {
+            id_product = doc._id;
+        }
     });
+
+    nSize.save((err, doc) => {
+        if (doc) {
+            doc.products = id_product;
+            doc.save();
+            product
+                .updateOne(
+                    { _id: id_product },
+                    {
+                        $set: {
+                            sizeProducts: doc._id,
+                        },
+                    },
+                )
+                .then(data => {
+                    if (data) {
+                        console.log('size ngoai');
+                    }
+                });
+        }
+    });
+
+    nColor.save(function (err, doc) {
+        if (doc) {
+            doc.products = id_product;
+            doc.save();
+            product
+                .updateOne(
+                    { _id: id_product },
+                    {
+                        $set: {
+                            colorProducts: doc._id,
+                        },
+                    },
+                )
+                .then(data => {
+                    if (data) {
+                        console.log('color ngoai');
+                    }
+                });
+        }
+    });
+    res.status(201).send({ message: 'add product success' });
 };
 
 exports.updateProduct = async (req, res) => {
@@ -68,55 +116,82 @@ exports.updateProduct = async (req, res) => {
         typeof req.body.id_category === 'undefined' ||
         typeof req.body.price === 'undefined' ||
         typeof req.body.id_brand === 'undefined' ||
-        typeof req.body.description === 'undefined' ||
-        typeof req.body.quantity === 'undefined'
+        typeof req.body.description === 'undefined'
     ) {
         return res.status(422).send({ message: 'Invalid data' });
     }
-    let { name, id, id_category, price, id_brand, description, color, status, quantity } = req.body; //khai báo các tham số
-    let productFind = null;
-    try {
-        productFind = await product.findById(id); //tìm kiếm product bằng id
-    } catch (err) {
-        //console.log(err)
-        return res.status(500).send({ message: err });
-    }
-    if (productFind === null) {
-        return res.status(404).send({ message: 'not found product' }); //thông báo nếu không tìm thấy
-    }
-    let urlImg = null;
-    if (typeof req.file !== 'undefined') {
-        urlImg = await uploadImg(req.file.path);
-    }
-    if (urlImg !== null) {
-        if (urlImg === false) {
-            return res.status(500).send({ message: 'not update image' });
-        }
-    }
-    if (urlImg === null) urlImg = productFind.img; //thay hình cũ bằng hình mới
+    const {
+        id,
+        name,
+        id_category,
+        id_brand,
+        price,
+        description,
+        status,
+        sizeProduct,
+        colorProduct,
+    } = req.body;
 
-    //update product
+    let productFind = null;
+    productFind = await product.findById(id); //tìm kiếm product bằng id
+
+    const id_colorP = productFind.colorProducts._id;
+    const id_sizeP = productFind.sizeProducts._id;
+
+    color_product
+        .updateOne(
+            { _id: id_colorP },
+            {
+                $set: {
+                    colorProduct: colorProduct,
+                },
+            },
+        )
+        .then(err => {
+            // if (err) console.log('color product');
+        });
+
+    size_product
+        .updateOne(
+            { _id: id_sizeP },
+            {
+                $set: {
+                    sizeProduct: sizeProduct,
+                },
+            },
+        )
+        .then(err => {
+            // if (err) console.log('size product');
+        });
+
     productFind.id_category = id_category;
     productFind.name = name;
     productFind.price = parseFloat(price);
     productFind.id_brand = id_brand;
     productFind.description = description;
-    productFind.img = urlImg;
-    productFind.quantity = quantity;
-    productFind.color = color;
     productFind.status = status;
+    productFind.colorProducts.colorProduct = colorProduct;
+    productFind.sizeProducts.sizeProduct = sizeProduct;
 
-    productFind.save((err, docs) => {
-        // lưu các thay đổi
-        if (err) {
-            // console.log(err);
-            return res.status(201).send({ message: 'update product fail' });
-        }
+    productFind.save((err, data) => {
+        if (err) return res.json({ message: err });
+        res.json({ data });
     });
-    res.status(200).send({
-        message: 'update product success',
-        data: productFind,
-    }); //thông báo lưu thành công
+
+    // let urlImg = null;
+    // if (typeof req.file !== 'undefined') {
+    //     urlImg = await uploadImg(req.file.path);
+    // }
+    // if (urlImg !== null) {
+    //     if (urlImg === false) {
+    //         return res.status(500).send({ message: 'not update image' });
+    //     }
+    // }
+    // if (urlImg === null) urlImg = productFind.img; //thay hình cũ bằng hình mới
+    // res.status(200).send({
+    //     message: 'update product success',
+    //     data: productFind,
+    // }); //thông báo lưu thành công
 };
 
 exports.deleteProduct = async (req, res) => {
@@ -126,7 +201,36 @@ exports.deleteProduct = async (req, res) => {
     });
 };
 
-exports.getAllProduct = async (req, res) => {
+exports.getOne = async (req, res) => {
+    product
+        .findOne({ _id: req.params.id })
+        .populate('colorProducts')
+        .populate({
+            path: 'colorProducts',
+            populate: {
+                path: 'colorProduct',
+                populate: {
+                    path: '_id',
+                },
+            },
+        })
+        .populate('sizeProducts')
+        .populate({
+            path: 'sizeProducts',
+            populate: {
+                path: 'sizeProduct',
+                populate: {
+                    path: '_id',
+                },
+            },
+        })
+        .exec(function (err, data) {
+            if (err) return res.json(err);
+            res.json({ data });
+        });
+};
+
+exports.getAllProducts = async (req, res) => {
     // kiểm tra tham số truyền vào có hay không
     if (typeof req.params.page === 'undefined') {
         return res.status(402).send({ message: 'Data invalid' });
@@ -149,6 +253,26 @@ exports.getAllProduct = async (req, res) => {
 
     product
         .find({})
+        .populate('colorProducts')
+        .populate({
+            path: 'colorProducts',
+            populate: {
+                path: 'colorProduct',
+                populate: {
+                    path: '_id',
+                },
+            },
+        })
+        .populate('sizeProducts')
+        .populate({
+            path: 'sizeProducts',
+            populate: {
+                path: 'sizeProduct',
+                populate: {
+                    path: '_id',
+                },
+            },
+        })
         .skip(5 * (parseInt(page) - 1))
         .limit(5) // giới hạn hiển thị sản phẩm mỗi trang
         .exec((err, docs) => {
@@ -331,7 +455,7 @@ exports.deleteStock = async (req, res) => {
     res.status(200).send({ message: 'delete stock success' }); //thông báo xóa thành công
 };
 
-exports.getAllStock = async (req, res) => {
+exports.getAllStocks = async (req, res) => {
     //kiểm tra có đủ tham số hay không
     if (typeof req.params.page === 'undefined') {
         return res.status(402).send({ message: 'Data Invalid' });
@@ -364,7 +488,7 @@ exports.getAllStock = async (req, res) => {
         });
 };
 
-exports.getStock = async (req, res) => {
+exports.getStocks = async (req, res) => {
     stock.find({ status: true }, (err, docs) => {
         if (err) {
             return res.status(422).send({ message: err });
@@ -452,7 +576,7 @@ exports.deleteBrand = async (req, res) => {
     });
 };
 
-exports.getAllBrand = async (req, res) => {
+exports.getAllBrands = async (req, res) => {
     //kiểm tra có truyền đủ tham số hay không
     if (typeof req.params.page === 'undefined') {
         return res.status(402).send({ message: 'Data invalid' });
@@ -570,7 +694,7 @@ exports.deleteCategory = async (req, res) => {
     });
 };
 
-exports.getAllCategory = async (req, res) => {
+exports.getAllCategorys = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
     if (typeof req.params.page === 'undefined') {
         return res.status(402).send({ message: 'Data Invalid' });
@@ -751,7 +875,7 @@ exports.login = async (req, res) => {
     });
 };
 
-exports.getUser = async (req, res) => {
+exports.getUsers = async (req, res) => {
     //get toàn bộ user
     user.find({ status: true }, (err, docs) => {
         if (err) {
@@ -761,7 +885,7 @@ exports.getUser = async (req, res) => {
     });
 };
 
-exports.getAllUser = async (req, res) => {
+exports.getAllUsers = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
     if (typeof req.params.page === 'undefined') {
         return res.status(402).send({ message: 'Data invalid' });
@@ -795,4 +919,132 @@ exports.getAllUser = async (req, res) => {
             }
             res.status(200).send({ data: docs, totalPage });
         });
+};
+
+// Add new size
+module.exports.addSize = (req, res) => {
+    const nSize = new size(req.body);
+
+    nSize.save((err, doc) => {
+        if (err) return res.json({ success: false, err });
+        res.status(200).json({
+            success: true,
+            size: doc,
+        });
+    });
+};
+
+// Get all size -- find(query, projection)
+module.exports.getAllSizes = async (req, res) => {
+    //kiểm tra có truyền tham số đủ hay không
+    if (typeof req.params.page === 'undefined') {
+        return res.status(402).send({ message: 'Data invalid' });
+    }
+
+    //khai báo biến cần thiết
+    let count = null;
+
+    try {
+        count = await size.countDocuments({}); //đếm color
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+
+    let totalPage = parseInt((count - 1) / 2 + 1); //tính số trang
+    let { page } = req.params;
+
+    if (parseInt(page) < 1 || parseInt(page) > totalPage) {
+        return res.status(200).send({ data: [], message: 'Invalid page', totalPage });
+    }
+
+    //get colors
+    size.find({})
+        .skip(2 * (parseInt(page) - 1))
+        .limit(2)
+        .exec((err, docs) => {
+            if (err) {
+                return res.status(500).send({ message: err });
+            }
+            res.status(200).send({ data: docs, totalPage });
+        });
+};
+
+// Update size by ID
+module.exports.updateSize = (req, res) => {
+    size.updateOne({ _id: req.params.id }, { $set: req.body }, (err, data) => {
+        if (err) return res.send(err);
+        res.status(200).send({ message: 'update size success' });
+    });
+};
+
+//Delete size
+module.exports.deleteSize = (req, res) => {
+    size.updateOne({ _id: req.params.id }, { status: false }, (err, data) => {
+        if (err) return res.send(err);
+        res.status(200).send({ message: 'delete size success' });
+    });
+};
+
+// Add new color
+module.exports.addColor = (req, res) => {
+    const nColor = new color(req.body);
+
+    nColor.save((err, doc) => {
+        if (err) return res.json({ message: err });
+        res.status(200).json({
+            color: doc,
+        });
+    });
+};
+
+// Get all color -- find(query, projection)
+module.exports.getAllColors = async (req, res) => {
+    //kiểm tra có truyền tham số đủ hay không
+    if (typeof req.params.page === 'undefined') {
+        return res.status(402).send({ message: 'Data invalid' });
+    }
+
+    //khai báo biến cần thiết
+    let count = null;
+
+    try {
+        count = await color.countDocuments({}); //đếm color
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+
+    let totalPage = parseInt((count - 1) / 2 + 1); //tính số trang
+    let { page } = req.params;
+
+    if (parseInt(page) < 1 || parseInt(page) > totalPage) {
+        return res.status(200).send({ data: [], message: 'Invalid page', totalPage });
+    }
+
+    //get colors
+    color
+        .find({})
+        .skip(2 * (parseInt(page) - 1))
+        .limit(2)
+        .exec((err, docs) => {
+            if (err) {
+                return res.status(500).send({ message: err });
+            }
+            res.status(200).send({ data: docs, totalPage });
+        });
+};
+
+// Update color
+module.exports.updateColor = (req, res) => {
+    color.updateOne({ _id: req.params.id }, { $set: req.body }, (err, data) => {
+        if (err) return res.send(err);
+        res.status(200).send({ message: 'update color success' });
+    });
+};
+
+// Delete color
+module.exports.deleteColor = (req, res) => {
+    color.updateOne({ _id: req.params.id }, { status: false }, (err, data) => {
+        if (err) return res.send(err);
+        res.status(200).send({ message: 'delete color success' });
+    });
 };

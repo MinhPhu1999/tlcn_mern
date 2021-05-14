@@ -29,24 +29,21 @@ exports.getProductByID = async (req, res) => {
     res.status(404).send({ message: 'product not found' });
 };
 
-exports.getProduct = async (req, res) => {
+exports.getProducts = async (req, res) => {
     if (typeof req.params.page === 'undefined') {
-        res.status(402).send({ message: 'Data invalid' });
-        return;
+        return res.status(402).send({ message: 'Data invalid' });
     }
     let count = null;
     try {
         count = await product.countDocuments({ status: true }); // đém sản phẩm có bao nhiêu
     } catch (err) {
-        console.log(err);
-        res.status(500).send({ message: err });
-        return;
+        // console.log(err);
+        return res.status(500).send({ message: err });
     }
     let totalPage = parseInt((count - 1) / 8 + 1); // từ số lượng sản phẩm sẽ tính ra số trang
     let { page } = req.params;
     if (parseInt(page) < 1 || parseInt(page) > totalPage) {
-        res.status(200).send({ data: [], message: 'Invalid page', totalPage });
-        return;
+        return res.status(200).send({ data: [], message: 'Invalid page', totalPage });
     }
     product
         .find({ status: true })
@@ -54,9 +51,8 @@ exports.getProduct = async (req, res) => {
         .limit(8) // giới hạn hiển thị sản phẩm mỗi trang
         .exec((err, docs) => {
             if (err) {
-                console.log(err);
-                res.status(500).send({ message: err });
-                return;
+                // console.log(err);
+                return res.status(500).send({ message: err });
             }
             res.status(200).send({ data: docs, totalPage });
         });
@@ -98,19 +94,38 @@ exports.getAllProduct = async (req, res) => {
 };
 
 exports.searchProduct = async (req, res) => {
-    let searchText = '';
-    console.log(typeof req.params.search);
-    if (typeof req.params.search !== 'undefined') {
-        searchText = req.params.search;
+    if (typeof req.query.name === 'undefined' ||
+		typeof req.query.page === 'undefined'||
+		typeof req.query.limit === 'undefined') {
+		return res.status(402).send({ message: 'Data invalid' });
     }
-    const productFind = await product.find({
-        $or: [{ name: new RegExp(searchText, 'i'), status: true }],
-    });
-    if (productFind) {
-        res.status(200).send(productFind);
-        return;
-    }
-    res.status(404).send({ message: 'product not found' });
+
+    const { name, page, limit } = req.query;
+	let count = await product.countDocuments({$or: [{ name: new RegExp(name, 'i'), status: true }]});
+	let totalPage = parseInt((count - 1) / 2 + 1);
+	
+	product
+        .find({
+            $or: [{ name: new RegExp(name, 'i'), status: true }],
+        })
+        .skip(2 * (parseInt(page) - 1))
+        .limit(parseInt(limit))
+		.exec((err, docs)=>{
+			if(err) return res.send("fail");
+			res.send({data: docs, totalPage})
+		});
+    // const productFind = await product
+    //     .find({
+    //         $or: [{ name: new RegExp(name, 'i'), status: true }],
+    //     })
+    //     .skip(2 * (parseInt(page) - 1))
+    //     .limit(parseInt(limit));
+
+    // if (productFind) {
+    //     return res.status(200).send(productFind);
+    // }
+
+    // res.status(404).send({ message: 'product not found' });
 };
 
 exports.getProductByBrand = async (req, res) => {
@@ -166,7 +181,7 @@ exports.getProductByCategory = async (req, res) => {
     });
 
     const t1 = performance.now();
-    console.log(t1 - t0);
+    // console.log(t1 - t0);
     res.status(200).send({ productFind1 });
 };
 
@@ -224,15 +239,13 @@ exports.getNameByID = async (req, res) => {
     try {
         result = await product.findOne({ _id: id });
     } catch (err) {
-        console.log(err);
-        res.status(500).send({ message: err });
-        return;
+        // console.log(err);
+        return res.status(500).send({ message: err });
     }
     if (result === null) {
-        res.status(404).send({ message: 'not found' });
-        return;
+        return res.status(404).send({ message: 'not found' });
     }
-    console.log(result);
+    // console.log(result);
     res.status(200).send({ name: result.name, count: result.count });
 };
 

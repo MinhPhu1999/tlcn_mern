@@ -1,14 +1,14 @@
 const category = require('../models/category.model');
 
-exports.getCategory = async (req, res) => {
+exports.getCategorys = async (req, res) => {
     category.find({ status: true }, (err, docs) => {
         if (err) {
-            res.status(422).send({ message: err });
-            return;
+            return res.status(422).send({ message: err });
         }
         res.status(200).send({ data: docs });
     });
 };
+
 exports.getNameByID = async (req, res) => {
     if (req.params.id === 'undefined') {
         res.status(422).send({ message: 'Invalid data' });

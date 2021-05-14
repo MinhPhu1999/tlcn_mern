@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const sizeSchema = new mongoose.Schema({
+const colorSchema = new mongoose.Schema({
     name:{
         required: true,
         type: String,
@@ -16,4 +16,4 @@ const sizeSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('size', sizeSchema);
+module.exports = mongoose.model('color', colorSchema);

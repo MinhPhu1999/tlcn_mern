@@ -1,7 +1,7 @@
 const product_controller = require('../controllers/product.controller');
 
-module.exports = (app) => {
-    app.route('/product/getproduct/:page').get(product_controller.getProduct);
+module.exports = app => {
+    app.route('/product/getproducts/:page').get(product_controller.getProducts);
 
     app.route('/product').get(product_controller.getAllProduct);
 
@@ -9,11 +9,10 @@ module.exports = (app) => {
 
     app.route('/updateRate/:id').patch(product_controller.reView);
 
-    app.route('/product/search/:search').get(product_controller.searchProduct);
+    // app.route('/product/search/:search').get(product_controller.searchProduct);
+    app.route('/product/search/s').get(product_controller.searchProduct);
 
-    app.route('/product/brand/:brand').get(
-        product_controller.getProductByBrand
-    );
+    app.route('/product/brand/:brand').get(product_controller.getProductByBrand);
 
     app.route('/product/category').put(product_controller.getProductByCategory);
 

@@ -1,6 +1,8 @@
 'use strict';
 const cart = require('../models/cart.model');
 const product = require('../models/product.model');
+const quantity = require('../utils/quantity');
+
 exports.addToCart = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
     if (typeof req.body.id_user === 'undefined' || typeof req.body.products === 'undefined') {
@@ -8,6 +10,7 @@ exports.addToCart = async (req, res) => {
     }
     //khai báo các biến cần thiết
     const { id_user, products } = req.body;
+	const id_size = products.size;
 
     let cartFind = null;
     //tìm kiếm cart theo id
