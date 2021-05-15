@@ -68,13 +68,13 @@ module.exports = (app) => {
 
 	//size
 	app.route('/admin/addsize').post(admin_controller.addSize);
-	app.route('/admin/updatesize/:id').put(admin_controller.updateSize);
+	app.route('/admin/updatesize').put(admin_controller.updateSize);
 	app.route('/admin/deletesize/:id').put(admin_controller.deleteSize);
 	app.route('/admin/getsizes/:page').get(admin_controller.getAllSizes);
 	
 	//color
 	app.route('/admin/addcolor').post(admin_controller.addColor);
-	app.route('/admin/updatecolor/:id').put(admin_controller.updateColor);
+	app.route('/admin/updatecolor').put(admin_controller.updateColor);
 	app.route('/admin/deletecolor/:id').put(admin_controller.deleteColor);
 	app.route('/admin/getcolors/:page').get(admin_controller.getAllColors);
 };

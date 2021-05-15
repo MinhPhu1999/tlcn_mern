@@ -105,21 +105,22 @@ exports.addProduct = async (req, res) => {
                 });
         }
     });
+
     res.status(201).send({ message: 'add product success' });
 };
 
 exports.updateProduct = async (req, res) => {
     // kiểm tra có đủ tham số truyền vào hay không
-    if (
-        typeof req.body.name === 'undefined' ||
-        typeof req.body.id === 'undefined' ||
-        typeof req.body.id_category === 'undefined' ||
-        typeof req.body.price === 'undefined' ||
-        typeof req.body.id_brand === 'undefined' ||
-        typeof req.body.description === 'undefined'
-    ) {
-        return res.status(422).send({ message: 'Invalid data' });
-    }
+    // if (
+    //     typeof req.body.name === 'undefined' ||
+    //     typeof req.body.id === 'undefined' ||
+    //     typeof req.body.id_category === 'undefined' ||
+    //     typeof req.body.price === 'undefined' ||
+    //     typeof req.body.id_brand === 'undefined' ||
+    //     typeof req.body.description === 'undefined'
+    // ) {
+    //     return res.status(422).send({ message: 'Invalid data' });
+    // }
     const {
         id,
         name,
@@ -132,11 +133,11 @@ exports.updateProduct = async (req, res) => {
         colorProduct,
     } = req.body;
 
-    let productFind = null;
-    productFind = await product.findById(id); //tìm kiếm product bằng id
+    const productFind = await product.findOne({ _id: id }); //tìm kiếm product bằng id
+    // console.log(productFind);
 
-    const id_colorP = productFind.colorProducts._id;
-    const id_sizeP = productFind.sizeProducts._id;
+    const id_colorP = productFind.colorProducts;
+    const id_sizeP = productFind.sizeProducts;
 
     color_product
         .updateOne(
@@ -164,20 +165,23 @@ exports.updateProduct = async (req, res) => {
             // if (err) console.log('size product');
         });
 
-    productFind.id_category = id_category;
-    productFind.name = name;
-    productFind.price = parseFloat(price);
-    productFind.id_brand = id_brand;
-    productFind.description = description;
-    productFind.status = status;
-    productFind.colorProducts.colorProduct = colorProduct;
-    productFind.sizeProducts.sizeProduct = sizeProduct;
-
-    productFind.save((err, data) => {
-        if (err) return res.json({ message: err });
-        res.json({ data });
-    });
-
+    product.updateOne(
+        { _id: id },
+        {
+            $set: {
+                name,
+                id_category,
+                price,
+                id_brand,
+                description,
+                status,
+            },
+        },
+        (err, data) => {
+            if (err) return res.json({ message: 'Fail' });
+            res.json({ message: 'Success' });
+        },
+    );
     // let urlImg = null;
     // if (typeof req.file !== 'undefined') {
     //     urlImg = await uploadImg(req.file.path);
@@ -971,7 +975,8 @@ module.exports.getAllSizes = async (req, res) => {
 
 // Update size by ID
 module.exports.updateSize = (req, res) => {
-    size.updateOne({ _id: req.params.id }, { $set: req.body }, (err, data) => {
+    const { id, name, description, status } = req.body;
+    size.updateOne({ _id: id }, { $set: { name, description, status } }, (err, data) => {
         if (err) return res.send(err);
         res.status(200).send({ message: 'update size success' });
     });
@@ -1035,7 +1040,8 @@ module.exports.getAllColors = async (req, res) => {
 
 // Update color
 module.exports.updateColor = (req, res) => {
-    color.updateOne({ _id: req.params.id }, { $set: req.body }, (err, data) => {
+    const { id, name, description, status } = req.body;
+    color.updateOne({ _id: id }, { $set: { name, description, status } }, (err, data) => {
         if (err) return res.send(err);
         res.status(200).send({ message: 'update color success' });
     });
