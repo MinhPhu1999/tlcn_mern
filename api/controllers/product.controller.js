@@ -6,55 +6,73 @@ const { performance } = require('perf_hooks');
 
 exports.sortProduct = async (req, res) => {
     //khai báo các biến cần thiết
-    let sapXep = req.params.inc;
+    const sapXep = req.params.inc;
     const listProduct = await product.find({ status: true });
     const sortListProduct = listProduct.sort(function (a, b) {
         if (sapXep == 'increase') return parseFloat(a.price) - parseFloat(b.price); //sắp xếp sản phẩm tăng dần theo giá
         return parseFloat(b.price) - parseFloat(a.price); //sắp xếp sản phẩm giảm dần theo giá
     });
-    if (sortListProduct) {
-        res.status(200).send(sortListProduct);
-        return;
-    }
-    res.status(404).send({ message: 'product not found' });
+    sortListProduct
+        ? res.status(200).send(sortListProduct)
+        : res.status(404).send({ message: 'product not found' });
 };
 
 exports.getProductByID = async (req, res) => {
-    let id = req.params.id;
-    const productFind = await product.findOne({ _id: id });
-    if (productFind) {
-        res.status(200).send(productFind);
-        return;
+    let productFind;
+    try {
+        productFind = await product.findOne({ _id: req.params.id });
+    } catch (err) {
+        return res.status(500).send({ message: 'Fail' });
     }
-    res.status(404).send({ message: 'product not found' });
+    productFind
+        ? res.status(200).send(productFind)
+        : res.status(404).send({ message: 'product not found' });
 };
 
 exports.getProducts = async (req, res) => {
     if (typeof req.params.page === 'undefined') {
         return res.status(402).send({ message: 'Data invalid' });
     }
-    let count = null;
+    let count;
     try {
         count = await product.countDocuments({ status: true }); // đém sản phẩm có bao nhiêu
     } catch (err) {
-        // console.log(err);
-        return res.status(500).send({ message: err });
+        return res.status(500).send({ message: 'fail' });
     }
-    let totalPage = parseInt((count - 1) / 8 + 1); // từ số lượng sản phẩm sẽ tính ra số trang
-    let { page } = req.params;
+
+    const totalPage = parseInt((count - 1) / 8 + 1); // từ số lượng sản phẩm sẽ tính ra số trang
+    const { page } = req.params;
     if (parseInt(page) < 1 || parseInt(page) > totalPage) {
         return res.status(200).send({ data: [], message: 'Invalid page', totalPage });
     }
     product
         .find({ status: true })
+        .populate('colorProducts')
+        .populate({
+            path: 'colorProducts',
+            populate: {
+                path: 'colorProduct',
+                populate: {
+                    path: '_id',
+                },
+            },
+        })
+        .populate('sizeProducts')
+        .populate({
+            path: 'sizeProducts',
+            populate: {
+                path: 'sizeProduct',
+                populate: {
+                    path: '_id',
+                },
+            },
+        })
         .skip(8 * (parseInt(page) - 1))
         .limit(8) // giới hạn hiển thị sản phẩm mỗi trang
         .exec((err, docs) => {
-            if (err) {
-                // console.log(err);
-                return res.status(500).send({ message: err });
-            }
-            res.status(200).send({ data: docs, totalPage });
+            err
+                ? res.status(500).send({ message: err })
+                : res.status(200).send({ data: docs, totalPage });
         });
 };
 
@@ -86,63 +104,62 @@ exports.reView = async (req, res) => {
 
 exports.getAllProduct = async (req, res) => {
     const productFind = await product.find({ status: true });
-    if (productFind) {
-        res.status(200).send(productFind);
-        return;
-    }
-    res.status(404).send({ message: 'product not found' });
+    productFind
+        ? res.status(200).send(productFind)
+        : res.status(404).send({ message: 'product not found' });
 };
 
 exports.searchProduct = async (req, res) => {
-    if (typeof req.query.name === 'undefined' ||
-		typeof req.query.page === 'undefined'||
-		typeof req.query.limit === 'undefined') {
-		return res.status(402).send({ message: 'Data invalid' });
+    if (
+        typeof req.query.name === 'undefined' ||
+        typeof req.query.page === 'undefined' ||
+        typeof req.query.limit === 'undefined'
+    ) {
+        return res.status(402).send({ message: 'Data invalid' });
     }
 
     const { name, page, limit } = req.query;
-	let count = await product.countDocuments({$or: [{ name: new RegExp(name, 'i'), status: true }]});
-	let totalPage = parseInt((count - 1) / 2 + 1);
-	
-	product
+    let count;
+    try {
+        count = await product.countDocuments({
+            $or: [{ name: new RegExp(name, 'i'), status: true }],
+        });
+    } catch (err) {
+        return res.status(500).send({ message: 'product not found' });
+    }
+    const totalPage = parseInt((count - 1) / 2 + 1);
+
+    product
         .find({
             $or: [{ name: new RegExp(name, 'i'), status: true }],
         })
         .skip(2 * (parseInt(page) - 1))
         .limit(parseInt(limit))
-		.exec((err, docs)=>{
-			if(err) return res.send("fail");
-			res.send({data: docs, totalPage})
-		});
-    // const productFind = await product
-    //     .find({
-    //         $or: [{ name: new RegExp(name, 'i'), status: true }],
-    //     })
-    //     .skip(2 * (parseInt(page) - 1))
-    //     .limit(parseInt(limit));
-
-    // if (productFind) {
-    //     return res.status(200).send(productFind);
-    // }
-
-    // res.status(404).send({ message: 'product not found' });
+        .exec((err, docs) => {
+            err
+                ? res.status(404).send({ message: 'product not found' })
+                : res.send({ data: docs, totalPage });
+        });
 };
 
 exports.getProductByBrand = async (req, res) => {
-    let brandName = '';
-    if (typeof req.params.brand !== 'undefined') brandName = req.params.brand;
-
-    let searchIDBrand = null;
-    searchIDBrand = await brandController.getIDBySearchText(brandName);
-
-    let productFind = await product.find({
-        $or: [{ id_brand: new RegExp(searchIDBrand, 'i') }],
-    });
-    if (productFind) {
-        res.status(200).send(productFind);
-        return;
+    if (typeof req.params.brand === 'undefined') {
+        return res.status(402).send({ message: 'Data invalid' });
     }
-    res.status(404).send({ message: 'product not found' });
+
+    const searchIDBrand = await brandController.getIDBySearchText(req.params.brand);
+
+    let productFind;
+    try {
+        productFind = await product.find({
+            $or: [{ id_brand: new RegExp(searchIDBrand, 'i') }],
+        });
+    } catch (err) {
+        return res.status(500).send({ message: 'product not found' });
+    }
+    productFind
+        ? res.status(200).send(productFind)
+        : res.status(404).send({ message: 'product not found' });
 };
 
 exports.getProductByCategory = async (req, res) => {
@@ -150,13 +167,17 @@ exports.getProductByCategory = async (req, res) => {
         return res.status(402).send({ message: 'Data invalid' });
     }
     const t0 = performance.now();
-    let { categoryName, disCount, startDate, endDate } = req.body;
+    const { categoryName, disCount, startDate, endDate } = req.body;
 
-    let searchIDCatefory = null;
-    searchIDCatefory = await categoryController.getIDBySearchText(categoryName);
-    let productFind = await product.find({
-        $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
-    });
+    const searchIDCatefory = await categoryController.getIDBySearchText(categoryName);
+    let productFind;
+    try {
+        productFind = await product.find({
+            $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
+        });
+    } catch (err) {
+        return res.status(500).send({ message: 'product not found' });
+    }
 
     for (let i in productFind) {
         product
@@ -180,7 +201,7 @@ exports.getProductByCategory = async (req, res) => {
         $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
     });
 
-    const t1 = performance.now();
+    // const t1 = performance.now();
     // console.log(t1 - t0);
     res.status(200).send({ productFind1 });
 };
@@ -194,14 +215,18 @@ exports.updatePriceByCategory = async (req, res) => {
         return res.status(402).send({ message: 'Data invalid' });
     }
 
-    let { categoryName, disCount, increase } = req.body;
+    const { categoryName, disCount, increase } = req.body;
     let discount = disCount;
 
-    let searchIDCatefory = null;
-    searchIDCatefory = await categoryController.getIDBySearchText(categoryName, res);
-    let productFind = await product.find({
-        $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
-    });
+    let searchIDCatefory = await categoryController.getIDBySearchText(categoryName, res);
+    let productFind;
+    try {
+        productFind = await product.find({
+            $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
+        });
+    } catch (err) {
+        return res.status(500).send({ message: 'product not found' });
+    }
 
     if (increase === false) {
         disCount = -disCount;
@@ -230,39 +255,29 @@ exports.updatePriceByCategory = async (req, res) => {
 };
 
 exports.getNameByID = async (req, res) => {
-    if (req.params.id === 'undefined') {
-        res.status(422).send({ message: 'Invalid data' });
-        return;
+    if (typeof req.params.id === 'undefined') {
+        return res.status(422).send({ message: 'Invalid data' });
     }
     let result;
-    let id = req.body.id;
     try {
-        result = await product.findOne({ _id: id });
+        result = await product.findOne({ _id: req.params.id });
     } catch (err) {
-        // console.log(err);
-        return res.status(500).send({ message: err });
+        return res.status(404).send({ message: 'product not found' });
     }
-    if (result === null) {
-        return res.status(404).send({ message: 'not found' });
-    }
-    // console.log(result);
-    res.status(200).send({ name: result.name, count: result.count });
+
+    result
+        ? res.status(200).send({ name: result.name })
+        : res.status(500).send({ message: 'fail' });
 };
 
 exports.getProductTop10 = async (req, res) => {
-    let orderFind = null;
-
-    try {
-        orderFind = await order.find({ paymentStatus: 'paid' });
-    } catch (err) {
-        return res.status(500).send({ message: err });
-    }
+    const orderFind = await order.find({ paymentStatus: 'paid' });
 
     if (orderFind === null) {
         return res.status(404).send({ message: 'products not found' });
     }
 
-    let len = orderFind.length;
+    const len = orderFind.length;
     let productFind;
     let arrProduct = [];
     let arr = [];

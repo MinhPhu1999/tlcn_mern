@@ -37,7 +37,7 @@ exports.addProduct = async (req, res) => {
     }
 
     const { name, id_category, id_brand, price, description, sizeProduct, colorProduct } = req.body;
-    const urls = [];
+    let urls = [];
     let id_product;
     const files = req.files;
 
@@ -54,14 +54,13 @@ exports.addProduct = async (req, res) => {
         name: name,
         id_category: id_category,
         id_brand: id_brand,
+        images: url,
         description: description,
         price: price,
     });
 
     nProduct.save((err, doc) => {
-        if (doc) {
-            id_product = doc._id;
-        }
+        if (doc) id_product = doc._id;
     });
 
     nSize.save((err, doc) => {
@@ -111,16 +110,16 @@ exports.addProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
     // kiểm tra có đủ tham số truyền vào hay không
-    // if (
-    //     typeof req.body.name === 'undefined' ||
-    //     typeof req.body.id === 'undefined' ||
-    //     typeof req.body.id_category === 'undefined' ||
-    //     typeof req.body.price === 'undefined' ||
-    //     typeof req.body.id_brand === 'undefined' ||
-    //     typeof req.body.description === 'undefined'
-    // ) {
-    //     return res.status(422).send({ message: 'Invalid data' });
-    // }
+    if (
+        typeof req.body.name === 'undefined' ||
+        typeof req.body.id === 'undefined' ||
+        typeof req.body.id_category === 'undefined' ||
+        typeof req.body.price === 'undefined' ||
+        typeof req.body.id_brand === 'undefined' ||
+        typeof req.body.description === 'undefined'
+    ) {
+        return res.status(422).send({ message: 'Invalid data' });
+    }
     const {
         id,
         name,
@@ -133,8 +132,16 @@ exports.updateProduct = async (req, res) => {
         colorProduct,
     } = req.body;
 
+    let urls = [];
+    const files = req.files;
+
+    for (const file of files) {
+        const { path } = file;
+        const result = await uploadImg(path);
+        urls.push(result);
+    }
+
     const productFind = await product.findOne({ _id: id }); //tìm kiếm product bằng id
-    // console.log(productFind);
 
     const id_colorP = productFind.colorProducts;
     const id_sizeP = productFind.sizeProducts;
@@ -172,36 +179,25 @@ exports.updateProduct = async (req, res) => {
                 name,
                 id_category,
                 price,
+                images: urls,
                 id_brand,
                 description,
                 status,
             },
         },
         (err, data) => {
-            if (err) return res.json({ message: 'Fail' });
-            res.json({ message: 'Success' });
+            err
+                ? res.status(500).json({ message: 'Fail' })
+                : res.status(200).json({ message: 'Success' });
         },
     );
-    // let urlImg = null;
-    // if (typeof req.file !== 'undefined') {
-    //     urlImg = await uploadImg(req.file.path);
-    // }
-    // if (urlImg !== null) {
-    //     if (urlImg === false) {
-    //         return res.status(500).send({ message: 'not update image' });
-    //     }
-    // }
-    // if (urlImg === null) urlImg = productFind.img; //thay hình cũ bằng hình mới
-    // res.status(200).send({
-    //     message: 'update product success',
-    //     data: productFind,
-    // }); //thông báo lưu thành công
 };
 
 exports.deleteProduct = async (req, res) => {
-    product.updateOne({ _id: req.params.id }, { $set: { status: false } }).exec(error => {
-        if (error) return res.status(400).send({ error });
-        res.status(201).send('delete product success');
+    product.updateOne({ _id: req.params.id }, { $set: { status: false } }).exec(err => {
+        err
+            ? res.status(400).send({ message: err })
+            : res.status(200).send('delete product success');
     });
 };
 
@@ -229,8 +225,7 @@ exports.getOne = async (req, res) => {
             },
         })
         .exec(function (err, data) {
-            if (err) return res.json(err);
-            res.json({ data });
+            err ? res.status(404).json({ message: err }) : res.status(200).json({ data });
         });
 };
 
@@ -245,12 +240,11 @@ exports.getAllProducts = async (req, res) => {
     try {
         count = await product.countDocuments({}); // đém sản phẩm có bao nhiêu
     } catch (err) {
-        // console.log(err);
         return res.status(500).send({ message: err });
     }
 
-    let totalPage = parseInt((count - 1) / 5 + 1); // từ số lượng sản phẩm sẽ tính ra số trang
-    let { page } = req.params;
+    const totalPage = parseInt((count - 1) / 5 + 1); // từ số lượng sản phẩm sẽ tính ra số trang
+    const { page } = req.params;
     if (parseInt(page) < 1 || parseInt(page) > totalPage) {
         return res.status(200).send({ data: [], message: 'Invalid page', totalPage });
     }
@@ -280,11 +274,9 @@ exports.getAllProducts = async (req, res) => {
         .skip(5 * (parseInt(page) - 1))
         .limit(5) // giới hạn hiển thị sản phẩm mỗi trang
         .exec((err, docs) => {
-            if (err) {
-                // console.log(err);
-                return res.status(500).send({ message: err });
-            }
-            res.status(200).send({ data: docs, totalPage });
+            err
+                ? res.status(404).send({ message: err })
+                : res.status(200).send({ data: docs, totalPage });
         });
 };
 
@@ -299,7 +291,7 @@ exports.addStock = async (req, res) => {
         return res.status(422).send({ message: 'Invalid data' });
     }
 
-    let { name_category, name_brand, quantity } = req.body; //khai cái tham số cần thiết
+    const { name_category, name_brand, quantity } = req.body; //khai cái tham số cần thiết
     let stockFind;
 
     try {
@@ -360,7 +352,7 @@ exports.updateStock = async (req, res) => {
         return res.status(422).send({ message: 'Invalid data' });
     }
 
-    let { id, name_category, path, name_brand, quantity, status } = req.body; //khai báo tham số
+    const { id, name_category, path, name_brand, quantity, status } = req.body; //khai báo tham số
     const getNameStock = await stockController.getDataByID(id); // lấy tên theo id
     let stockFind = null;
     let categoryFind = null;
@@ -420,8 +412,7 @@ exports.deleteStock = async (req, res) => {
         return res.status(402).send({ message: 'data invalid' });
     }
 
-    let id = req.params.id; //khai báo tham số
-    const getNameStock = await stockController.getDataByID(id); //tìm kiếm tên theo id
+    const getNameStock = await stockController.getDataByID(req.params.id); //tìm kiếm tên theo id
     let stockFind = null;
     let categoryFind = null;
     let brandFind = null;
@@ -484,20 +475,15 @@ exports.getAllStocks = async (req, res) => {
         .skip(9 * (parseInt(page) - 1))
         .limit(9)
         .exec((err, docs) => {
-            if (err) {
-                // console.log(err);
-                return res.status(500).send({ message: err });
-            }
-            res.status(200).send({ data: docs, totalPage });
+            err
+                ? res.status(404).send({ message: err })
+                : res.status(200).send({ data: docs, totalPage });
         });
 };
 
 exports.getStocks = async (req, res) => {
     stock.find({ status: true }, (err, docs) => {
-        if (err) {
-            return res.status(422).send({ message: err });
-        }
-        res.status(200).send({ data: docs });
+        err ? res.status(404).send({ message: err }) : res.status(200).send({ data: docs });
     });
 };
 
@@ -508,9 +494,8 @@ exports.addBrand = async (req, res) => {
         return res.status(422).send({ message: 'Invalid data' });
     }
 
-    let { name } = req.body; //khai báo biến
     let brandFind = null;
-
+    const { name } = req.body;
     try {
         brandFind = await brand.find({ name: name }); //tìm kiếm brand theo tên
     } catch (err) {
@@ -522,16 +507,12 @@ exports.addBrand = async (req, res) => {
         return res.status(409).send({ message: 'Brand already exist' });
     }
 
-    const newBrand = new brand({
-        //tạo brand mới
-        name: name,
-    });
+    const newBrand = new brand({ name });
 
     try {
         await newBrand.save(); //lưu brand
     } catch (err) {
         // xuất ra lỗi
-        // console.log(err);
         return res.status(500).send({ message: err });
     }
     res.status(201).send({ message: 'add brand success', data: newBrand }); // thông báo add brand thành công
@@ -543,7 +524,7 @@ exports.updateBrand = async (req, res) => {
         return res.status(422).send({ message: 'Invalid data' });
     }
 
-    let { id, name, status } = req.body; // khai báo biến
+    const { id, name, status } = req.body; // khai báo biến
     let brandFind;
 
     try {
@@ -561,22 +542,23 @@ exports.updateBrand = async (req, res) => {
     brandFind.name = name;
     brandFind.status = status;
     try {
-        await brandFind.save(); //lưu lại branđ đã thay đổi
+        //lưu lại branđ đã thay đổi
+        await brandFind.save(err => {
+            err
+                ? res.status(404).send({ message: 'add brand fail' })
+                : res.status(201).send({
+                      message: 'update brand success',
+                      brand: { name: name },
+                  });
+        });
     } catch (err) {
-        // console.log(err);
         return res.status(500).send({ message: err }); //xuất lỗi
     }
-
-    res.status(201).send({
-        message: 'update brand success',
-        brand: { name: name },
-    }); //thông báo update brand thành công
 };
 
 exports.deleteBrand = async (req, res) => {
     brand.updateOne({ _id: req.params.id }, { $set: { status: false } }).exec(error => {
-        if (error) return res.status(400).send({ error });
-        res.status(201).send('delete brand success');
+        error ? res.status(400).send({ error }) : res.status(201).send('delete brand success');
     });
 };
 
@@ -591,12 +573,11 @@ exports.getAllBrands = async (req, res) => {
         count = await brand.countDocuments(); //đếm brand
     } catch (err) {
         //xuất lỗi
-        // console.log(err);
         return res.status(500).send({ message: err });
     }
 
-    let totalPage = parseInt((count - 1) / 5 + 1); //tính tổng số trang
-    let { page } = req.params;
+    const totalPage = parseInt((count - 1) / 5 + 1); //tính tổng số trang
+    const { page } = req.params;
 
     if (parseInt(page) < 1 || parseInt(page) > totalPage) {
         return res.status(200).send({ data: [], message: 'Invalid page', totalPage });
@@ -606,11 +587,9 @@ exports.getAllBrands = async (req, res) => {
         .skip(5 * (parseInt(page) - 1))
         .limit(5)
         .exec((err, docs) => {
-            if (err) {
-                // console.log(err);
-                return res.status(500).send({ message: err });
-            }
-            res.status(200).send({ data: docs, totalPage });
+            err
+                ? res.status(500).send({ message: err })
+                : res.status(200).send({ data: docs, totalPage });
         });
 };
 
@@ -622,11 +601,11 @@ exports.addCategory = async (req, res) => {
     }
 
     //khai báo biến
-    let { name, path } = req.body;
+    const { name } = req.body;
     let categoryFind;
 
     try {
-        categoryFind = await category.find({ name: name, path: path }); //tìm kiếm theo name và path
+        categoryFind = await category.find({ name: name }); //tìm kiếm theo name và path
     } catch (err) {
         //xuất lỗi
         return res.status(500).send({ message: err });
@@ -637,19 +616,16 @@ exports.addCategory = async (req, res) => {
         return res.status(409).send({ message: 'category already exist' });
     }
 
-    const newCategory = new category({
-        //nếu không thấy thì sẽ tiến hành thêm mới category
-        name: name,
-    });
-
+    const newCategory = new category({ name });
     try {
-        await newCategory.save(); //lưu category mới thêm vào database
+        newCategory.save(err => {
+            err
+                ? res.status(500).send({ message: 'add categoy fail' })
+                : res.status(201).send({ message: 'add category success' });
+        });
     } catch (err) {
-        //nếu không lưu được thì thông báo lỗi
-        // console.log(err);
         return res.status(500).send({ message: err });
     }
-    res.status(201).send({ message: 'add category success' }); //lưu được thì thông báo thêm mới thành công
 };
 
 exports.updateCategory = async (req, res) => {
@@ -659,7 +635,7 @@ exports.updateCategory = async (req, res) => {
     }
 
     //khai báo biến cần thiết
-    let { id, name, status } = req.body;
+    const { id, name, status } = req.body;
     let categoryFind = null;
 
     try {
@@ -678,23 +654,26 @@ exports.updateCategory = async (req, res) => {
     categoryFind.status = status;
 
     try {
-        await categoryFind.save(); //lưu các thay đổi
+        //lưu các thay đổi
+        categoryFind.save(err => {
+            err
+                ? res.status(500).send({ message: err })
+                : res.status(201).send({
+                      message: 'update category success',
+                      category: { name: name },
+                  });
+        });
     } catch (err) {
         //xuất lỗi nếu không lưu được
-        // console.log(err);
         return res.status(500).send({ message: err });
     }
 
-    res.status(201).send({
-        message: 'update category success',
-        category: { name: name },
-    }); //thông báo update thành công
+    //thông báo update thành công
 };
 
 exports.deleteCategory = async (req, res) => {
     category.updateOne({ _id: req.params.id }, { $set: { status: false } }).exec(error => {
-        if (error) return res.status(400).send({ error });
-        res.status(201).send('delete product success');
+        error ? res.status(400).send({ error }) : res.status(200).send('delete product success');
     });
 };
 
@@ -709,12 +688,11 @@ exports.getAllCategorys = async (req, res) => {
     try {
         count = await category.countDocuments(); //đém category
     } catch (err) {
-        // console.log(err);
         return res.status(500).send({ message: err });
     }
 
-    let totalPage = parseInt((count - 1) / 5 + 1); //tính số trang
-    let { page } = req.params;
+    const totalPage = parseInt((count - 1) / 5 + 1); //tính số trang
+    const { page } = req.params;
 
     if (parseInt(page) < 1 || parseInt(page) > totalPage) {
         return res.status(200).send({ data: [], message: 'Invalid page', totalPage });
@@ -725,11 +703,9 @@ exports.getAllCategorys = async (req, res) => {
         .skip(5 * (parseInt(page) - 1))
         .limit(5)
         .exec((err, docs) => {
-            if (err) {
-                // console.log(err);
-                return res.status(500).send({ message: err });
-            }
-            res.status(200).send({ data: docs, totalPage });
+            err
+                ? res.status(500).send({ message: err })
+                : res.status(200).send({ data: docs, totalPage });
         });
 };
 
@@ -741,7 +717,7 @@ exports.updateUser = async (req, res) => {
     }
 
     //khai báo biến cần thiết
-    let { email, name, status } = req.body;
+    const { email, name, status } = req.body;
     let userFind;
 
     try {
@@ -778,8 +754,7 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
     user.updateOne({ _id: req.params.id }, { $set: { status: false } }).exec(error => {
-        if (error) return res.status(400).send({ error });
-        res.status(201).send('delete product success');
+        error ? res.status(400).send({ error }) : res.status(201).send('delete product success');
     });
 };
 
@@ -795,7 +770,7 @@ exports.addUser = async (req, res) => {
     }
 
     //khai báo biến cần thiết
-    let { email, password, name, is_admin } = req.body;
+    const { email, password, name, is_admin } = req.body;
     let userFind = null;
 
     //kiểm tra email có hợp lệ không, password phải trên 6 kí tự
@@ -807,7 +782,6 @@ exports.addUser = async (req, res) => {
         userFind = await user.find({ email: email }); //tiến hành tìm kiếm user theo email
     } catch (err) {
         return res.status(500).send({ message: err });
-        // console.log(1);
     }
     if (userFind.length > 0) {
         //trường hợp đã có user trong cơ sở dữ liệu
@@ -842,7 +816,7 @@ exports.login = async (req, res) => {
     }
 
     //khai báo biến cần thiết
-    let { email, password } = req.body;
+    const { email, password } = req.body;
     let userFind = null;
 
     try {
@@ -882,10 +856,7 @@ exports.login = async (req, res) => {
 exports.getUsers = async (req, res) => {
     //get toàn bộ user
     user.find({ status: true }, (err, docs) => {
-        if (err) {
-            return res.send({ message: err });
-        }
-        res.status(200).send({ data: docs });
+        err ? res.status(500).send({ message: err }) : res.status(200).send({ data: docs });
     });
 };
 
@@ -905,8 +876,8 @@ exports.getAllUsers = async (req, res) => {
         return res.status(500).send({ message: err });
     }
 
-    let totalPage = parseInt((count - 1) / 9 + 1); //tính số trang
-    let { page } = req.params;
+    const totalPage = parseInt((count - 1) / 9 + 1); //tính số trang
+    const { page } = req.params;
 
     if (parseInt(page) < 1 || parseInt(page) > totalPage) {
         return res.status(200).send({ data: [], message: 'Invalid page', totalPage });
@@ -917,11 +888,9 @@ exports.getAllUsers = async (req, res) => {
         .skip(9 * (parseInt(page) - 1))
         .limit(9)
         .exec((err, docs) => {
-            if (err) {
-                // console.log(err);
-                return res.status(500).send({ message: err });
-            }
-            res.status(200).send({ data: docs, totalPage });
+            err
+                ? res.status(500).send({ message: err })
+                : res.status(200).send({ data: docs, totalPage });
         });
 };
 
@@ -930,11 +899,12 @@ module.exports.addSize = (req, res) => {
     const nSize = new size(req.body);
 
     nSize.save((err, doc) => {
-        if (err) return res.json({ success: false, err });
-        res.status(200).json({
-            success: true,
-            size: doc,
-        });
+        err
+            ? res.status(500).json({ message: 'add size fail' })
+            : res.status(200).json({
+                  message: 'add size success',
+                  size: doc,
+              });
     });
 };
 
@@ -954,8 +924,12 @@ module.exports.getAllSizes = async (req, res) => {
         return res.status(500).send({ message: err });
     }
 
-    let totalPage = parseInt((count - 1) / 2 + 1); //tính số trang
-    let { page } = req.params;
+    if (count === null) {
+        return res.status(500).json({ message: 'sizes not found' });
+    }
+
+    const totalPage = parseInt((count - 1) / 5 + 1); //tính số trang
+    const { page } = req.params;
 
     if (parseInt(page) < 1 || parseInt(page) > totalPage) {
         return res.status(200).send({ data: [], message: 'Invalid page', totalPage });
@@ -963,13 +937,12 @@ module.exports.getAllSizes = async (req, res) => {
 
     //get colors
     size.find({})
-        .skip(2 * (parseInt(page) - 1))
-        .limit(2)
+        .skip(5 * (parseInt(page) - 1))
+        .limit(5)
         .exec((err, docs) => {
-            if (err) {
-                return res.status(500).send({ message: err });
-            }
-            res.status(200).send({ data: docs, totalPage });
+            err
+                ? res.status(500).send({ message: err })
+                : res.status(200).send({ data: docs, totalPage });
         });
 };
 
@@ -977,16 +950,18 @@ module.exports.getAllSizes = async (req, res) => {
 module.exports.updateSize = (req, res) => {
     const { id, name, description, status } = req.body;
     size.updateOne({ _id: id }, { $set: { name, description, status } }, (err, data) => {
-        if (err) return res.send(err);
-        res.status(200).send({ message: 'update size success' });
+        err
+            ? res.status(500).send({ message: err })
+            : res.status(200).send({ message: 'update size success' });
     });
 };
 
 //Delete size
 module.exports.deleteSize = (req, res) => {
     size.updateOne({ _id: req.params.id }, { status: false }, (err, data) => {
-        if (err) return res.send(err);
-        res.status(200).send({ message: 'delete size success' });
+        err
+            ? res.status(500).send({ message: err })
+            : res.status(200).send({ message: 'delete size success' });
     });
 };
 
@@ -995,10 +970,11 @@ module.exports.addColor = (req, res) => {
     const nColor = new color(req.body);
 
     nColor.save((err, doc) => {
-        if (err) return res.json({ message: err });
-        res.status(200).json({
-            color: doc,
-        });
+        err
+            ? res.status(500).json({ message: err })
+            : res.status(200).json({
+                  color: doc,
+              });
     });
 };
 
@@ -1018,8 +994,10 @@ module.exports.getAllColors = async (req, res) => {
         return res.status(500).send({ message: err });
     }
 
-    let totalPage = parseInt((count - 1) / 2 + 1); //tính số trang
-    let { page } = req.params;
+    if (count === null) return res.status(500).json({ message: 'colors not found' });
+
+    const totalPage = parseInt((count - 1) / 5 + 1); //tính số trang
+    const { page } = req.params;
 
     if (parseInt(page) < 1 || parseInt(page) > totalPage) {
         return res.status(200).send({ data: [], message: 'Invalid page', totalPage });
@@ -1028,13 +1006,12 @@ module.exports.getAllColors = async (req, res) => {
     //get colors
     color
         .find({})
-        .skip(2 * (parseInt(page) - 1))
-        .limit(2)
+        .skip(5 * (parseInt(page) - 1))
+        .limit(5)
         .exec((err, docs) => {
-            if (err) {
-                return res.status(500).send({ message: err });
-            }
-            res.status(200).send({ data: docs, totalPage });
+            err
+                ? res.status(500).send({ message: err })
+                : res.status(200).send({ data: docs, totalPage });
         });
 };
 
@@ -1042,15 +1019,17 @@ module.exports.getAllColors = async (req, res) => {
 module.exports.updateColor = (req, res) => {
     const { id, name, description, status } = req.body;
     color.updateOne({ _id: id }, { $set: { name, description, status } }, (err, data) => {
-        if (err) return res.send(err);
-        res.status(200).send({ message: 'update color success' });
+        err
+            ? res.status(500).send({ message: err })
+            : res.status(200).send({ message: 'update color success' });
     });
 };
 
 // Delete color
 module.exports.deleteColor = (req, res) => {
     color.updateOne({ _id: req.params.id }, { status: false }, (err, data) => {
-        if (err) return res.send(err);
-        res.status(200).send({ message: 'delete color success' });
+        err
+            ? res.status(500).send({ message: err })
+            : res.status(200).send({ message: 'delete color success' });
     });
 };

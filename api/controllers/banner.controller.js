@@ -15,11 +15,15 @@ exports.addBanner = async (req, res) => {
 
     const { content, disCount, categoryName, startDate, endDate } = req.body;
 
-    let searchIDCatefory = null;
-    searchIDCatefory = await categoryCtrl.getIDBySearchText(categoryName);
-    let productFind = await product.find({
-        $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
-    });
+    let searchIDCatefory = await categoryCtrl.getIDBySearchText(categoryName);
+    let productFind;
+    try {
+        productFind = await product.find({
+            $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
+        });
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
 
     for (let i in productFind) {
         product
@@ -48,7 +52,8 @@ exports.addBanner = async (req, res) => {
     });
 
     newBanner.save((err, doc) => {
-        if (err) return res.status(500).send({ message: err });
-        res.status(201).send({ message: 'add banner success' });
+        err
+            ? res.status(500).send({ message: err })
+            : res.status(201).send({ message: 'add banner success' });
     });
 };

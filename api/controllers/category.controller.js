@@ -2,31 +2,25 @@ const category = require('../models/category.model');
 
 exports.getCategorys = async (req, res) => {
     category.find({ status: true }, (err, docs) => {
-        if (err) {
-            return res.status(422).send({ message: err });
-        }
-        res.status(200).send({ data: docs });
+        err
+            ? res.status(500).json({ message: 'category not found' })
+            : res.status(200).json({ data: docs });
     });
 };
 
 exports.getNameByID = async (req, res) => {
     if (req.params.id === 'undefined') {
-        res.status(422).send({ message: 'Invalid data' });
-        return;
+        return res.status(422).send({ message: 'Invalid data' });
     }
-    let result = null;
+    let result;
     try {
         result = await category.findById(req.params.id);
     } catch (err) {
-        console.log(err);
-        res.status(500).send({ message: err });
-        return;
+        return res.status(404).send({ message: 'category not found catch' });
     }
-    if (result === null) {
-        res.status(404).send({ message: 'category not found' });
-        return;
-    }
-    res.status(200).send({ name: result.name });
+    result
+        ? res.status(200).send({ name: result.name })
+        : res.status(404).send({ message: 'category not found' });
 };
 
 exports.getIDBySearchText = async (searchText, res) => {

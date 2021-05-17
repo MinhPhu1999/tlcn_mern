@@ -2,35 +2,27 @@ const brand = require('../models/brand.model');
 exports.getBrands = async (req, res) => {
     //get tất cả brand theo status = true
     brand.find({ status: true }, (err, docs) => {
-        if (err) {
-            res.status(422).send({ message: err });
-            return;
-        }
-        res.status(200).send({ data: docs });
+        err
+            ? res.status(500).json({ message: 'brand not found' })
+            : res.status(200).json({ data: docs });
     });
 };
 
 exports.getNameByID = async (req, res) => {
     //kiểm tra có truyền vô id hay không
     if (req.params.id === 'undefined') {
-        res.status(422).send({ message: 'Invalid data' });
-        return;
+        return res.status(422).send({ message: 'Invalid data' });
     }
     //khai báo biến result
-    let result;
+    let result = null;
     try {
-        result = await brand.findById(req.params.id); //tìm kiếm brand theo id
+        result = await brand.findOne({ _id: req.params.id }); //tìm kiếm brand theo id
     } catch (err) {
-        console.log(err);
-        res.status(500).send({ message: err });
-        return;
+        return res.status(404).send({ message: 'brand not found' });
     }
-    if (result === null) {
-        //thông báo nếu không tìm thấy
-        res.status(404).send({ message: 'not found' });
-        return;
-    }
-    res.status(200).send({ name: result.name }); //trả vể kết quả
+    result
+        ? res.status(200).send({ name: result.name })
+        : res.status(404).send({ message: 'not found' });
 };
 
 exports.getIDBySearchText = async searchText => {

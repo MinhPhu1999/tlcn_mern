@@ -13,14 +13,14 @@ exports.register = async (req, res) => {
     if (
         typeof req.body.email === 'undefined' ||
         typeof req.body.password === 'undefined' ||
-        typeof req.body.name === 'undefined'
+        typeof req.body.name === 'undefined' ||
+        typeof req.body.repassword === 'undefined'
     ) {
-        res.status(422).send({ message: 'Invalid data' });
-        return;
+        return res.status(422).send({ message: 'Invalid data' });
     }
 
     //khai báo các biến cần thiết
-    let { email, password, name, repassword } = req.body;
+    const { email, password, name, repassword } = req.body;
     //kiểm tra điều kiện password hợp lệ
     if (!validate.isValidPassWord(password)) {
         return res.status(422).send({
@@ -33,25 +33,21 @@ exports.register = async (req, res) => {
     }
     //kiểm tra điều kiện email và password
     if (email.indexOf('@') === -1 && email.indexOf('.') === -1) {
-        res.status(422).send({ message: 'Invalid data' });
-        return;
+        return res.status(422).send({ message: 'Invalid data' });
     }
     //nếu password và repassword khác nhau
     if (password != repassword) {
-        res.status(422).send({ message: 'password incorect' });
-        return;
+        return res.status(422).send({ message: 'password incorect' });
     }
     let userFind = null;
     try {
         userFind = await user.find({ email: email }); //tìm kiếm user theo email
     } catch (err) {
-        res.status(500).send({ message: err });
-        return;
+        return res.status(500).send({ message: 'user not found' });
     }
     if (userFind.length > 0) {
         //trường hợp có user trong db
-        res.status(409).send({ message: 'Email already exist' });
-        return;
+        return res.status(409).send({ message: 'Email already exist' });
     }
     //hash password
     password = bcrypt.hashSync(password, 10);
@@ -68,79 +64,64 @@ exports.register = async (req, res) => {
                 newUser.generateJWT(); //tạo token
             });
     } catch (err) {
-        console.log(err);
-        res.status(500).send({ message: err });
-        return;
+        return res.status(500).send({ message: err });
     }
-    let sendEmail = await nodemailer.sendEmail(email, newUser.token); //gửi mail để verify account
-    if (!sendEmail) {
-        //trường hợp gửi mail fail
-        res.status(500).send({ message: 'Send email fail' });
-        return;
-    }
-    res.status(201).send({ message: 'success' }); //thông báo thành công
+    const sendEmail = await nodemailer.sendEmail(email, newUser.token); //gửi mail để verify account
+    !sendEmail
+        ? res.status(500).send({ message: 'Send email fail' })
+        : res.status(201).send({ message: 'success' });
 };
 
 exports.verifyAccount = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
     if (typeof req.params.token === 'undefined') {
-        res.status(402).send({ message: '!invalid' });
-        return;
+        return res.status(402).send({ message: '!invalid' });
     }
     //khai báo các biến cần thiết
-    let token = req.params.token;
     let tokenFind = null;
     try {
-        tokenFind = await user.findOne({ token: token }); //tìm kiếm user theo token
+        tokenFind = await user.findOne({ token: req.params.token }); //tìm kiếm user theo token
     } catch (err) {
-        res.status(500).send({ message: err });
-        return;
+        return res.status(500).send({ message: 'user not found' });
     }
-    if (tokenFind == null) {
-        //trường hợp không có user trong db
-        res.status(404).send({ message: 'user not found!!!' });
-        return;
-    }
+
     try {
         //lưu các thay đổi
-        await user.findByIdAndUpdate(tokenFind._id, { $set: { is_verify: true } }, { new: true });
+        await user.findByIdAndUpdate(tokenFind._id, { $set: { is_verify: true } }, err => {
+            err
+                ? res.status(500).send({ message: 'verify account fail' })
+                : res.status(200).send({ message: 'verify account success' });
+        });
     } catch (err) {
-        res.status(500).send({ message: err });
-        return;
+        return res.status(500).send({ message: err });
     }
-    res.status(200).send({ message: 'verify account success!' }); //thông báo verify thành công
 };
 
 exports.login = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
     if (typeof req.body.email === 'undefined' || typeof req.body.password == 'undefined') {
-        res.status(402).send({ message: 'email or password wrrong' });
-        return;
+        return res.status(402).send({ message: 'email or password wrrong' });
     }
     //khai báo các biến cần thiết
-    let { email, password } = req.body;
+    const { email, password } = req.body;
     let userFind = null;
     try {
         userFind = await user.findOne({ email: email }); //tìm kiếm user theo email
     } catch (err) {
-        res.status(402).send({ message: 'loi' });
-        return;
+        return res.status(402).send({ message: 'user not found' });
     }
     if (userFind === null) {
         //trường hợp không có user trong db
-        res.status(422).send({ message: 'not found user in database' });
-        return;
+        return res.status(422).send({ message: 'not found user in database' });
     }
     if (!userFind.is_verify) {
         //trường hợp account chưa verify
-        res.status(401).send({ message: 'no_registration_confirmation' });
-        return;
+        return res.status(401).send({ message: 'no_registration_confirmation' });
     }
 
     if (!bcrypt.compareSync(password, userFind.password)) {
         //trường hợp sai mật  khẩu
-        res.status(422).send({ message: 'password wrong' });
-        return;
+        return res.status(422).send({ message: 'password wrong' });
     }
     userFind.generateJWT(); //tạo token
     //thông báo login success
@@ -158,27 +139,22 @@ exports.login = async (req, res) => {
 exports.getUser = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
     if (typeof req.params.id === 'undefined') {
-        res.status(402).send({ message: 'Invalid data' });
-        return;
+        return res.status(402).send({ message: 'Invalid data' });
     }
     //khai báo các biến cần thiết
-    let id = req.params.id;
+    const { id } = req.params;
     let email;
     let userFind = null;
     try {
         userFind = await user.findOne({ _id: id }); //tìm kiếm user theo id
     } catch (err) {
-        res.send({ message: err });
-        return;
+        return res.send({ message: 'user not found' });
     }
-    if (userFind == null) {
-        //trường hợp không có user trong db
-        res.status(422).send({ message: 'Invalid data' });
-        return;
-    }
+
     if (userFind.fbEmail != null) {
         email = userFind.fbEmail;
-    } else if (userFind.ggEmail != null) {
+    }
+    if (userFind.ggEmail != null) {
         email = userFind.ggEmail;
     } else {
         email = userFind.email;
@@ -196,72 +172,62 @@ exports.getUser = async (req, res) => {
 exports.requestForgotPassword = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
     if (typeof req.params.email === 'undefined') {
-        res.status(402).send({ message: 'Invalid data' });
-        return;
+        return res.status(402).send({ message: 'Invalid data' });
     }
     //khai báo các biến cần thiết
-    let email = req.params.email;
+    const { email } = req.params;
     let userFind = null;
     try {
         userFind = await user.findOne({ email: email }); //tìm kiếm user theo email
     } catch (err) {
-        res.send({ message: err });
-        return;
+        return res.send({ message: 'user not found' });
     }
-    if (userFind == null) {
+    if (userFind === null) {
         //trường hợp không có user trong db
-        res.status(422).send({ message: 'Invalid data' });
+        return res.status(422).send({ message: 'Invalid data' });
     }
     if (!userFind.is_verify) {
         //trường hợp account chưa verify
-        res.status(401).send({ message: 'no_registration_confirmation' });
-        return;
+        return res.status(401).send({ message: 'no_registration_confirmation' });
     }
     //sinh mã otp
     let otp = maotp.generateOTP();
     //gửi otp qua email của email
-    let sendEmail = await nodemailer.sendEmailForgotPassword(email, otp);
+    const sendEmail = await nodemailer.sendEmailForgotPassword(email, otp);
     if (!sendEmail) {
         //trường hợp gửi mail fail
-        res.status(500).send({ message: 'Send email fail' });
-        return;
+        return res.status(500).send({ message: 'Send email fail' });
     }
     userFind.otp = otp; //cập nhật mã otp
     try {
-        await userFind.save(); //lưu các thay đổi
+        userFind.save(err => {
+            err
+                ? res.status(500).send({ message: 'fail' })
+                : res.status(201).send({ message: 'success', email: email });
+        }); //lưu các thay đổi
     } catch (err) {
-        res.status(500).send({ message: err });
-        return;
+        return res.status(500).send({ message: err });
     }
-    res.status(201).send({ message: 'success', email: email }); //thông báo thành công
+    //thông báo thành công
 };
 
 exports.verifyForgotPassword = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
     if (typeof req.body.email === 'undefined' || typeof req.body.otp === 'undefined') {
-        res.status(402).send({ message: 'Invalid data' });
-        return;
+        return res.status(402).send({ message: 'Invalid data' });
     }
     //khai báo các biến cần thiết
-    let { email, otp } = req.body;
+    const { email, otp } = req.body;
     let userFind = null;
     try {
         userFind = await user.findOne({ otp: otp }); //tìm kiếm user theo email
     } catch (err) {
-        res.send({ message: err });
-        return;
+        return res.send({ message: 'user not found' });
     }
-    if (userFind == null) {
-        //trường hợp không có user trong db
-        res.status(422).send({ message: 'Invalid data' });
-        return;
-    }
-    if (userFind.otp != otp) {
-        //trường hợp kiểm tra otp nhập vào khác với otp trong db
-        res.status(422).send({ message: 'OTP fail' });
-        return;
-    }
-    res.status(200).send({ message: 'success', otp: otp }); //thông báo thành công
+
+    userFind
+        ? res.status(200).send({ message: 'success', otp: otp })
+        : res.status(422).send({ message: 'OTP fail' });
 };
 
 exports.forgotPassword = async (req, res) => {
@@ -271,38 +237,35 @@ exports.forgotPassword = async (req, res) => {
         typeof req.body.otp === 'undefined' ||
         typeof req.body.newPassword === 'undefined'
     ) {
-        res.status(402).send({ message: 'Invalid data' });
-        return;
+        return res.status(402).send({ message: 'Invalid data' });
     }
     //khai báo các biến cần thiết
-    let { email, otp, newPassword } = req.body;
+    const { email, otp, newPassword } = req.body;
     let userFind = null;
     try {
         userFind = await user.findOne({ email: email }); //tìm kiếm user theo email
     } catch (err) {
-        res.send({ message: err });
-        return;
+        return res.send({ message: 'user not found' });
     }
-    if (userFind == null) {
+    if (userFind === null) {
         //trường hợp không có user trong db
-        res.status(422).send({ message: 'Invalid data' });
-        return;
+        return res.status(422).send({ message: 'Invalid data' });
     }
     //trường hợp kiểm tra otp nhập vào khác với otp trong db
     if (userFind.otp != otp) {
-        res.status(422).send({ message: 'OTP fail' });
-        return;
+        return res.status(422).send({ message: 'OTP fail' });
     }
     //hash password
     userFind.password = bcrypt.hashSync(newPassword, 10);
     try {
-        await userFind.save(); //lưu các thay đổi
+        await userFind.save(err => {
+            err
+                ? res.status(500).send({ message: 'fail' })
+                : res.status(201).send({ message: 'success' });
+        }); //lưu các thay đổi
     } catch (err) {
-        console.log(err);
-        res.status(500).send({ message: err });
-        return;
+        return res.status(500).send({ message: err });
     }
-    res.status(201).send({ message: 'success' }); //thông báo thành công
 };
 
 exports.updateInfor = async (req, res) => {
@@ -312,18 +275,16 @@ exports.updateInfor = async (req, res) => {
         typeof req.body.id === 'undefined' ||
         typeof req.body.email === 'undefined'
     ) {
-        res.status(422).send({ message: 'Invalid data' });
-        return;
+        return res.status(422).send({ message: 'Invalid data' });
     }
     //khai báo các biến cần thiết
-    let { email, name, id } = req.body;
+    const { email, name, id } = req.body;
     let newUser = await user.findById(id);
     //tìm kiếm user theo email
     let userFind = await user.findOne({ email: email });
     //trường hợp email đã có trong db
     if (userFind != null && newUser.email !== email) {
-        res.status(422).send({ message: 'Email already exist' });
-        return;
+        return res.status(422).send({ message: 'Email already exist' });
     }
     //cập nhật thay đổi
     newUser.name = name;
@@ -331,8 +292,7 @@ exports.updateInfor = async (req, res) => {
     try {
         await newUser.save(); //lưu các thay đổi
     } catch (err) {
-        res.status(500).send({ message: err });
-        return;
+        return res.status(500).send({ message: err });
     }
     //thông báo update infor thành công
     res.status(200).send({
@@ -353,37 +313,35 @@ exports.updatePassword = async (req, res) => {
         typeof req.body.newpassword === 'undefined' ||
         typeof req.body.id === 'undefined'
     ) {
-        res.status(422).send({ message: 'Invalid data' });
-        return;
+        return res.status(422).send({ message: 'Invalid data' });
     }
     //khai báo các biến cần thiết
-    let { id, oldpassword, newpassword } = req.body;
+    const { id, oldpassword, newpassword } = req.body;
     let userFind = null;
     try {
         userFind = await user.findById(id); //tìm kiếm user theo id
     } catch (err) {
-        res.send({ message: err });
-        return;
+        return res.send({ message: 'user not found' });
     }
-    if (userFind == null) {
+    if (userFind === null) {
         //trường hợp không có user trong db
-        res.status(422).send({ message: 'Invalid data' });
-        return;
+        return res.status(422).send({ message: 'Invalid data' });
     }
     //trường hợp nhập mật khẩu cũ không khớp
     if (!bcrypt.compareSync(oldpassword, userFind.password)) {
-        res.status(422).send({ message: 'Invalid data' });
-        return;
+        return res.status(422).send({ message: 'Invalid data' });
     }
     //hash newpassword
     userFind.password = bcrypt.hashSync(newpassword, 10);
     try {
-        await userFind.save(); //lưu các thay đổi
+        userFind.save(err => {
+            err
+                ? res.status(500).send({ message: 'fail' })
+                : res.status(200).send({ message: 'success' });
+        }); //lưu các thay đổi
     } catch (err) {
-        res.status(500).send({ message: err });
-        return;
+        return res.status(500).send({ message: err });
     }
-    res.status(200).send({ message: 'success' }); //thông báo đổi mật khẩu thành công
 };
 
 exports.getDataByID = async id_user => {

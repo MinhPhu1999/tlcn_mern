@@ -12,8 +12,9 @@ const order = new Schema(
                     price: Number,
                     img: String,
                     quantity: Number,
-                    total: Number,
-                    _id: String,
+                    id: String,
+                    color: { type: Schema.Types.ObjectId, ref: 'color' },
+                    size: { type: Schema.Types.ObjectId, ref: 'size' },
                 },
             ],
             required: true,
@@ -81,7 +82,7 @@ const order = new Schema(
             type: String,
         },
     },
-    { timestamps: true }
+    { timestamps: true },
 );
 
 module.exports = mongoose.model('order', order);

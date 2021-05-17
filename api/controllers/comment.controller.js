@@ -19,15 +19,6 @@ class APIfeatures {
 }
 
 exports.getComment = async (req, res) => {
-    // try{
-    //     const comments = await comment.find({product_id: req.params.id, status: true});
-
-    //     res.status(200).send({comments});
-
-    // }catch(err) {
-    //     return res.status(500).send({message: err });
-    // }
-
     try {
         const features = new APIfeatures(comment.find({ product_id: req.params.id }), req.query)
             .sorting()

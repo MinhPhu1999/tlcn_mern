@@ -29,10 +29,10 @@ const product = new Schema({
         type: String,
         required: [true, 'Không được bỏ trống'],
     },
-    img: {
-        type: String,
-        // required: [true, 'Không được bỏ trống'],
-    },
+    // img: {
+    //     type: String,
+    //     required: [true, 'Không được bỏ trống'],
+    // },
     images: {
         type: Array,
         default: [],

@@ -1,19 +1,28 @@
 'use strict';
 const cart = require('../models/cart.model');
 const product = require('../models/product.model');
-const quantity = require('../utils/quantity');
+const quantityP = require('../utils/quantity');
+const size_product = require('../models/size_product');
 
 exports.addToCart = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
-    if (typeof req.body.id_user === 'undefined' || typeof req.body.products === 'undefined') {
-        return res.status(422).send({ message: 'invalid data' });
-    }
+    // if (typeof req.body.id_user === 'undefined' || typeof req.body.products === 'undefined') {
+    //     return res.status(422).send({ message: 'invalid data' });
+    // }
     //khai báo các biến cần thiết
     const { id_user, products } = req.body;
-	const id_size = products.size;
+
+    const { id, quantity, price, color, size } = products;
+    let sizeP;
+    try {
+        sizeP = await size_product.findOne({ products: id });
+    } catch (err) {
+        return res.status(500).send({ message: 'size product not found' });
+    }
+
+    let count = 0;
 
     let cartFind = null;
-    //tìm kiếm cart theo id
     cartFind = await cart.findOne({ id_user: id_user });
 
     if (cartFind === null) {
@@ -21,141 +30,144 @@ exports.addToCart = async (req, res) => {
         const cart_new = new cart({
             id_user: id_user,
             products: products,
-            status: true,
+            grandTotal: quantityP.calPrice(quantity, price),
         });
-        try {
-            await cart_new
-                .save() //lưu lại cart vừa tạo
-                .then(cart_new.updateCountProduct(), cart_new.minusProduct(req, res));
-        } catch (err) {
-            return res.status(500).send({ message: err });
-        }
-    } else {
-        //nếu đã có cart trong db
-        for (let i = 0; i < products.length; i++) {
-            let index = cartFind.products.findIndex(
-                //tìm kiếm vị trí có id của product khi truyền vô bằng với id product của cart
-                element => products[i]._id === element._id,
-            );
 
-            if (index === -1) {
-                //trường hợp không tìm thấy
-                cartFind.products.push(products[i]); //thêm sản phẩm vào trong cart
-                //tính grand total
-                cartFind.grandTotal +=
-                    cartFind.products[cartFind.products.length - 1].price *
-                    cartFind.products[cartFind.products.length - 1].quantity;
+        cart_new.save((err, data) => {
+            if (err) return res.status(500).send('Add cart fail 1');
+
+            quantityP.changeQuantity(size, sizeP, quantity);
+            res.status(200).send({ message: 'add cart success 1' });
+        });
+    } else {
+        count = 0;
+        const lenP = cartFind.products.length;
+        for (let len in cartFind.products) {
+            if (!quantityP.valid(cartFind.products[len], id, size, color)) {
+                count++;
+            } else {
+                cartFind.products[len].quantity += quantity;
+                cartFind.grandTotal += quantityP.calPrice(cartFind.products[len].price, quantity);
+                quantityP.changeQuantity(size, sizeP, quantity);
             }
         }
-        try {
-            await cartFind
-                .save() //lưu những thay đổi
-                .then(cartFind.minusProduct(req, res));
-        } catch (err) {
-            //thông báo nếu add cart fail
-            return res.status(500).send('Add cart fail');
+        if (count === lenP) {
+            cartFind.products.push(products);
+            cartFind.grandTotal += quantityP.calPrice(price, quantity);
+            quantityP.changeQuantity(size, sizeP, quantity);
         }
+
+        //lưu những thay đổi
+        cartFind.save((err, data) => {
+            err
+                ? res.status(500).send('Add cart fail 2')
+                : res.status(200).send({ message: 'add cart success 2' });
+        });
     }
-    res.status(200).send({ message: 'add cart success' }); //thông báo nếu add thành công
 };
 
 exports.getCart = async (req, res) => {
     //khai báo biến cần thiết
-    const id_user = req.params.id_user;
-    //tìm kiếm cart theo id của user
-    const cartFind = await cart.findOne({ id_user: id_user });
+    let cartFind = null;
 
-    if (cartFind) {
-        return res.status(200).send(cartFind.products);
+    //tìm kiếm cart theo id của user
+    try {
+        cartFind = await cart.findOne({ id_user: req.params.id_user });
+    } catch (err) {
+        return res.status(404).send({ message: 'cart not found catch' });
     }
 
-    res.status(404).send({ message: 'cart not found' });
+    cartFind
+        ? res.status(200).send(cartFind.products)
+        : res.status(404).send({ message: 'cart not found' });
 };
 
 exports.getAll = async (req, res) => {
-    //kiểm tra có truyền tham số đầy đủ hay không
-    if (typeof req.params.id_user === 'undefined') {
-        return res.status(422).send({ message: 'invalid data' });
-    }
     //get tất cả cart có trong db theo id_user và status
-    cart.findOne({ id_user: req.params.id_user, status: true }, (err, docs) => {
-        if (err) {
-            return res.status(500).send({ message: err });
-        }
-        res.status(200).send({ data: docs });
+    cart.find({ status: true }, (err, docs) => {
+        err ? res.status(500).send({ message: err }) : res.status(200).send({ data: docs });
     });
 };
 
 exports.updateTang = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
-    if (typeof req.body.id_user === 'undefined' || typeof req.body.id_product === 'undefined') {
+    if (
+        typeof req.body.id_user === 'undefined' ||
+        typeof req.body.id_product === 'undefined' ||
+        typeof req.body.size === 'undefined' ||
+        typeof req.body.color === 'undefined'
+    ) {
         return res.status(422).send({ message: 'invalid data' });
     }
     //khai báo các biến cần thiết
-    const { id_user, id_product } = req.body;
-    let cartFind = null;
-    try {
-        cartFind = await cart.findOne({ id_user: id_user, status: true }); //tìm kiếm cart theo id_user và status
-    } catch (err) {
-        return res.status(500).send({ message: err });
-    }
+    const { id_user, id_product, size, color } = req.body;
+
+    let sizeP = await size_product.findOne({ products: id_product });
+    let cartFind = await cart.findOne({ id_user: id_user, status: true }); //tìm kiếm cart theo id_user và status
+
     if (cartFind === null) {
         //trường hợp không có cart trong db
         return res.status(404).send({ message: 'cart not found' });
     }
     //tìm kiếm vị trí id_product truyền vào bằng với id_product có trong cart
-    let index = cartFind.products.findIndex(element => id_product === element._id);
-
-    cartFind.products[index].quantity += 1; //tăng số lượng lên 1
-    cartFind.grandTotal += cartFind.products[index].price; //cập nhật lại grandtotal
-
-    try {
-        await cartFind
-            .save() //lưu lại các thay đổi
-            .then(cartFind.minusProduct(req, res)); //thực hiện trừ số lượng tương ứng với size trong product
-    } catch (err) {
-        return res.status(500).send('Add cart fail');
+    for (let len in cartFind.products) {
+        if (quantityP.valid(cartFind.products, len, id_product, size, color)) {
+            cartFind.products[len].quantity += 1;
+            cartFind.grandTotal += quantityP.calPrice(cartFind.products[len].price, 1);
+        }
     }
 
-    res.status(200).send({ message: 'update cart success' });
+    try {
+        cartFind.save((err, data) => {
+            if (err) return res.status(500).send('update cart fail 1');
+            if (quantityP.changeQuantity(size, sizeP, 1))
+                res.status(200).send({ message: 'update cart success 1' });
+        }); //lưu lại các thay đổi
+    } catch (err) {
+        return res.status(500).send('update cart fail 2');
+    }
+
+    // res.status(200).send({ message: 'update cart success' });
 };
 
 exports.updateGiam = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
-    if (typeof req.body.id_user === 'undefined' || typeof req.body.id_product === 'undefined') {
+    if (
+        typeof req.body.id_user === 'undefined' ||
+        typeof req.body.id_product === 'undefined' ||
+        typeof req.body.size === 'undefined' ||
+        typeof req.body.color === 'undefined'
+    ) {
         return res.status(422).send({ message: 'invalid data' });
     }
     //khai báo các biến cần thiết
-    const { id_user, id_product } = req.body;
-    let cartFind = null;
+    const { id_user, id_product, size, color } = req.body;
 
-    try {
-        cartFind = await cart.findOne({ id_user: id_user, status: true }); //tìm kiếm cart theo id_user và status
-    } catch (err) {
-        res.status(500).send({ message: err });
-    }
+    let sizeP = await size_product.findOne({ products: id_product });
+    let cartFind = await cart.findOne({ id_user: id_user, status: true }); //tìm kiếm cart theo id_user và status
 
     if (cartFind === null) {
         //trường hợp không có cart trong db
-        return res.status(404).send({ message: 'product not found' });
+        return res.status(404).send({ message: 'cart not found' });
     }
-
     //tìm kiếm vị trí id_product truyền vào bằng với id_product có trong cart
-    let index = cartFind.products.findIndex(element => id_product === element._id);
-    //giảm số lượng 1
-    cartFind.products[index].quantity -= 1;
-	cartFind.grandTotal -= cartFind.products[index].price; //cập nhật lại grandtotal
+    for (let len in cartFind.products) {
+        if (quantityP.valid(cartFind.products, len, id_product, size, color)) {
+            cartFind.products[len].quantity -= 1;
+            cartFind.grandTotal -= quantityP.calPrice(cartFind.products[len].price, 1);
+        }
+    }
 
     try {
-        await cartFind
-            .save() //lưu các thay đổi
-            .then(cartFind.plusProduct(id_product)); //thực hiện tăng số lượng tương ứng với size trong product
+        //lưu lại các thay đổi
+        cartFind.save((err, data) => {
+            if (err) return res.status(500).send('update cart fail 1');
+            if (quantityP.changeQuantity(size, sizeP, -1))
+                res.status(200).send({ message: 'update cart success 1' });
+        });
     } catch (err) {
-        //xuất thông báo lỗi nếu update fail
-        return res.status(500).send('update cart fail');
+        return res.status(500).send('update cart fail 2');
     }
-
-    res.status(200).send({ message: 'update cart success' }); //thông báo update thành công
 };
 
 exports.updateCart = async (req, res) => {
@@ -180,7 +192,7 @@ exports.updateCart = async (req, res) => {
     for (i = 0; i < productLen; i++) {
         index = cartFind.products.findIndex(element => products[i]._id === element._id);
         if (index === -1) {
-            res.status(404).send({ message: 'product not found in list' });
+            return res.status(404).send({ message: 'product not found in list' });
         } else {
             cartFind.products[index].quantity += 1;
         }
@@ -229,49 +241,54 @@ exports.deleteCart = async (req, res) => {
 
 exports.deleteProductInCart = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
-    if (typeof req.body.id_user === 'undefined' || typeof req.body.id_product === 'undefined') {
+    if (
+        typeof req.body.id_user === 'undefined' ||
+        typeof req.body.id_product === 'undefined' ||
+        typeof req.body.size === 'undefined' ||
+        typeof req.body.color === 'undefined'
+    ) {
         return res.status(422).send({ message: 'invalid data' });
     }
     //khai báo các biến cần thiết
-    const { id_user, id_product } = req.body;
-    let cartFind = null;
+    const { id_user, id_product, size, color } = req.body;
+    let quanP;
 
-    try {
-        cartFind = await cart.findOne({ id_user: id_user, status: true }); //tìm kiếm cart theo id_user và status
-    } catch (err) {
-        return res.status(500).send({ message: err });
-    }
+    let cartFind = await cart.findOne({ id_user: id_user, status: true }); //tìm kiếm cart theo id_user và status
+    let sizeP = await size_product.findOne({ products: id_product });
 
     //trường hợp không có cart trong db
     if (cartFind === null) {
-        return res.status(404).send({ message: 'not found' });
+        return res.status(404).send({ message: 'cart not found' });
     }
 
     //tìm kiếm vị trí id_product truyền vào bằng với id_product có trong cart
     if (cartFind.products.length === 1) {
+        let result = quantityP.changeQuantity(size, sizeP, -cartFind.products[0].quantity);
         await cartFind.remove();
-        await cartFind.save().then(cartFind.plusProduct(id_product));
+        if (result) return res.status(200).send({ message: 'delete cart success 1' });
+        // await cartFind.save().then(cartFind.plusProduct(id_product));
     } else {
-        let index = cartFind.products.findIndex(element => element._id === id_product);
-
-        //trường hợp không tìm thấy product có trong cart
-        if (index === -1) {
-            return res.status(404).send({ message: 'product not found in list' });
+        for (let len in cartFind.products) {
+            if (quantityP.valid(cartFind.products[len], id_product, size, color)) {
+                quanP = cartFind.products[len].quantity;
+                cartFind.grandTotal -= quantityP.calPrice(
+                    cartFind.products[len].price,
+                    cartFind.products[len].quantity,
+                );
+                cartFind.products.splice(len, 1); //xóa sản phẩm trong cart
+            }
         }
-        cartFind.grandTotal -= cartFind.products[index].quantity * cartFind.products[index].price; //update lại grandtotal
-        cartFind.products.splice(index, 1); //xóa sản phẩm trong cart
 
         try {
             //lưu lại các thay đổi
-			await cartFind
-				.save()
-				.then(cartFind.plusProduct(id_product));//xoa xong thi tang so luong san pham len 1
-
+            cartFind.save((err, data) => {
+                if (err) return res.status(500).send('remove cart fail 1');
+                if (quantityP.changeQuantity(size, sizeP, -quanP))
+                    res.status(200).send({ message: 'remove cart success 1' });
+            });
         } catch (err) {
             //xuất ra lỗi nếu xóa sản phẩm trong cart fail
-            return res.status(500).send({ message: err });
+            res.status(500).send({ message: err });
         }
     }
-
-    res.status(200).send({ message: 'delete success' }); //thông báo xóa thành công
 };
