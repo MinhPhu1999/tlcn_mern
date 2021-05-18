@@ -9,7 +9,8 @@ const categoryController = require('../controllers/category.controller');
 const ord = require('../utils/orderby');
 
 const { performance } = require('perf_hooks');
-const { type } = require('os');
+const redis = require('redis');
+const client = redis.createClient();
 
 exports.addOrder = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
@@ -124,6 +125,17 @@ exports.updateOrder = async (req, res) => {
     res.status(201).send({ orderFind });
 };
 
+exports.orders = async (req, res) => {
+    let t0 = performance.now();
+    order.find({}, (err, orders) => {
+        err
+            ? res.status(500).json({ message: 'size not found' })
+            : res.status(200).json({ orders });
+    });
+    let t1 = performance.now();
+    console.log(t1 - t0);
+};
+
 exports.getOrderByDay = async (req, res) => {
     if (
         typeof req.body.day === 'undefined' ||
@@ -213,13 +225,27 @@ exports.getOrderByYear = async (req, res) => {
     res.status(200).json({ arrOr });
 };
 
+///
+exports.redisGetQuantityByYear = async (req, res) => {
+    let t0=performance.now();
+    const { year } = req.params;
+    client.get(year, (err, arrOr) => {
+        if (arrOr) {
+            res.status(200).json({ arrOr });
+        } else {
+            this.getQuantityByYear(req, res);
+        }
+    });
+    let t1=performance.now();
+    console.log(t1-t0);
+};
 exports.getQuantityByYear = async (req, res) => {
+    let t0 = performance.now();
     if (typeof req.params.year === 'undefined') {
         return res.status(402).send({ message: '!invalid' });
     }
 
     const { year } = req.params;
-    // var t0 = performance.now();
 
     let getOrder;
     try {
@@ -256,14 +282,31 @@ exports.getQuantityByYear = async (req, res) => {
         arrOr.push(orderFind);
         index = dem;
     }
-    // var t1 = performance.now();
 
-    // console.log(t1-t0);
+    client.setex(year, 8080, JSON.stringify(arrOr));
 
     res.status(200).json({ arrOr });
+    let t1 = performance.now();
+    console.log(t1 - t0);
 };
 
+///
+exports.redisGetQuantityByYearAndCategory = (req, res) => {
+    let t0=performance.now();
+    const { year, categoryName } = req.body;
+    client.get(year, (err, arrOr) => {
+        if (arrOr) {
+            res.status(200).json({ arrOr });
+        } else {
+            this.getQuantityByYearAndCategory(req, res);
+        }
+    });
+    let t1=performance.now();
+    console.log(t1-t0);
+};
 exports.getQuantityByYearAndCategory = async (req, res) => {
+    var t0 = performance.now();
+
     if (typeof req.body.year === 'undefined' || typeof req.body.categoryName === 'undefined') {
         return res.status(402).send({ message: '!invalid' });
     }
@@ -278,35 +321,31 @@ exports.getQuantityByYearAndCategory = async (req, res) => {
     } catch (err) {
         return res.status(500).json({ message: 'products not found' });
     }
-    // var t0 = performance.now();
 
-    let getOrder = await order.find({ paymentStatus: 'paid' });
+    const getOrder = await order.find({ paymentStatus: 'paid' });
     let index = 0;
     let dem = 0;
     let orderFind;
     let arrOr = [];
-    let lenOrder = getOrder.length;
-    let lenProduct = productFind.length;
+    const lenOrder = getOrder.length;
+    const lenProduct = productFind.length;
 
     for (let i = 1; i < 13; i++) {
         orderFind = 0;
         dem = 0;
 
         while (index < lenOrder) {
-            let lenCart = getOrder[index].cart.length;
+            const lenCart = getOrder[index].cart.length;
 
             if (
-                getOrder[index].order_date >= new Date(year, i - 1, 1) &&
+                getOrder[index].order_date >= new Date(parseInt(year), i - 1, 1) &&
                 getOrder[index].order_date < new Date(parseInt(year), i, 1)
             ) {
                 for (let j = 0; j < lenCart; j++) {
                     for (let lenP = 0; lenP < lenProduct; lenP++) {
-                        // console.log(`id product ${productFind[lenP]._id}`);
-                        // console.log(`id product trong cart ${getOrder[index].cart[j]._id}`);
-                        if (getOrder[index].cart[j]._id == productFind[lenP]._id) {
+                        if (String(getOrder[index].cart[j]._id) === String(productFind[lenP]._id)) {
                             orderFind += getOrder[index].cart[j].quantity;
                         }
-                        // console.log(orderFind);
                     }
                 }
 
@@ -318,14 +357,31 @@ exports.getQuantityByYearAndCategory = async (req, res) => {
         arrOr.push(orderFind);
         index = dem;
     }
-    // var t1 = performance.now();
-
-    // console.log(t1-t0);
+    client.setex(year, 8080, JSON.stringify(arrOr));
 
     res.status(200).json({ arrOr });
+
+    var t1 = performance.now();
+
+    console.log(t1 - t0);
 };
 
+///
+exports.redisGetQuantityOrderByYearAndCategory = async (req, res) => {
+    // let t0 = performance.now();
+    const { year, categoryName } = req.body;
+    client.get(year, (err, arrOr) => {
+        if (arrOr) {
+            res.status(200).json({ arrOr });
+        } else {
+            this.getQuantityOrderByYearAndCategory(req, res);
+        }
+    });
+    // let t1 = performance.now();
+    // console.log(t1 - t0);
+};
 exports.getQuantityOrderByYearAndCategory = async (req, res) => {
+    var t0 = performance.now();
     if (typeof req.body.year === 'undefined' || typeof req.body.categoryName === 'undefined') {
         return res.status(402).send({ message: '!invalid' });
     }
@@ -340,20 +396,19 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) => {
     } catch (err) {
         return res.status(500).json({ message: 'products not found' });
     }
-    // var t0 = performance.now();
 
     let getOrder;
     try {
         getOrder = await order.find({ paymentStatus: 'paid' });
     } catch (err) {
-        return res.status(500).json({ message: 'order not founs' });
+        return res.status(500).json({ message: 'orders not found' });
     }
     let index = 0;
     let dem = 0;
     let orderFind = 0;
     let arrOr = [];
-    let lenOrder = getOrder.length;
-    let lenProduct = productFind.length;
+    const lenOrder = getOrder.length;
+    const lenProduct = productFind.length;
 
     for (let i = 1; i < 13; i++) {
         orderFind = 0;
@@ -361,7 +416,7 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) => {
         dem = 0;
 
         while (index < lenOrder) {
-            let lenCart = getOrder[index].cart.length;
+            const lenCart = getOrder[index].cart.length;
 
             if (
                 getOrder[index].order_date >= new Date(year, i - 1, 1) &&
@@ -369,7 +424,7 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) => {
             ) {
                 for (let j = 0; j < lenCart; j++) {
                     for (let lenP = 0; lenP < lenProduct; lenP++) {
-                        if (getOrder[index].cart[j]._id == productFind[lenP]._id) {
+                        if (String(getOrder[index].cart[j]._id) === String(productFind[lenP]._id)) {
                             orderFind++;
                             break;
                         }
@@ -385,10 +440,12 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) => {
         arrOr.push(orderFind);
         index = dem;
     }
-    // var t1 = performance.now();
-    // console.log(t1-t0);
+    client.setex(year, 8080, JSON.stringify(arrOr));
 
     res.status(200).json({ arrOr });
+
+    var t1 = performance.now();
+    console.log(t1 - t0);
 };
 
 exports.checkCanComment = async (req, res) => {
