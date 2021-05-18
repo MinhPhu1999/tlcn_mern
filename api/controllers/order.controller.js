@@ -7,14 +7,10 @@ const userController = require('../controllers/user.controller');
 const categoryController = require('../controllers/category.controller');
 
 const ord = require('../utils/orderby');
+const client = require('../config/redis');
 
 require('dotenv').config();
 const { performance } = require('perf_hooks');
-const redis = require('redis');
-const client = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOSTNAME, {
-    no_ready_check: true,
-    auth_pass: process.env.REDIS_PASSWORD,
-});
 
 exports.addOrder = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
@@ -130,14 +126,9 @@ exports.updateOrder = async (req, res) => {
 };
 
 exports.orders = async (req, res) => {
-    let t0 = performance.now();
     order.find({}, (err, orders) => {
-        err
-            ? res.status(500).json({ message: 'size not found' })
-            : res.status(200).json({ orders });
+        err ? res.status(500).json({ message: 'size not found' }) : res.status(200).json(orders);
     });
-    let t1 = performance.now();
-    console.log(t1 - t0);
 };
 
 exports.getOrderByDay = async (req, res) => {
@@ -168,12 +159,24 @@ exports.getOrderByDay = async (req, res) => {
         : res.status(404).json({ message: 'order not found' });
 };
 
+///redis
+exports.redisGetOrderByMonth = async (req, res) => {
+    let t0 = performance.now();
+    const { year, month } = req.body;
+    const byMonth = `${year}${month}`;
+    client.get(byMonth, (err, orderFind) => {
+        orderFind ? res.status(200).json(JSON.parse(orderFind)) : this.getOrderByMonth(req, res);
+    });
+};
 exports.getOrderByMonth = async (req, res) => {
+    let t0 = performance.now();
     if (typeof req.body.year === 'undefined' || typeof req.body.month === 'undefined') {
         return res.status(402).send({ message: '!invalid' });
     }
 
     const { month, year } = req.body;
+    const byMonth = `${year}${month}`;
+    console.log(typeof byMonth, byMonth);
 
     let orderFind = null;
     try {
@@ -187,18 +190,39 @@ exports.getOrderByMonth = async (req, res) => {
     } catch (err) {
         return res.status(500).send({ message: err });
     }
+    client.setex(byMonth, 8080, JSON.stringify(orderFind));
     orderFind
         ? res.status(200).json(orderFind)
         : res.status(404).json({ message: 'order not found' });
+
+    let t1 = performance.now();
+    console.log(t1 - t0);
 };
 
+///redis
+exports.redisGetOrderByYear = async (req, res) => {
+    let t0 = performance.now();
+    const { year } = req.params;
+    const byYear = `${year}byyear`;
+    client.get(byYear, (err, arrOr) => {
+        if (arrOr) {
+            arrOr = JSON.parse(arrOr);
+            res.status(200).json({ arrOr });
+        } else {
+            this.getOrderByYear(req, res);
+        }
+    });
+    let t1 = performance.now();
+    console.log(t1 - t0);
+};
 exports.getOrderByYear = async (req, res) => {
+    let t0 = performance.now();
     if (typeof req.params.year === 'undefined') {
         return res.status(402).send({ message: '!invalid' });
     }
 
     const { year } = req.params;
-    // var t0 = performance.now();
+    const byYear = `${year}byyear`;
 
     let getOrder;
     try {
@@ -226,16 +250,20 @@ exports.getOrderByYear = async (req, res) => {
         arrOr.push(orderFind);
         index = orderFind;
     }
+    client.setex(byYear, 8080, JSON.stringify(arrOr));
     res.status(200).json({ arrOr });
+    let t1 = performance.now();
+    console.log(t1 - t0);
 };
 
-///
+///redis
 exports.redisGetQuantityByYear = async (req, res) => {
     let t0 = performance.now();
     const { year } = req.params;
     const quantitybyyear = year + 'quantitybyyear';
     client.get(quantitybyyear, (err, arrOr) => {
         if (arrOr) {
+            arrOr = JSON.parse(arrOr);
             res.status(200).json({ arrOr });
         } else {
             this.getQuantityByYear(req, res);
@@ -245,7 +273,7 @@ exports.redisGetQuantityByYear = async (req, res) => {
     console.log(t1 - t0);
 };
 exports.getQuantityByYear = async (req, res) => {
-    let t0 = performance.now();
+    // let t0 = performance.now();
     if (typeof req.params.year === 'undefined') {
         return res.status(402).send({ message: '!invalid' });
     }
@@ -292,34 +320,35 @@ exports.getQuantityByYear = async (req, res) => {
     client.setex(quantitybyyear, 8080, JSON.stringify(arrOr));
 
     res.status(200).json({ arrOr });
-    let t1 = performance.now();
-    console.log(t1 - t0);
+    // let t1 = performance.now();
+    // console.log(t1 - t0);
 };
 
-///
+///redis
 exports.redisGetQuantityByYearAndCategory = (req, res) => {
-    let t0 = performance.now();
+    // let t0 = performance.now();
     const { year, categoryName } = req.body;
-    const yearandcategory = year + 'yearandcategory';
+    const yearandcategory = year + 'yearandcategory3';
     client.get(yearandcategory, (err, arrOr) => {
         if (arrOr) {
+            arrOr = JSON.parse(arrOr);
             res.status(200).json({ arrOr });
         } else {
             this.getQuantityByYearAndCategory(req, res);
         }
     });
-    let t1 = performance.now();
-    console.log(t1 - t0);
+    // let t1 = performance.now();
+    // console.log(t1 - t0);
 };
 exports.getQuantityByYearAndCategory = async (req, res) => {
-    var t0 = performance.now();
+    // var t0 = performance.now();
 
     if (typeof req.body.year === 'undefined' || typeof req.body.categoryName === 'undefined') {
         return res.status(402).send({ message: '!invalid' });
     }
 
     const { year, categoryName } = req.body;
-    const yearandcategory = year + 'yearandcategory';
+    const yearandcategory = year + 'yearandcategory3';
     let searchIDCatefory = await categoryController.getIDBySearchText(categoryName);
     let productFind;
     try {
@@ -369,25 +398,26 @@ exports.getQuantityByYearAndCategory = async (req, res) => {
 
     res.status(200).json({ arrOr });
 
-    var t1 = performance.now();
+    // var t1 = performance.now();
 
-    console.log(t1 - t0);
+    // console.log(t1 - t0);
 };
 
-///
+///redis
 exports.redisGetQuantityOrderByYearAndCategory = async (req, res) => {
-    // let t0 = performance.now();
+    let t0 = performance.now();
     const { year, categoryName } = req.body;
     const countorder = year + 'countorder';
     client.get(countorder, (err, arrOr) => {
         if (arrOr) {
+            arrOr = JSON.parse(arrOr);
             res.status(200).json({ arrOr });
         } else {
             this.getQuantityOrderByYearAndCategory(req, res);
         }
     });
-    // let t1 = performance.now();
-    // console.log(t1 - t0);
+    let t1 = performance.now();
+    console.log(t1 - t0);
 };
 exports.getQuantityOrderByYearAndCategory = async (req, res) => {
     var t0 = performance.now();
@@ -491,13 +521,34 @@ exports.checkCanComment = async (req, res) => {
     res.status(200).send({ message: 'false' });
 };
 
+///redis
+exports.redisGetOrderTop10 = async (req, res) => {
+    // const t0 = performance.now();
+    const top10 = 'top10';
+    client.get(top10, (err, arr) => {
+        if (arr) {
+            arr = JSON.parse(arr);
+            res.status(200).json({ data: arr });
+        } else {
+            this.getOrderTop10(req, res);
+        }
+    });
+    // const t1 = performance.now();
+    // console.log(t1 - t0);
+};
 exports.getOrderTop10 = async (req, res) => {
+    // let t0 = performance.now();
     let orderFind = null;
+    const top10 = 'top10';
 
     try {
         orderFind = await order.find({ paymentStatus: 'paid' });
     } catch (err) {
         return res.status(500).send({ message: 'order not found' });
+    }
+
+    if (orderFind === null) {
+        return res.status(404).json({ message: 'order not found' });
     }
 
     let arr = [];
@@ -518,15 +569,44 @@ exports.getOrderTop10 = async (req, res) => {
     arr.sort(function (a, b) {
         return b.quantity - a.quantity;
     });
+    client.setex(top10, 8080, JSON.stringify(arr.length > 10 ? arr.slice(0, 10) : arr));
 
     res.status(200).json({ data: arr.length > 10 ? arr.slice(0, 10) : arr });
+    // let t1 = performance.now();
+    // console.log(t1 - t0);
 };
 
+///redis
+exports.redisGetCustomerOrders = async (req, res) => {
+    // const t0 = performance.now();
+    const customer = 'CustomerOrders';
+    client.get(customer, (err, orders) => {
+        if (orders) {
+            orders = JSON.parse(orders);
+            res.status(200).json({ orders });
+        } else {
+            this.getCustomerOrders(req, res);
+        }
+    });
+    // const t1 = performance.now();
+    // console.log(t1 - t0);
+};
 exports.getCustomerOrders = async (req, res) => {
+    // const t0 = performance.now();
+    const customer = 'CustomerOrders';
     const orders = await order.find({}).populate('cart._id', 'name').exec();
-    orders
-        ? res.status(200).json({ orders })
-        : res.status(404).json({ message: 'order not found' });
+    if (orders) {
+        client.setex(customer, 8080, JSON.stringify(orders));
+        res.status(200).json({ orders });
+    } else {
+        res.status(404).json({ message: 'order not found' });
+    }
+    // orders
+    //     ? res.status(200).json({ orders })
+    //     : res.status(404).json({ message: 'order not found' });
+
+    // const t1 = performance.now();
+    // console.log(t1 - t0);
 };
 
 exports.verifyPayment = async (req, res) => {
@@ -736,7 +816,23 @@ exports.getAllOrder = async (req, res) => {
         });
 };
 
+exports.redisGetOrderDetail = async (req, res) => {
+    // const t0 = performance.now();
+    const orderdetail = `detail${req.params.id}`;
+    client.get(orderdetail, (err, orderFind) => {
+        if (orderFind) {
+            orderFind = JSON.parse(orderFind);
+            res.status(200).json(orderFind);
+        } else {
+            this.getOrderDetail(req, res);
+        }
+    });
+    // const t1 = performance.now();
+    // console.log(t1 - t0);
+};
 exports.getOrderDetail = async (req, res) => {
+    // const t0 = performance.now();
+    const orderdetail = `detail${req.params.id}`;
     //kiểm tra có truyền tham số đủ hay không
     if (typeof req.params.id === 'undefined') {
         return res.status(422).send({ message: 'Invalid data' });
@@ -747,7 +843,15 @@ exports.getOrderDetail = async (req, res) => {
     } catch (err) {
         return res.status(500).send('Order not found');
     }
-    orderFind ? res.status(200).send(orderFind) : res.status(404).send('order not found');
+    if (orderFind) {
+        client.setex(orderdetail, 8080, JSON.stringify(orderFind));
+        res.status(200).send(orderFind);
+    } else {
+        res.status(404).send('order not found');
+    }
+    // orderFind ? res.status(200).send(orderFind) : res.status(404).send('order not found');
+    // const t1 = performance.now();
+    // console.log(t1 - t0);
 };
 
 exports.deleteOrder = async (req, res) => {
