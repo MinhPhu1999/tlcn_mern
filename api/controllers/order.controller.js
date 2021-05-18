@@ -8,9 +8,10 @@ const categoryController = require('../controllers/category.controller');
 
 const ord = require('../utils/orderby');
 
+require('dotenv').config();
 const { performance } = require('perf_hooks');
 const redis = require('redis');
-const client = redis.createClient();
+const client = redis.createClient(process.env.REDIS_ENDPOINT_URI);
 
 exports.addOrder = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
@@ -227,17 +228,18 @@ exports.getOrderByYear = async (req, res) => {
 
 ///
 exports.redisGetQuantityByYear = async (req, res) => {
-    let t0=performance.now();
+    let t0 = performance.now();
     const { year } = req.params;
-    client.get(year, (err, arrOr) => {
+    const quantitybyyear = year + 'quantitybyyear';
+    client.get(quantitybyyear, (err, arrOr) => {
         if (arrOr) {
             res.status(200).json({ arrOr });
         } else {
             this.getQuantityByYear(req, res);
         }
     });
-    let t1=performance.now();
-    console.log(t1-t0);
+    let t1 = performance.now();
+    console.log(t1 - t0);
 };
 exports.getQuantityByYear = async (req, res) => {
     let t0 = performance.now();
@@ -246,6 +248,7 @@ exports.getQuantityByYear = async (req, res) => {
     }
 
     const { year } = req.params;
+    const quantitybyyear = year + 'quantitybyyear';
 
     let getOrder;
     try {
@@ -283,7 +286,7 @@ exports.getQuantityByYear = async (req, res) => {
         index = dem;
     }
 
-    client.setex(year, 8080, JSON.stringify(arrOr));
+    client.setex(quantitybyyear, 8080, JSON.stringify(arrOr));
 
     res.status(200).json({ arrOr });
     let t1 = performance.now();
@@ -292,17 +295,18 @@ exports.getQuantityByYear = async (req, res) => {
 
 ///
 exports.redisGetQuantityByYearAndCategory = (req, res) => {
-    let t0=performance.now();
+    let t0 = performance.now();
     const { year, categoryName } = req.body;
-    client.get(year, (err, arrOr) => {
+    const yearandcategory = year + 'yearandcategory';
+    client.get(yearandcategory, (err, arrOr) => {
         if (arrOr) {
             res.status(200).json({ arrOr });
         } else {
             this.getQuantityByYearAndCategory(req, res);
         }
     });
-    let t1=performance.now();
-    console.log(t1-t0);
+    let t1 = performance.now();
+    console.log(t1 - t0);
 };
 exports.getQuantityByYearAndCategory = async (req, res) => {
     var t0 = performance.now();
@@ -312,6 +316,7 @@ exports.getQuantityByYearAndCategory = async (req, res) => {
     }
 
     const { year, categoryName } = req.body;
+    const yearandcategory = year + 'yearandcategory';
     let searchIDCatefory = await categoryController.getIDBySearchText(categoryName);
     let productFind;
     try {
@@ -357,7 +362,7 @@ exports.getQuantityByYearAndCategory = async (req, res) => {
         arrOr.push(orderFind);
         index = dem;
     }
-    client.setex(year, 8080, JSON.stringify(arrOr));
+    client.setex(yearandcategory, 8080, JSON.stringify(arrOr));
 
     res.status(200).json({ arrOr });
 
@@ -370,7 +375,8 @@ exports.getQuantityByYearAndCategory = async (req, res) => {
 exports.redisGetQuantityOrderByYearAndCategory = async (req, res) => {
     // let t0 = performance.now();
     const { year, categoryName } = req.body;
-    client.get(year, (err, arrOr) => {
+    const countorder = year + 'countorder';
+    client.get(countorder, (err, arrOr) => {
         if (arrOr) {
             res.status(200).json({ arrOr });
         } else {
@@ -387,6 +393,8 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) => {
     }
 
     const { year, categoryName } = req.body;
+    const countorder = year + 'countorder';
+    // console.log(countorder);
     const searchIDCatefory = await categoryController.getIDBySearchText(categoryName);
     let productFind;
     try {
@@ -440,7 +448,7 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) => {
         arrOr.push(orderFind);
         index = dem;
     }
-    client.setex(year, 8080, JSON.stringify(arrOr));
+    client.setex(countorder, 8080, JSON.stringify(arrOr));
 
     res.status(200).json({ arrOr });
 
