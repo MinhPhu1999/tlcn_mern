@@ -36,6 +36,9 @@ exports.addProduct = async (req, res) => {
         return res.status(422).send({ message: 'Invalid data' });
     }
 
+	req.body.sizeProduct = JSON.parse(req.body.sizeProduct);
+	req.body.colorProduct = JSON.parse(req.body.colorProduct);
+
     const { name, id_category, id_brand, price, description, sizeProduct, colorProduct } = req.body;
     let urls = [];
     let id_product;
