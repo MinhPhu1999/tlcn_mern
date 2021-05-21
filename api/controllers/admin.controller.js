@@ -60,7 +60,7 @@ exports.addProduct = async (req, res) => {
         name: name,
         id_category: id_category,
         id_brand: id_brand,
-        images: url,
+        images: urls,
         description: description,
         price: price,
     });
