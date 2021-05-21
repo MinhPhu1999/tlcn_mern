@@ -6,6 +6,8 @@ const user = require('../models/user.model');
 const stock = require('../models/stock.model');
 const size = require('../models/size.model');
 const color = require('../models/color.model');
+const size_product = require('../models/size_product');
+const color_product = require('../models/color_product');
 
 const image_product = require('../models/image_product');
 const stockController = require('../controllers/stock.controller');
@@ -40,6 +42,7 @@ exports.addProduct = async (req, res) => {
 	req.body.colorProduct = JSON.parse(req.body.colorProduct);
 
     const { name, id_category, id_brand, price, description, sizeProduct, colorProduct } = req.body;
+
     let urls = [];
     let id_product;
     const files = req.files;
