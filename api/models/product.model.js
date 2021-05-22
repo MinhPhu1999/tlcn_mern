@@ -29,10 +29,10 @@ const product = new Schema({
         type: String,
         required: [true, 'Không được bỏ trống'],
     },
-    // img: {
-    //     type: String,
-    //     required: [true, 'Không được bỏ trống'],
-    // },
+    quantity: {
+        type: Number,
+        require: true,
+    },
     images: {
         type: Array,
         default: [],
@@ -45,14 +45,14 @@ const product = new Schema({
         type: String,
         required: [true, 'Không  được bỏ trống'],
     },
-	colorProducts: {
-		type: Schema.Types.ObjectId,
-		ref: 'colorproduct'
-	},
+    colorProducts: {
+        type: Schema.Types.ObjectId,
+        ref: 'colorproduct',
+    },
     sizeProducts: {
-		type: Schema.Types.ObjectId,
-		ref: 'sizeproduct'
-	},
+        type: Schema.Types.ObjectId,
+        ref: 'sizeproduct',
+    },
     // colorProducts: colorProductSchema,
     // sizeProducts: sizeProductSchema,
     numReviews: Number,

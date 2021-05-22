@@ -780,6 +780,37 @@ exports.getOrder = async (req, res) => {
     ordered ? res.status(200).send(ordered) : res.status(404).json({ message: 'order not found' });
 };
 
+exports.redisGetAllOrderByUser = async (req, res) => {
+    const allOrderUser = `all${req.params.id_user}`;
+    client.get(allOrderUser, (err, orderFind) => {
+        if (orderFind) {
+            orderFind = JSON.parse(orderFind);
+            res.status(200).json(orderFind);
+        } else {
+            this.getAllOrderByUser(req, res);
+        }
+    });
+};
+exports.getAllOrderByUser = async (req, res) => {
+    if (typeof req.params.id_user === 'undefined') {
+        return res.status(500).send('Invalid Data');
+    }
+
+    const allOrderUser = `all${req.params.id_user}`;
+    try {
+        orderFind = await order.find({ id_user: req.params.id_user });
+    } catch (err) {
+        return res.status(500).send({ message: 'orders not found catch' });
+    }
+
+    if (orderFind) {
+        client.setex(allOrderUser, 8080, JSON.stringify(orderFind));
+        res.status(200).send(orderFind);
+    } else {
+        res.status(400).send({ message: 'orders not found' });
+    }
+};
+
 exports.getAllorder = async (req, res) => {
     const orderFind = await order.find({});
     orderFind

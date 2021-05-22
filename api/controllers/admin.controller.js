@@ -38,10 +38,10 @@ exports.addProduct = async (req, res) => {
         return res.status(422).send({ message: 'Invalid data' });
     }
 
-	req.body.sizeProduct = JSON.parse(req.body.sizeProduct);
-	req.body.colorProduct = JSON.parse(req.body.colorProduct);
+    req.body.sizeProduct = JSON.parse(req.body.sizeProduct);
+    req.body.colorProduct = JSON.parse(req.body.colorProduct);
 
-    const { name, id_category, id_brand, price, description, sizeProduct, colorProduct } = req.body;
+    const { name, id_category, id_brand,quantity, price, description, sizeProduct, colorProduct } = req.body;
 
     let urls = [];
     let id_product;
@@ -57,12 +57,13 @@ exports.addProduct = async (req, res) => {
     const nSize = new size_product({ sizeProduct });
 
     const nProduct = new product({
-        name: name,
-        id_category: id_category,
-        id_brand: id_brand,
+        name,
+        id_category,
+        id_brand,
         images: urls,
-        description: description,
-        price: price,
+        description,
+        price,
+        quantity,
     });
 
     nProduct.save((err, doc) => {

@@ -36,7 +36,7 @@ exports.addToCart = async (req, res) => {
         cart_new.save((err, data) => {
             if (err) return res.status(500).send('Add cart fail 1');
 
-            quantityP.changeQuantity(size, sizeP, quantity);
+            quantityP.changeQuantity(cart_new, quantity);
             res.status(200).send({ message: 'add cart success 1' });
         });
     } else {
@@ -48,7 +48,7 @@ exports.addToCart = async (req, res) => {
             } else {
                 cartFind.products[len].quantity += quantity;
                 cartFind.grandTotal += quantityP.calPrice(cartFind.products[len].price, quantity);
-                quantityP.changeQuantity(size, sizeP, quantity);
+                quantityP.changeQuantity(cartFind, quantity);
             }
         }
         if (count === lenP) {

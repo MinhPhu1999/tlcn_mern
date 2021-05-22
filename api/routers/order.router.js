@@ -5,9 +5,7 @@ module.exports = app => {
 
     app.route('/orders').get(order_controller.orders);
 
-    // app.route('/order/detail/:id').get(auth.authLogin, order_controller.getOrderDetail);
-    app.route('/order/detail/:id').get(order_controller.redisGetOrderDetail);
-    // app.route('/order/detail/:id').get(order_controller.getOrderDetail);
+    app.route('/order/detail/:id').get(auth.authLogin, order_controller.redisGetOrderDetail);
 
     app.route('/order/admindetail/:id').get(order_controller.getOrderDetail);
 
@@ -19,14 +17,14 @@ module.exports = app => {
 
     app.route('/order/all').get(order_controller.getAllorder);
 
-    // app.route('/order/getCustomerOrders').post(auth.authLogin, order_controller.getCustomerOrders);
-    // app.route('/order/getCustomerOrders').post(order_controller.getCustomerOrders);
     app.route('/order/getCustomerOrders').post(
         auth.authLogin,
         order_controller.redisGetCustomerOrders,
     );
 
     app.route('/order/getorder/:id_user').post(auth.authLogin, order_controller.getOrder);
+
+    app.route('order/all/:id_user').get(auth.authLogin, order_controller.redisGetAllOrderByUser);
 
     app.route('/order/checkcancomment').post(order_controller.checkCanComment);
 };

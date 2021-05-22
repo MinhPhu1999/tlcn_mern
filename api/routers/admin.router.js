@@ -53,22 +53,16 @@ module.exports = app => {
     app.route('/admin/order/byday').get(order_controller.getOrderByDay);
 
     app.route('/admin/order/bymonth').get(order_controller.redisGetOrderByMonth);
-    // app.route('/admin/order/bymonth').get(order_controller.getOrderByMonth);
 
     app.route('/admin/order/byyear/:year').get(order_controller.redisGetOrderByYear);
-    // app.route('/admin/order/byyear/:year').get(order_controller.getOrderByYear);
 
     app.route('/admin/order/top10').get(order_controller.redisGetOrderTop10);
-    // app.route('/admin/order/top10').get(order_controller.getOrderTop10);
 
     app.route('/admin/order/quantitybyyear/:year').get(order_controller.redisGetQuantityByYear);
-    // app.route('/admin/order/quantitybyyear/:year').get(order_controller.getQuantityByYear);
 
     app.route('/admin/order/yearandcategory').post(order_controller.redisGetQuantityByYearAndCategory);
-    // app.route('/admin/order/yearandcategory').post(order_controller.getQuantityByYearAndCategory);
 
 	app.route('/admin/order/countorder').post(order_controller.redisGetQuantityOrderByYearAndCategory);
-    // app.route('/admin/order/countorder').post(order_controller.getQuantityOrderByYearAndCategory);
 
     //stock
     app.route('/admin/addstock').post(admin_controller.addStock);
