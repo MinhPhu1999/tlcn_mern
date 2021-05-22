@@ -24,7 +24,7 @@ module.exports = app => {
 
     app.route('/order/getorder/:id_user').post(auth.authLogin, order_controller.getOrder);
 
-    app.route('order/all/:id_user').get(auth.authLogin, order_controller.redisGetAllOrderByUser);
+    app.route('/order/all/:id_user').get(auth.authLogin, order_controller.redisGetAllOrderByUser);
 
     app.route('/order/checkcancomment').post(order_controller.checkCanComment);
 };
