@@ -777,7 +777,7 @@ exports.getOrder = async (req, res) => {
         return res.status(500).send({ message: 'orders not found catch' });
     }
 
-    if (paymentStatus == 'cancelled') {
+    if (paymentStatus === 'cancelled') {
         for (let or in orderFind) {
             if (orderFind[or].paymentStatus === paymentStatus) {
                 ordered.push(orderFind[or]);
@@ -785,8 +785,13 @@ exports.getOrder = async (req, res) => {
         }
     } else {
         for (let or in orderFind) {
-            if (ord.ordered(type, orderFind[or])) {
-                ordered.push(orderFind[or]);
+            if (
+                orderFind[or].paymentStatus === 'pending' ||
+                orderFind[or].paymentStatus === 'paid'
+            ) {
+                if (ord.ordered(type, orderFind[or])) {
+                    ordered.push(orderFind[or]);
+                }
             }
         }
     }
