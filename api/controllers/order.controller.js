@@ -750,12 +750,25 @@ exports.getOrderDeliver = async (req, res) => {
         });
 };
 
+exports.redisGetOrder = async (req, res) => {
+    const { type, paymentStatus } = req.body;
+    const typePayment = `${type}paymentStatus${paymentStatus}`;
+    client.get(typePayment, (err, ordered) => {
+        if (ordered) {
+            ordered = JSON.parse(ordered);
+            res.status(200).send(ordered);
+        } else {
+            this.getOrder(req, res);
+        }
+    });
+};
 exports.getOrder = async (req, res) => {
     if (typeof req.params.id_user === 'undefined') {
         return res.status(500).send('Invalid Data');
     }
 
     const { type, paymentStatus } = req.body;
+    const typePayment = `${type}paymentStatus${paymentStatus}`;
 
     let ordered = [];
     try {
@@ -777,7 +790,13 @@ exports.getOrder = async (req, res) => {
             }
         }
     }
-    ordered ? res.status(200).send(ordered) : res.status(404).json({ message: 'order not found' });
+
+    if (ordered) {
+        client.setex(typePayment, 8080, JSON.stringify(ordered));
+        res.status(200).send(ordered);
+    } else {
+        res.status(404).json({ message: 'order not found' });
+    }
 };
 
 exports.redisGetAllOrderByUser = async (req, res) => {

@@ -22,7 +22,7 @@ module.exports = app => {
         order_controller.redisGetCustomerOrders,
     );
 
-    app.route('/order/getorder/:id_user').post(auth.authLogin, order_controller.getOrder);
+    app.route('/order/getorder/:id_user').post(auth.authLogin, order_controller.redisGetOrder);
 
     app.route('/order/all/:id_user').get(auth.authLogin, order_controller.redisGetAllOrderByUser);
 

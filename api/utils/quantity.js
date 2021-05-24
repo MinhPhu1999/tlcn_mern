@@ -1,13 +1,9 @@
-exports.changeQuantity = (size, sizeP, quantity) => {
-    for (let lenP in sizeP.sizeProduct) {
-        if (sizeP.sizeProduct[lenP]._id == size) {
-            sizeP.sizeProduct[lenP].quantity -= quantity;
-        }
-    }
-    sizeP.save((err, data) => {
-        if (err) return false;
-    });
-    return true;
+const product = require('../models/product.model');
+
+exports.changeQuantity = async (id_product, quantity) => {
+    let productFind = await product.findOne({_id: id_product});
+    productFind.quantity -= quantity;
+    productFind.save();
 };
 
 exports.calPrice = (price, quantity) => {
@@ -15,11 +11,7 @@ exports.calPrice = (price, quantity) => {
 };
 
 exports.valid = (productCart, id_product, size, color) => {
-    if (
-        productCart.id == id_product &&
-        productCart.color == color &&
-        productCart.size == size
-    ) {
+    if (productCart.id == id_product && productCart.color == color && productCart.size == size) {
         return true;
     }
     return false;

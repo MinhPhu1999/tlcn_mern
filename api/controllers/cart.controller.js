@@ -13,12 +13,6 @@ exports.addToCart = async (req, res) => {
     const { id_user, products } = req.body;
 
     const { id, quantity, price, color, size } = products;
-    let sizeP;
-    try {
-        sizeP = await size_product.findOne({ products: id });
-    } catch (err) {
-        return res.status(500).send({ message: 'size product not found' });
-    }
 
     let count = 0;
 
@@ -35,8 +29,7 @@ exports.addToCart = async (req, res) => {
 
         cart_new.save((err, data) => {
             if (err) return res.status(500).send('Add cart fail 1');
-
-            quantityP.changeQuantity(cart_new, quantity);
+            quantityP.changeQuantity(id, quantity);
             res.status(200).send({ message: 'add cart success 1' });
         });
     } else {
@@ -48,20 +41,21 @@ exports.addToCart = async (req, res) => {
             } else {
                 cartFind.products[len].quantity += quantity;
                 cartFind.grandTotal += quantityP.calPrice(cartFind.products[len].price, quantity);
-                quantityP.changeQuantity(cartFind, quantity);
             }
         }
         if (count === lenP) {
             cartFind.products.push(products);
             cartFind.grandTotal += quantityP.calPrice(price, quantity);
-            quantityP.changeQuantity(size, sizeP, quantity);
         }
 
         //lưu những thay đổi
         cartFind.save((err, data) => {
-            err
-                ? res.status(500).send('Add cart fail 2')
-                : res.status(200).send({ message: 'add cart success 2' });
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                quantityP.changeQuantity(id, quantity);
+                res.status(200).send({ message: 'add cart success 2' });
+            }
         });
     }
 };
@@ -102,7 +96,6 @@ exports.updateTang = async (req, res) => {
     //khai báo các biến cần thiết
     const { id_user, id_product, size, color } = req.body;
 
-    let sizeP = await size_product.findOne({ products: id_product });
     let cartFind = await cart.findOne({ id_user: id_user, status: true }); //tìm kiếm cart theo id_user và status
 
     if (cartFind === null) {
@@ -111,7 +104,7 @@ exports.updateTang = async (req, res) => {
     }
     //tìm kiếm vị trí id_product truyền vào bằng với id_product có trong cart
     for (let len in cartFind.products) {
-        if (quantityP.valid(cartFind.products, len, id_product, size, color)) {
+        if (quantityP.valid(cartFind.products[len], id_product, size, color)) {
             cartFind.products[len].quantity += 1;
             cartFind.grandTotal += quantityP.calPrice(cartFind.products[len].price, 1);
         }
@@ -120,8 +113,8 @@ exports.updateTang = async (req, res) => {
     try {
         cartFind.save((err, data) => {
             if (err) return res.status(500).send('update cart fail 1');
-            if (quantityP.changeQuantity(size, sizeP, 1))
-                res.status(200).send({ message: 'update cart success 1' });
+            quantityP.changeQuantity(id_product, 1);
+            res.status(200).send({ message: 'update cart success 1' });
         }); //lưu lại các thay đổi
     } catch (err) {
         return res.status(500).send('update cart fail 2');
@@ -143,7 +136,6 @@ exports.updateGiam = async (req, res) => {
     //khai báo các biến cần thiết
     const { id_user, id_product, size, color } = req.body;
 
-    let sizeP = await size_product.findOne({ products: id_product });
     let cartFind = await cart.findOne({ id_user: id_user, status: true }); //tìm kiếm cart theo id_user và status
 
     if (cartFind === null) {
@@ -152,7 +144,7 @@ exports.updateGiam = async (req, res) => {
     }
     //tìm kiếm vị trí id_product truyền vào bằng với id_product có trong cart
     for (let len in cartFind.products) {
-        if (quantityP.valid(cartFind.products, len, id_product, size, color)) {
+        if (quantityP.valid(cartFind.products[len], id_product, size, color)) {
             cartFind.products[len].quantity -= 1;
             cartFind.grandTotal -= quantityP.calPrice(cartFind.products[len].price, 1);
         }
@@ -162,8 +154,8 @@ exports.updateGiam = async (req, res) => {
         //lưu lại các thay đổi
         cartFind.save((err, data) => {
             if (err) return res.status(500).send('update cart fail 1');
-            if (quantityP.changeQuantity(size, sizeP, -1))
-                res.status(200).send({ message: 'update cart success 1' });
+            quantityP.changeQuantity(id_product, -1);
+            res.status(200).send({ message: 'update cart success 1' });
         });
     } catch (err) {
         return res.status(500).send('update cart fail 2');
@@ -254,7 +246,6 @@ exports.deleteProductInCart = async (req, res) => {
     let quanP;
 
     let cartFind = await cart.findOne({ id_user: id_user, status: true }); //tìm kiếm cart theo id_user và status
-    let sizeP = await size_product.findOne({ products: id_product });
 
     //trường hợp không có cart trong db
     if (cartFind === null) {
@@ -263,7 +254,7 @@ exports.deleteProductInCart = async (req, res) => {
 
     //tìm kiếm vị trí id_product truyền vào bằng với id_product có trong cart
     if (cartFind.products.length === 1) {
-        let result = quantityP.changeQuantity(size, sizeP, -cartFind.products[0].quantity);
+        quantityP.changeQuantity(id_product, -1);
         await cartFind.remove();
         if (result) return res.status(200).send({ message: 'delete cart success 1' });
         // await cartFind.save().then(cartFind.plusProduct(id_product));
@@ -283,8 +274,8 @@ exports.deleteProductInCart = async (req, res) => {
             //lưu lại các thay đổi
             cartFind.save((err, data) => {
                 if (err) return res.status(500).send('remove cart fail 1');
-                if (quantityP.changeQuantity(size, sizeP, -quanP))
-                    res.status(200).send({ message: 'remove cart success 1' });
+                quantityP.changeQuantity(id_product, -1);
+                res.status(200).send({ message: 'remove cart success 1' });
             });
         } catch (err) {
             //xuất ra lỗi nếu xóa sản phẩm trong cart fail
