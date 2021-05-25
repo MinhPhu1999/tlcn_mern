@@ -41,7 +41,8 @@ exports.addProduct = async (req, res) => {
     req.body.sizeProduct = JSON.parse(req.body.sizeProduct);
     req.body.colorProduct = JSON.parse(req.body.colorProduct);
 
-    const { name, id_category, id_brand,quantity, price, description, sizeProduct, colorProduct } = req.body;
+    const { name, id_category, id_brand, quantity, price, description, sizeProduct, colorProduct } =
+        req.body;
 
     let urls = [];
     let id_product;
@@ -66,14 +67,14 @@ exports.addProduct = async (req, res) => {
         quantity,
     });
 
-    nProduct.save((err, doc) => {
-        if (doc) id_product = doc._id;
+    const sP = await nProduct.save((err, docProduct) => {
+        if (docProduct) id_product = docProduct._id;
     });
 
-    nSize.save((err, doc) => {
+    const sS = await nSize.save(async (err, doc) => {
         if (doc) {
             doc.products = id_product;
-            doc.save();
+            await doc.save();
             product
                 .updateOne(
                     { _id: id_product },
@@ -91,10 +92,10 @@ exports.addProduct = async (req, res) => {
         }
     });
 
-    nColor.save(function (err, doc) {
+    const sC = await nColor.save(async (err, doc) => {
         if (doc) {
             doc.products = id_product;
-            doc.save();
+            await doc.save();
             product
                 .updateOne(
                     { _id: id_product },

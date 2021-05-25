@@ -7,7 +7,9 @@ const colorProductSchema = new mongoose.Schema({
             _id: { type: Schema.Types.ObjectId, ref: 'color' },
         },
     ],
-    products: String,
+    products: { type: Schema.Types.ObjectId, ref: 'product' },
+
+    // products: String,
 });
 
 module.exports = mongoose.model('colorproduct', colorProductSchema);

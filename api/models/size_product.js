@@ -7,7 +7,8 @@ const sizeProductSchema = new mongoose.Schema({
             _id: { type: Schema.Types.ObjectId, ref: 'size' },
         },
     ],
-	products: String
+    products: { type: Schema.Types.ObjectId, ref: 'product' },
+    // products: String
 });
 
 module.exports = mongoose.model('sizeproduct', sizeProductSchema);
