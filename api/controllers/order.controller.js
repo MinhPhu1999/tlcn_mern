@@ -510,8 +510,8 @@ exports.checkCanComment = async (req, res) => {
     for (let i = 0; i < lenOr; i++) {
         let lenCart = orderFind[i].cart.length;
         for (let j = 0; j < lenCart; j++) {
-            let index = orderFind[i].cart.findIndex(element => id_product === element._id);
-
+            let index = orderFind[i].cart.findIndex(element => id_product === element.id);
+			console.log(index);
             if (index >= 0) {
                 return res.status(200).send({ message: 'true' });
             }

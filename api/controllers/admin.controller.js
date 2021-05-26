@@ -27,19 +27,19 @@ const uploadImg = async path => {
 
 exports.addProduct = async (req, res) => {
     //kiểm tra có đủ tham số truyền vào hay không
-    if (
-        typeof req.files === 'undefined' ||
-        typeof req.body.name === 'undefined' ||
-        typeof req.body.id_category === 'undefined' ||
-        typeof req.body.price === 'undefined' ||
-        typeof req.body.id_brand === 'undefined' ||
-        typeof req.body.description === 'undefined'
-    ) {
-        return res.status(422).send({ message: 'Invalid data' });
-    }
+    // if (
+    //     typeof req.files === 'undefined' ||
+    //     typeof req.body.name === 'undefined' ||
+    //     typeof req.body.id_category === 'undefined' ||
+    //     typeof req.body.price === 'undefined' ||
+    //     typeof req.body.id_brand === 'undefined' ||
+    //     typeof req.body.description === 'undefined'
+    // ) {
+    //     return res.status(422).send({ message: 'Invalid data' });
+    // }
 
-    req.body.sizeProduct = JSON.parse(req.body.sizeProduct);
-    req.body.colorProduct = JSON.parse(req.body.colorProduct);
+    // req.body.sizeProduct = JSON.parse(req.body.sizeProduct);
+    // req.body.colorProduct = JSON.parse(req.body.colorProduct);
 
     const { name, id_category, id_brand, quantity, price, description, sizeProduct, colorProduct } =
         req.body;
@@ -48,11 +48,11 @@ exports.addProduct = async (req, res) => {
     let id_product;
     const files = req.files;
 
-    for (const file of files) {
-        const { path } = file;
-        const result = await uploadImg(path);
-        urls.push(result);
-    }
+    // for (const file of files) {
+    //     const { path } = file;
+    //     const result = await uploadImg(path);
+    //     urls.push(result);
+    // }
 
     const nColor = new color_product({ colorProduct });
     const nSize = new size_product({ sizeProduct });
@@ -61,7 +61,7 @@ exports.addProduct = async (req, res) => {
         name,
         id_category,
         id_brand,
-        images: urls,
+        // images: urls,
         description,
         price,
         quantity,

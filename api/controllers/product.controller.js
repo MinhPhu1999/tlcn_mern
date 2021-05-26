@@ -32,6 +32,16 @@ exports.getProductByID = async (req, res) => {
 exports.getOne = async (req, res) => {
     product
         .findOne({ _id: req.params.id })
+        .populate('id_category')
+        .populate({
+            path: 'id_category',
+            select: 'name',
+        })
+        .populate('id_brand')
+        .populate({
+            path: 'id_brand',
+            select: 'name',
+        })
         .populate('colorProducts')
         .populate({
             path: 'colorProducts',
@@ -39,6 +49,7 @@ exports.getOne = async (req, res) => {
                 path: 'colorProduct',
                 populate: {
                     path: '_id',
+                    select: 'name',
                 },
             },
         })
@@ -49,11 +60,12 @@ exports.getOne = async (req, res) => {
                 path: 'sizeProduct',
                 populate: {
                     path: '_id',
+                    select: 'name',
                 },
             },
         })
         .exec(function (err, data) {
-            err ? res.status(404).json({ message: err }) : res.status(200).json({ data });
+            err ? res.status(404).json({ message: err }) : res.status(200).json(data);
         });
 };
 

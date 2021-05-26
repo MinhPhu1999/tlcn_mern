@@ -26,8 +26,10 @@ const product = new Schema({
         timezone: 'Asia/Ho_Chi_Minh',
     },
     id_category: {
-        type: String,
-        required: [true, 'Không được bỏ trống'],
+        type: Schema.Types.ObjectId,
+        ref: 'category',
+        // type: String,
+        // required: [true, 'Không được bỏ trống'],
     },
     quantity: {
         type: Number,
@@ -38,8 +40,10 @@ const product = new Schema({
         default: [],
     },
     id_brand: {
-        type: String,
-        required: [true, 'Không được bỏ trống'],
+        type: Schema.Types.ObjectId,
+        ref: 'brand',
+        // type: String,
+        // required: [true, 'Không được bỏ trống'],
     },
     description: {
         type: String,
