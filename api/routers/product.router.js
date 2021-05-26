@@ -5,7 +5,8 @@ module.exports = app => {
 
     app.route('/products').get(product_controller.getAllProduct);
 
-    app.route('/product/:id').get(product_controller.getProductByID);
+    app.route('/product/:id').get(product_controller.getOne);
+    // app.route('/product/:id').get(product_controller.getProductByID);
 
     app.route('/updateRate/:id').patch(product_controller.reView);
 

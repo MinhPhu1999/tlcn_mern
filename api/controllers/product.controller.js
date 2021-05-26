@@ -29,6 +29,34 @@ exports.getProductByID = async (req, res) => {
         : res.status(404).send({ message: 'product not found' });
 };
 
+exports.getOne = async (req, res) => {
+    product
+        .findOne({ _id: req.params.id })
+        .populate('colorProducts')
+        .populate({
+            path: 'colorProducts',
+            populate: {
+                path: 'colorProduct',
+                populate: {
+                    path: '_id',
+                },
+            },
+        })
+        .populate('sizeProducts')
+        .populate({
+            path: 'sizeProducts',
+            populate: {
+                path: 'sizeProduct',
+                populate: {
+                    path: '_id',
+                },
+            },
+        })
+        .exec(function (err, data) {
+            err ? res.status(404).json({ message: err }) : res.status(200).json({ data });
+        });
+};
+
 exports.getProducts = async (req, res) => {
     if (typeof req.params.page === 'undefined') {
         return res.status(402).send({ message: 'Data invalid' });
