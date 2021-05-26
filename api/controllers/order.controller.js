@@ -84,7 +84,7 @@ exports.addOrder = async (req, res) => {
 
     try {
         await cartFind.remove();
-        await new_order.save(err => {
+        new_order.save(err => {
             err
                 ? res.status(500).send({ message: 'add order fail' })
                 : res.status(201).send({ message: 'add order success' });

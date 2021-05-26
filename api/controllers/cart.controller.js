@@ -6,9 +6,9 @@ const size_product = require('../models/size_product');
 
 exports.addToCart = async (req, res) => {
     //kiểm tra có truyền tham số đủ hay không
-    // if (typeof req.body.id_user === 'undefined' || typeof req.body.products === 'undefined') {
-    //     return res.status(422).send({ message: 'invalid data' });
-    // }
+    if (typeof req.body.id_user === 'undefined' || typeof req.body.products === 'undefined') {
+        return res.status(422).send({ message: 'invalid data' });
+    }
     //khai báo các biến cần thiết
     const { id_user, products } = req.body;
 
