@@ -30,43 +30,49 @@ exports.getProductByID = async (req, res) => {
 };
 
 exports.getOne = async (req, res) => {
-    product
-        .findOne({ _id: req.params.id })
-        .populate('id_category')
-        .populate({
-            path: 'id_category',
-            select: 'name',
-        })
-        .populate('id_brand')
-        .populate({
-            path: 'id_brand',
-            select: 'name',
-        })
-        .populate('colorProducts')
-        .populate({
-            path: 'colorProducts',
-            populate: {
-                path: 'colorProduct',
+    try {
+        const productFind = await product
+            .findOne({ _id: req.params.id })
+            .populate('id_category')
+            .populate({
+                path: 'id_category',
+                select: 'name',
+            })
+            .populate('id_brand')
+            .populate({
+                path: 'id_brand',
+                select: 'name',
+            })
+            .populate('colorProducts')
+            .populate({
+                path: 'colorProducts',
                 populate: {
-                    path: '_id',
-                    select: 'name',
+                    path: 'colorProduct',
+                    populate: {
+                        path: '_id',
+                        select: 'name',
+                    },
                 },
-            },
-        })
-        .populate('sizeProducts')
-        .populate({
-            path: 'sizeProducts',
-            populate: {
-                path: 'sizeProduct',
+            })
+            .populate('sizeProducts')
+            .populate({
+                path: 'sizeProducts',
                 populate: {
-                    path: '_id',
-                    select: 'name',
+                    path: 'sizeProduct',
+                    populate: {
+                        path: '_id',
+                        select: 'name',
+                    },
                 },
-            },
-        })
-        .exec(function (err, data) {
-            err ? res.status(404).json({ message: err }) : res.status(200).json(data);
-        });
+            });
+        if (productFind) {
+            return res.status(200).json(productFind);
+        } else {
+            return res.status(404).json({ message: 'Fail' });
+        }
+    } catch (err) {
+        return res.status(404).json({ message: err });
+    }
 };
 
 exports.getProducts = async (req, res) => {

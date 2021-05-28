@@ -380,7 +380,7 @@ exports.getQuantityByYearAndCategory = async (req, res) => {
             ) {
                 for (let j = 0; j < lenCart; j++) {
                     for (let lenP = 0; lenP < lenProduct; lenP++) {
-                        if (String(getOrder[index].cart[j]._id) === String(productFind[lenP]._id)) {
+                        if (String(getOrder[index].cart[j].id) === String(productFind[lenP]._id)) {
                             orderFind += getOrder[index].cart[j].quantity;
                         }
                     }
@@ -465,7 +465,7 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) => {
             ) {
                 for (let j = 0; j < lenCart; j++) {
                     for (let lenP = 0; lenP < lenProduct; lenP++) {
-                        if (String(getOrder[index].cart[j]._id) === String(productFind[lenP]._id)) {
+                        if (String(getOrder[index].cart[j].id) === String(productFind[lenP]._id)) {
                             orderFind++;
                             break;
                         }
@@ -557,7 +557,7 @@ exports.getOrderTop10 = async (req, res) => {
     for (let i = 0; i < len; i++) {
         const lenP = orderFind[i].cart.length;
         for (let j = 0; j < lenP; j++) {
-            const index = arr.findIndex(element => orderFind[i].cart[j]._id === element._id);
+            const index = arr.findIndex(element => orderFind[i].cart[j].id === element._id);
             if (index === -1) {
                 arr.push(orderFind[i].cart[j]);
             } else {
@@ -594,19 +594,13 @@ exports.redisGetCustomerOrders = async (req, res) => {
 exports.getCustomerOrders = async (req, res) => {
     // const t0 = performance.now();
     const customer = 'CustomerOrders';
-    const orders = await order.find({}).populate('cart._id', 'name').exec();
+    const orders = await order.find({}).populate('cart.id', 'name').exec();
     if (orders) {
         client.setex(customer, 8080, JSON.stringify(orders));
         res.status(200).json({ orders });
     } else {
         res.status(404).json({ message: 'order not found' });
     }
-    // orders
-    //     ? res.status(200).json({ orders })
-    //     : res.status(404).json({ message: 'order not found' });
-
-    // const t1 = performance.now();
-    // console.log(t1 - t0);
 };
 
 exports.verifyPayment = async (req, res) => {
