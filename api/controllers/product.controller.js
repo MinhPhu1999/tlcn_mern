@@ -143,13 +143,10 @@ exports.reView = async (req, res) => {
 };
 
 exports.getAllProduct = async (req, res) => {
-    let t0 = performance.now();
     const productFind = await product.find({ status: true });
     productFind
         ? res.status(200).send(productFind)
         : res.status(404).send({ message: 'product not found' });
-    let t1 = performance.now();
-    console.log(t1 - t0);
 };
 
 exports.searchProduct = async (req, res) => {
