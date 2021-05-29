@@ -61,21 +61,8 @@ exports.addToCart = async (req, res) => {
 };
 
 exports.getCart = async (req, res) => {
-    //khai báo biến cần thiết
-    // let cartFind = null;
-
-    // //tìm kiếm cart theo id của user
-    // try {
-    //     cartFind = await cart.findOne({ id_user: req.params.id_user });
-    // } catch (err) {
-    //     return res.status(404).send({ message: 'cart not found catch' });
-    // }
-
-    // cartFind
-    //     ? res.status(200).send(cartFind.products)
-    //     : res.status(404).send({ message: 'cart not found' });
-    try {
-        const data = cart
+	try {
+        const data = await cart
             .findOne({ id_user: req.params.id_user })
             .populate('products.color')
             .populate({
@@ -91,14 +78,11 @@ exports.getCart = async (req, res) => {
         if (data) {
             return res.status(200).json(data.products);
         }
-        return res.status(404).json({ message: err });
+		else
+        	return res.status(404).json({ message: 'Fail' });
     } catch (err) {
-        return res.status(404).json({ message: err });
+        return res.status(404).json({ message: 'Fail 2' });
     }
-
-    // .exec((err, data) => {
-    //     err ? res.status(404).json({ message: err }) : res.status(200).json(data.products);
-    // });
 };
 
 exports.getAll = async (req, res) => {
