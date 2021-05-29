@@ -74,20 +74,31 @@ exports.getCart = async (req, res) => {
     // cartFind
     //     ? res.status(200).send(cartFind.products)
     //     : res.status(404).send({ message: 'cart not found' });
-    cart.findOne({ id_user: req.params.id_user })
-        .populate('products.color')
-        .populate({
-            path: 'products.color',
-			select: 'name',
-        })
-        .populate('products.size')
-        .populate({
-            path: 'products.size',
-			select: 'name',
-        })
-        .exec((err, data) => {
-            err ? res.status(404).json({ message: err }) : res.status(200).json(data.products);
-        });
+    try {
+        const data = cart
+            .findOne({ id_user: req.params.id_user })
+            .populate('products.color')
+            .populate({
+                path: 'products.color',
+                select: 'name',
+            })
+            .populate('products.size')
+            .populate({
+                path: 'products.size',
+                select: 'name',
+            });
+
+        if (cartFind) {
+            return res.status(200).json(data.products);
+        }
+        return res.status(404).json({ message: err });
+    } catch (err) {
+        return res.status(404).json({ message: err });
+    }
+
+    // .exec((err, data) => {
+    //     err ? res.status(404).json({ message: err }) : res.status(200).json(data.products);
+    // });
 };
 
 exports.getAll = async (req, res) => {
