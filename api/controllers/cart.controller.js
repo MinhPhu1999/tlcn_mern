@@ -88,7 +88,7 @@ exports.getCart = async (req, res) => {
                 select: 'name',
             });
 
-        if (cartFind) {
+        if (data) {
             return res.status(200).json(data.products);
         }
         return res.status(404).json({ message: err });
