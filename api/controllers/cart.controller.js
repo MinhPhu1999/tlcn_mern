@@ -62,18 +62,32 @@ exports.addToCart = async (req, res) => {
 
 exports.getCart = async (req, res) => {
     //khai báo biến cần thiết
-    let cartFind = null;
+    // let cartFind = null;
 
-    //tìm kiếm cart theo id của user
-    try {
-        cartFind = await cart.findOne({ id_user: req.params.id_user });
-    } catch (err) {
-        return res.status(404).send({ message: 'cart not found catch' });
-    }
+    // //tìm kiếm cart theo id của user
+    // try {
+    //     cartFind = await cart.findOne({ id_user: req.params.id_user });
+    // } catch (err) {
+    //     return res.status(404).send({ message: 'cart not found catch' });
+    // }
 
-    cartFind
-        ? res.status(200).send(cartFind.products)
-        : res.status(404).send({ message: 'cart not found' });
+    // cartFind
+    //     ? res.status(200).send(cartFind.products)
+    //     : res.status(404).send({ message: 'cart not found' });
+    cart.findOne({ id_user: req.params.id_user })
+        .populate('products.color')
+        .populate({
+            path: 'products.color',
+			select: 'name',
+        })
+        .populate('products.size')
+        .populate({
+            path: 'products.size',
+			select: 'name',
+        })
+        .exec((err, data) => {
+            err ? res.status(404).json({ message: err }) : res.status(200).json(data.products);
+        });
 };
 
 exports.getAll = async (req, res) => {
