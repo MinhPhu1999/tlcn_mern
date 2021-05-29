@@ -262,12 +262,12 @@ exports.deleteProductInCart = async (req, res) => {
     }
 
     //tìm kiếm vị trí id_product truyền vào bằng với id_product có trong cart
-    if (cartFind.products.length === 1) {
-        quantityP.changeQuantity(id_product, -1);
-        await cartFind.remove();
-        if (result) return res.status(200).send({ message: 'delete cart success 1' });
-        // await cartFind.save().then(cartFind.plusProduct(id_product));
-    } else {
+    // if (cartFind.products.length === 1) {
+    //     quantityP.changeQuantity(id_product, -1);
+    //     await cartFind.remove();
+    //     if (result) return res.status(200).send({ message: 'delete cart success 1' });
+    //     // await cartFind.save().then(cartFind.plusProduct(id_product));
+    // } else {
         for (let len in cartFind.products) {
             if (quantityP.valid(cartFind.products[len], id_product, size, color)) {
                 quanP = cartFind.products[len].quantity;
@@ -290,5 +290,5 @@ exports.deleteProductInCart = async (req, res) => {
             //xuất ra lỗi nếu xóa sản phẩm trong cart fail
             res.status(500).send({ message: err });
         }
-    }
+    // }
 };
