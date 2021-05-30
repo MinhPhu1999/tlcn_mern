@@ -128,16 +128,26 @@ exports.reView = async (req, res) => {
 
         if (rating && rating !== 0) {
             const productFind = await product.findById(req.params.id);
-            if (!product) return res.status(400).json({ msg: 'Product does not exist.' });
+            if (!productFind) return res.status(400).json({ msg: 'Product does not exist.' });
 
-            let num = productFind.numReviews;
-            let rate = productFind.rating;
+            // let num = productFind.numReviews;
+            // let rate = productFind.rating;
+			let num = 0;
+			let rate = 0;
+			if(productFind.numReviews){
+				num = productFind.numReviews;
+			}
+			if(productFind.rating){
+				rate = productFind.rating;
+			}
 
             await product.findOneAndUpdate(
                 { _id: req.params.id },
                 {
-                    rating: rate + rating,
-                    numReviews: num + 1,
+                    $set: {
+                        rating: rate + rating,
+                        numReviews: num + 1,
+                    },
                 },
             );
 
