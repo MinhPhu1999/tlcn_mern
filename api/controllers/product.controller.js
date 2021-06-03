@@ -132,14 +132,14 @@ exports.reView = async (req, res) => {
 
             // let num = productFind.numReviews;
             // let rate = productFind.rating;
-			let num = 0;
-			let rate = 0;
-			if(productFind.numReviews){
-				num = productFind.numReviews;
-			}
-			if(productFind.rating){
-				rate = productFind.rating;
-			}
+            let num = 0;
+            let rate = 0;
+            if (productFind.numReviews) {
+                num = productFind.numReviews;
+            }
+            if (productFind.rating) {
+                rate = productFind.rating;
+            }
 
             await product.findOneAndUpdate(
                 { _id: req.params.id },
@@ -333,7 +333,7 @@ exports.getProductTop10 = async (req, res) => {
         return res.status(404).send({ message: 'products not found' });
     }
 
-    const len = orderFind.length;
+    let len = orderFind.length;
     let productFind;
     let arrProduct = [];
     let arr = [];
@@ -342,7 +342,7 @@ exports.getProductTop10 = async (req, res) => {
     for (let i = 0; i < len; i++) {
         let lenP = orderFind[i].cart.length;
         for (let j = 0; j < lenP; j++) {
-            arr.push(orderFind[i].cart[j]._id);
+            arr.push(orderFind[i].cart[j].id);
         }
     }
 
