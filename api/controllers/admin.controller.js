@@ -160,6 +160,7 @@ exports.updateProduct = async (req, res) => {
         urls = productFind.images;
     }
 
+	console.log(colorProduct.length);
     if (colorProduct.length > 0) {
         colorProduct = JSON.parse(colorProduct);
         color_product
