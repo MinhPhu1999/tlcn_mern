@@ -15,7 +15,7 @@ module.exports = app => {
 
     app.route('/order/getall/:page').get(order_controller.getAllOrder);
 
-    // app.route('/order/all').get(order_controller.getAllorder);
+    app.route('/order/all').get(order_controller.getAllorder);
 
     app.route('/order/getCustomerOrders').post(
         auth.authLogin,
