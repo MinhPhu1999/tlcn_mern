@@ -8,9 +8,9 @@ module.exports = app => {
     //product
     app.route('/admin/addproduct').post(upload.array('files'), admin_controller.addProduct);
 
-    app.route('/admin/updateproduct').put(upload.array('files'), admin_controller.updateProduct);
+    app.route('/admin/updateproduct').patch(upload.array('files'), admin_controller.updateProduct);
 
-    app.route('/admin/deleteproduct/:id').put(admin_controller.deleteProduct);
+    app.route('/admin/deleteproduct/:id').patch(admin_controller.deleteProduct);
 
     app.route('/admin/getallproduct/:page').get(admin_controller.getAllProducts);
 
