@@ -26,10 +26,12 @@ exports.getNameByID = async (req, res) => {
 exports.getIDBySearchText = async (searchText, res) => {
     let arr = [];
     try {
-        arr = await category.find({ name: new RegExp(searchText) }); //, 'i',{name: 0}
+        arr = await category.findOne({ name: searchText }); //, 'i',{name: 0}
+        // arr = await category.find({ name: new RegExp(searchText, 'i') }); //, 'i',{name: 0}
     } catch (err) {
         res.status(500).send({ message: err });
         return;
     }
-    return arr.map(i => i.id);
+	// console.log(arr._id)
+    return arr._id;
 };

@@ -352,12 +352,14 @@ exports.getQuantityByYearAndCategory = async (req, res) => {
     let searchIDCatefory = await categoryController.getIDBySearchText(categoryName);
     let productFind;
     try {
-        productFind = await product.find({
-            $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
-        });
+		productFind = await product.find({id_category: searchIDCatefory});
+        // productFind = await product.find({
+        //     $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
+        // });
     } catch (err) {
         return res.status(500).json({ message: 'products not found' });
     }
+
 
     const getOrder = await order.find({ paymentStatus: 'paid' });
     let index = 0;
@@ -431,9 +433,10 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) => {
     const searchIDCatefory = await categoryController.getIDBySearchText(categoryName);
     let productFind;
     try {
-        productFind = await product.find({
-            $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
-        });
+		productFind = await product.find({id_category: searchIDCatefory});
+        // productFind = await product.find({
+        //     $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
+        // });
     } catch (err) {
         return res.status(500).json({ message: 'products not found' });
     }

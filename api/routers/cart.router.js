@@ -1,7 +1,7 @@
 const cart_controller = require('../controllers/cart.controller');
 const auth = require('../utils/auth');
 module.exports = app => {
-    app.route('/cart/:id_user').get(cart_controller.getCart);
+    app.route('/cart/:id_user').get(auth.authLogin, cart_controller.getCart);
 
     app.route('/cart/get/all').get(cart_controller.getAll);
 
