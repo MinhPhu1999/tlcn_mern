@@ -128,10 +128,8 @@ exports.updateProduct = async (req, res) => {
     ) {
         return res.status(422).send({ message: 'Invalid data' });
     }
-    // req.body.sizeProduct = JSON.parse(req.body.sizeProduct);
-    // req.body.colorProduct = JSON.parse(req.body.colorProduct);
 
-    const {
+    let {
         id,
         name,
         id_category,
@@ -150,7 +148,7 @@ exports.updateProduct = async (req, res) => {
     const id_sizeP = productFind.sizeProducts;
 
     let urls = [];
-    if (req.files != []) {
+    if (req.files.length > 0) {
         const files = req.files;
 
         for (const file of files) {
@@ -162,8 +160,8 @@ exports.updateProduct = async (req, res) => {
         urls = productFind.images;
     }
 
-    if (colorProduct != null) {
-		colorProduct = JSON.parse(colorProduct);
+    if (colorProduct.length > 0) {
+        colorProduct = JSON.parse(colorProduct);
         color_product
             .updateOne(
                 { _id: id_colorP },
@@ -178,8 +176,8 @@ exports.updateProduct = async (req, res) => {
             });
     }
 
-    if (sizeProduct != null) {
-		sizeProduct = JSON.parse(sizeProduct);
+    if (sizeProduct.length > 0) {
+        sizeProduct = JSON.parse(sizeProduct);
         size_product
             .updateOne(
                 { _id: id_sizeP },
