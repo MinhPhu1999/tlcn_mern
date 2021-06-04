@@ -160,8 +160,7 @@ exports.updateProduct = async (req, res) => {
         urls = productFind.images;
     }
 
-	console.log(colorProduct.length);
-    if (colorProduct.length > 0) {
+    if (colorProduct != 'null') {
         colorProduct = JSON.parse(colorProduct);
         color_product
             .updateOne(
@@ -177,7 +176,7 @@ exports.updateProduct = async (req, res) => {
             });
     }
 
-    if (sizeProduct.length > 0) {
+    if (sizeProduct != 'null') {
         sizeProduct = JSON.parse(sizeProduct);
         size_product
             .updateOne(
