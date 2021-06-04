@@ -130,6 +130,8 @@ exports.updateProduct = async (req, res) => {
     }
     req.body.sizeProduct = JSON.parse(req.body.sizeProduct);
     req.body.colorProduct = JSON.parse(req.body.colorProduct);
+    console.log(req.body.sizeProduct);
+    console.log(req.files);
     const {
         id,
         name,
@@ -157,14 +159,11 @@ exports.updateProduct = async (req, res) => {
             const result = await uploadImg(path);
             urls.push(result);
         }
+    } else {
+        urls = productFind.images;
     }
-	else{
-		urls = productFind.images;
-	}
 
-
-
-    if (colorProduct != "") {
+    if (colorProduct != '') {
         color_product
             .updateOne(
                 { _id: id_colorP },
@@ -179,7 +178,7 @@ exports.updateProduct = async (req, res) => {
             });
     }
 
-    if (sizeProduct != "") {
+    if (sizeProduct != '') {
         size_product
             .updateOne(
                 { _id: id_sizeP },
