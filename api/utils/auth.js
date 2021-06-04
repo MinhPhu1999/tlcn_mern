@@ -1,5 +1,6 @@
 const user = require('../models/user.model');
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 exports.verify = async (req, res) => {
     if (
@@ -41,13 +42,11 @@ exports.authLogin = (req, res, next) => {
                 next();
             })
             .catch((err) => {
-                //return res.redirect('/login');
                 return res.status(401).send({
                     message: 'Not authorized to access this resource',
                 });
             });
     } catch (error) {
-        //res.redirect('/login');
         res.status(401).send({ message: 'Time out, Please login again' });
     }
 };
