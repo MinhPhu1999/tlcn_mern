@@ -143,45 +143,56 @@ exports.updateProduct = async (req, res) => {
         colorProduct,
     } = req.body;
 
-    let urls = [];
-    const files = req.files;
-
-    for (const file of files) {
-        const { path } = file;
-        const result = await uploadImg(path);
-        urls.push(result);
-    }
-
     const productFind = await product.findOne({ _id: id }); //tìm kiếm product bằng id
 
     const id_colorP = productFind.colorProducts;
     const id_sizeP = productFind.sizeProducts;
 
-    color_product
-        .updateOne(
-            { _id: id_colorP },
-            {
-                $set: {
-                    colorProduct: colorProduct,
-                },
-            },
-        )
-        .then(err => {
-            // if (err) console.log('color product');
-        });
+    let urls = [];
+    if (req.files != null) {
+        const files = req.files;
 
-    size_product
-        .updateOne(
-            { _id: id_sizeP },
-            {
-                $set: {
-                    sizeProduct: sizeProduct,
+        for (const file of files) {
+            const { path } = file;
+            const result = await uploadImg(path);
+            urls.push(result);
+        }
+    }
+	else{
+		urls = productFind.images;
+	}
+
+
+
+    if (colorProduct != "") {
+        color_product
+            .updateOne(
+                { _id: id_colorP },
+                {
+                    $set: {
+                        colorProduct: colorProduct,
+                    },
                 },
-            },
-        )
-        .then(err => {
-            // if (err) console.log('size product');
-        });
+            )
+            .then(err => {
+                // if (err) console.log('color product');
+            });
+    }
+
+    if (sizeProduct != "") {
+        size_product
+            .updateOne(
+                { _id: id_sizeP },
+                {
+                    $set: {
+                        sizeProduct: sizeProduct,
+                    },
+                },
+            )
+            .then(err => {
+                // if (err) console.log('size product');
+            });
+    }
 
     product.updateOne(
         { _id: id },
