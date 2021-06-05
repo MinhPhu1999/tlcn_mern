@@ -48,7 +48,7 @@ exports.addOrder = async (req, res) => {
 
     let orderStatus = [
         {
-            type: 'ordered',
+            type: 'received',
             date: new Date(),
             isCompleted: true,
         },
@@ -85,7 +85,7 @@ exports.addOrder = async (req, res) => {
         await cartFind.remove();
         new_order.save(err => {
             err
-                ? res.status(500).send({ message: 'add order fail' })
+                ? res.status(500).send({ message: err })
                 : res.status(201).send({ message: 'add order success' });
         });
     } catch (err) {
