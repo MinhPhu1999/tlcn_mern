@@ -21,7 +21,7 @@ exports.register = async (req, res) => {
     }
 
     //khai báo các biến cần thiết
-    const { email, password, name, repassword } = req.body;
+    let { email, password, name, repassword } = req.body;
     //kiểm tra điều kiện password hợp lệ
     if (!validate.isValidPassWord(password)) {
         return res.status(422).send({
@@ -317,7 +317,7 @@ exports.updatePassword = async (req, res) => {
         return res.status(422).send({ message: 'Invalid data' });
     }
     //khai báo các biến cần thiết
-    const { id, oldpassword, newpassword } = req.body;
+    let { id, oldpassword, newpassword } = req.body;
     let userFind = null;
     try {
         userFind = await user.findById(id); //tìm kiếm user theo id
