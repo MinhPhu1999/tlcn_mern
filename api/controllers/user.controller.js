@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const maotp = require('../utils/otp');
 const validate = require('../utils/validate');
+require('dotenv').config();
 const client = new OAuth2Client(process.env.GOOGLE_API_KEY);
 
 exports.register = async (req, res) => {

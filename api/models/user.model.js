@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const Schema = mongoose.Schema;
@@ -39,7 +40,7 @@ const user = new Schema(
             default: true,
         },
     },
-    { timestamps: true }
+    { timestamps: true },
 );
 user.methods.generateJWT = async function () {
     const user = this;
