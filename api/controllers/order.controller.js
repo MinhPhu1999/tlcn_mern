@@ -21,12 +21,13 @@ exports.addOrder = async (req, res) => {
         typeof req.body.address === 'undefined' ||
         typeof req.body.payment === 'undefined' ||
         typeof req.body.shiping === 'undefined' ||
-        typeof req.body.phone === 'undefined'
+        typeof req.body.phone === 'undefined' ||
+        typeof req.body.order_subtotal === 'undefined'
     ) {
         return res.status(422).send({ message: 'Invalid data' });
     }
     //khai báo các biến cần thiết
-    const { id_user, city, name, address, phone, payment, shiping } = req.body;
+    const { id_user, city, name, address, phone, payment, shiping, order_subtotal } = req.body;
 
     // if(!validate.isValidPhone(phone)){
     // 	return res.status(422).send({message: 'Số điện thoại không hợp lệ'});
@@ -70,7 +71,7 @@ exports.addOrder = async (req, res) => {
         id_user: id_user,
         cart: cartFind.products,
         city: city,
-        order_subtotal: Number(cartFind.grandTotal) + Number(shiping),
+        order_subtotal: order_subtotal,
         address: address,
         phone: phone,
         name: name,
@@ -351,14 +352,13 @@ exports.getQuantityByYearAndCategory = async (req, res) => {
     let searchIDCatefory = await categoryController.getIDBySearchText(categoryName);
     let productFind;
     try {
-		productFind = await product.find({id_category: searchIDCatefory});
+        productFind = await product.find({ id_category: searchIDCatefory });
         // productFind = await product.find({
         //     $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
         // });
     } catch (err) {
         return res.status(500).json({ message: 'products not found' });
     }
-
 
     const getOrder = await order.find({ paymentStatus: 'paid' });
     let index = 0;
@@ -432,7 +432,7 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) => {
     const searchIDCatefory = await categoryController.getIDBySearchText(categoryName);
     let productFind;
     try {
-		productFind = await product.find({id_category: searchIDCatefory});
+        productFind = await product.find({ id_category: searchIDCatefory });
         // productFind = await product.find({
         //     $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
         // });
@@ -513,7 +513,7 @@ exports.checkCanComment = async (req, res) => {
         let lenCart = orderFind[i].cart.length;
         for (let j = 0; j < lenCart; j++) {
             let index = orderFind[i].cart.findIndex(element => id_product === element.id);
-			console.log(index);
+            console.log(index);
             if (index >= 0) {
                 return res.status(200).send({ message: 'true' });
             }
