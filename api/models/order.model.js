@@ -53,10 +53,6 @@ const order = new Schema(
             type: String,
             required: [true, 'Không được bỏ trống'],
         },
-        posteCode: {
-            type: Number,
-            required: [true, 'Không được bỏ trống'],
-        },
         phone: {
             type: String,
             required: [true, 'Không được bỏ trống'],
