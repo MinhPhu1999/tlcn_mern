@@ -13,23 +13,9 @@ const product = new Schema({
         required: [true, 'Không được bỏ trống'],
     },
     sellPrice: Number,
-    disCount: {
-        type: Number,
-        default: 0,
-    },
-    startDate: {
-        type: Date,
-        timezone: 'Asia/Ho_Chi_Minh',
-    },
-    endDate: {
-        type: Date,
-        timezone: 'Asia/Ho_Chi_Minh',
-    },
     id_category: {
         type: Schema.Types.ObjectId,
         ref: 'category',
-        // type: String,
-        // required: [true, 'Không được bỏ trống'],
     },
     quantity: {
         type: Number,
@@ -42,8 +28,6 @@ const product = new Schema({
     id_brand: {
         type: Schema.Types.ObjectId,
         ref: 'brand',
-        // type: String,
-        // required: [true, 'Không được bỏ trống'],
     },
     description: {
         type: String,
@@ -57,8 +41,6 @@ const product = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'sizeproduct',
     },
-    // colorProducts: colorProductSchema,
-    // sizeProducts: sizeProductSchema,
     numReviews: Number,
     rating: Number,
     status: {

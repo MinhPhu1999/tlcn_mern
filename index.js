@@ -20,7 +20,7 @@ const commentRouter = require('./api/routers/comment.router');
 const bannerRouter = require('./api/routers/banner.router');
 const colorRouter = require('./api/routers/color.router');
 const sizeRouter = require('./api/routers/size.router');
-
+const promoRouter = require('./api/routers/promocost.router');
 
 //model comment
 const Comments = require('./api/models/comment.model');
@@ -112,6 +112,7 @@ commentRouter(app);
 bannerRouter(app);
 colorRouter(app);
 sizeRouter(app);
+promoRouter(app);
 
 app.get('/', (req, res) => {
     res.send('welcome to e_store');

@@ -7,9 +7,7 @@ const banner = new Schema({
         require: [true, 'không được để trống'],
     },
     categoryName: String,
-    disCount: Number,
-    startDate: Date,
-    endDate: Date,
+    status: Boolean,
 });
 
 module.exports = mongoose.model('banner', banner);

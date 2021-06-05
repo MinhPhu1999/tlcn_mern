@@ -225,14 +225,15 @@ exports.getProductByCategory = async (req, res) => {
     const t0 = performance.now();
     const { categoryName, disCount, startDate, endDate } = req.body;
 
-    const searchIDCatefory = await categoryController.getIDBySearchText(categoryName);
+    const searchIDCategory = await categoryController.getIDBySearchText(categoryName);
     let productFind;
     try {
         productFind = await product.find({
-            $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
+            id_category: searchIDCategory,
+            // $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
         });
     } catch (err) {
-        return res.status(500).send({ message: 'product not found' });
+        return res.status(500).send({ message: 'products not found' });
     }
 
     for (let i in productFind) {
@@ -254,7 +255,8 @@ exports.getProductByCategory = async (req, res) => {
     }
 
     let productFind1 = await product.find({
-        $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
+        id_category: searchIDCategory,
+        // $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
     });
 
     // const t1 = performance.now();
@@ -278,10 +280,11 @@ exports.updatePriceByCategory = async (req, res) => {
     let productFind;
     try {
         productFind = await product.find({
-            $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
+            id_category: searchIDCatefory,
+            // $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
         });
     } catch (err) {
-        return res.status(500).send({ message: 'product not found' });
+        return res.status(500).send({ message: 'products not found' });
     }
 
     if (increase === false) {
@@ -304,7 +307,8 @@ exports.updatePriceByCategory = async (req, res) => {
             });
     }
     let productFind1 = await product.find({
-        $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
+        id_category: searchIDCatefory,
+        // $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
     });
 
     res.status(200).send({ productFind1 });

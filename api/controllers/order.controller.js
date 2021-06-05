@@ -17,7 +17,7 @@ exports.addOrder = async (req, res) => {
     if (
         typeof req.body.id_user === 'undefined' ||
         typeof req.body.city === 'undefined' ||
-        typeof req.body.posteCode === 'undefined' ||
+        typeof req.body.name === 'undefined' ||
         typeof req.body.address === 'undefined' ||
         typeof req.body.payment === 'undefined' ||
         typeof req.body.shiping === 'undefined' ||
@@ -26,7 +26,7 @@ exports.addOrder = async (req, res) => {
         return res.status(422).send({ message: 'Invalid data' });
     }
     //khai báo các biến cần thiết
-    const { id_user, city, posteCode, address, phone, payment, shiping } = req.body;
+    const { id_user, city, name, address, phone, payment, shiping } = req.body;
 
     // if(!validate.isValidPhone(phone)){
     // 	return res.status(422).send({message: 'Số điện thoại không hợp lệ'});
@@ -71,10 +71,9 @@ exports.addOrder = async (req, res) => {
         cart: cartFind.products,
         city: city,
         order_subtotal: Number(cartFind.grandTotal) + Number(shiping),
-        posteCode: posteCode,
         address: address,
         phone: phone,
-        name: getDataUser[0],
+        name: name,
         email: getDataUser[1],
         shiping: shiping,
         paymentStatus: paymentStatus,

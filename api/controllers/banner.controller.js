@@ -3,37 +3,24 @@ const product = require('../models/product.model');
 const categoryCtrl = require('./category.controller');
 
 exports.addBanner = async (req, res) => {
-    if (
-        req.body.content === 'undefined' ||
-        req.body.disCount === 'undefined' ||
-        req.body.categoryName === 'undefined' ||
-        req.body.startDate === 'undefined' ||
-        req.body.endDate === 'undefined'
-    ) {
-        return res.status(422).send({ message: 'Invalid data' });
-    }
-
-    const { content, disCount, categoryName, startDate, endDate } = req.body;
-
-    let searchIDCatefory = await categoryCtrl.getIDBySearchText(categoryName);
+    let searchIDCatefory = await categoryCtrl.getIDBySearchText(req.body.categoryName);
     let productFind;
     try {
         productFind = await product.find({
-            $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
+            id_category: searchIDCatefory,
+            // $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
         });
     } catch (err) {
         return res.status(500).send({ message: err });
     }
 
-    for (let i in productFind) {
+    for (let pro of productFind) {
         product
             .updateOne(
-                { _id: productFind[i]._id },
+                { _id: pro._id },
                 {
                     $set: {
-                        startDate: new Date(startDate),
-                        endDate: new Date(endDate),
-                        disCount: disCount,
+                        sellPrice: pro.price - (pro.price * req.body.disCount) / 100,
                     },
                 },
                 { upsert: true },
@@ -43,17 +30,51 @@ exports.addBanner = async (req, res) => {
             });
     }
 
-    const newBanner = new banner({
-        content,
-        disCount,
-        categoryName,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-    });
+    const newBanner = new banner(req.body);
 
     newBanner.save((err, doc) => {
         err
             ? res.status(500).send({ message: err })
             : res.status(201).send({ message: 'add banner success' });
+    });
+};
+
+exports.updateBanner = async (req, res) => {
+    let searchIDCatefory = await categoryCtrl.getIDBySearchText(req.body.categoryName);
+    let productFind;
+    try {
+        productFind = await product.find({ id_category: searchIDCatefory });
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+
+    for (let pro of productFind) {
+        product
+            .updateOne(
+                { _id: pro._id },
+                {
+                    $set: {
+                        sellPrice: pro.price - (pro.price * req.body.disCount) / 100,
+                    },
+                },
+                { upsert: true },
+            )
+            .then(err => {
+                // if(err) console.log('');
+            });
+    }
+
+    banner.updateOne({ _id: req.body.id }, { $set: req.body }, (err, data) => {
+        err
+            ? res.status(500).send({ message: 'fail' })
+            : res.status(200).send({ message: 'Update success' });
+    });
+};
+
+exports.updateStatus = async (req, res) => {
+    banner.updateOne({ _id: req.params.id }, { status: false }, err => {
+        err
+            ? res.status(500).send({ message: 'fail' })
+            : res.status(200).send({ message: 'Success' });
     });
 };

@@ -8,8 +8,6 @@ const colorProductSchema = new mongoose.Schema({
         },
     ],
     products: { type: Schema.Types.ObjectId, ref: 'product' },
-
-    // products: String,
 });
 
 module.exports = mongoose.model('colorproduct', colorProductSchema);
