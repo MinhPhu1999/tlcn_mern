@@ -791,7 +791,7 @@ exports.addUser = async (req, res) => {
     }
 
     //khai báo biến cần thiết
-    const { email, password, name, is_admin } = req.body;
+    let { email, password, name, is_admin } = req.body;
     let userFind = null;
 
     //kiểm tra email có hợp lệ không, password phải trên 6 kí tự
