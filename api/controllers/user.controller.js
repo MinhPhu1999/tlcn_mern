@@ -23,14 +23,20 @@ exports.register = async (req, res) => {
     //khai báo các biến cần thiết
     let { email, password, name, repassword } = req.body;
     //kiểm tra điều kiện password hợp lệ
-    if (!validate.isValidPassWord(password)) {
-        return res.status(422).send({
-            message: 'Mật khẩu có độ dài từ 8-12 kí tự phải chứa số,chữ thường và chữ hoa ',
-        });
+    // if (!validate.isValidPassWord(password)) {
+    //     return res.status(422).send({
+    //         message: 'Mật khẩu có độ dài từ 8-12 kí tự phải chứa số,chữ thường và chữ hoa ',
+    //     });
+    // }
+    if (password.length < 6) {
+        return res.status(422).send({ message: 'Mật khẩu phải có đồ dài ít nhất 6 kí tự' });
     }
     //kiểm tra tên có hợp lệ không
-    if (!validate.isValidName(name)) {
-        return res.status(422).send({ message: 'Nhập đầy đủ họ và tên' });
+    // if (!validate.isValidName(name)) {
+    //     return res.status(422).send({ message: 'Nhập đầy đủ họ và tên' });
+    // }
+    if (name.length < 6) {
+        return res.status(422).send({ message: 'Tên phải có độ dài ít nhất là 6 kí tự' });
     }
     //kiểm tra điều kiện email và password
     if (email.indexOf('@') === -1 && email.indexOf('.') === -1) {
