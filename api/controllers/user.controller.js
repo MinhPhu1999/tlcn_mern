@@ -74,6 +74,7 @@ exports.register = async (req, res) => {
         return res.status(500).send({ message: err });
     }
     const sendEmail = await nodemailer.sendEmail(email, newUser.token); //gửi mail để verify account
+	console.log(sendEmail);
     !sendEmail
         ? res.status(500).send({ message: 'Send email fail' })
         : res.status(201).send({ message: 'success' });
