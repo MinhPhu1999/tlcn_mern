@@ -297,7 +297,7 @@ exports.updatePriceByCategory = async (req, res) => {
                 { _id: productFind[i]._id },
                 {
                     $set: {
-                        sellPrice: productFind[i].price + (productFind[i].price * disCount) / 100,
+                        price: productFind[i].price + (productFind[i].price * disCount) / 100,
                     },
                 },
                 { upsert: true },

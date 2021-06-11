@@ -18,7 +18,7 @@ module.exports = app => {
 
     //brand
     app.route('/admin/addbrand').post(admin_controller.addBrand);
-	
+
     app.route('/admin/updatebrand').put(admin_controller.updateBrand);
 
     app.route('/admin/deletebrand/:id').put(admin_controller.deleteBrand);
@@ -62,7 +62,7 @@ module.exports = app => {
 
     app.route('/admin/order/yearandcategory').post(order_controller.getQuantityByYearAndCategory);
 
-	app.route('/admin/order/countorder').post(order_controller.getQuantityOrderByYearAndCategory);
+    app.route('/admin/order/countorder').post(order_controller.getQuantityOrderByYearAndCategory);
 
     //stock
     app.route('/admin/addstock').post(admin_controller.addStock);
@@ -88,6 +88,23 @@ module.exports = app => {
     app.route('/admin/updatecolor').put(admin_controller.updateColor);
 
     app.route('/admin/deletecolor/:id').put(admin_controller.deleteColor);
-	
+
     app.route('/admin/getcolors/:page').get(admin_controller.getAllColors);
+
+    //promotion code
+    app.route('/admin/promocodes/add').post(admin_controller.addPromotionCode);
+
+    app.route('/admin/promocodes/update').put(admin_controller.updatePromoCode);
+
+    app.route('/admin/promocodes').get(admin_controller.getPromoCodes);
+
+    //banner
+    app.route('/admin/banners/add').post(admin_controller.addBanner);
+
+    app.route('/admin/banners/update').put(admin_controller.updateBanner);
+
+    app.route('/admin/banners/:id').get(admin_controller.getBanner);
+	
+    app.route('/admin/banners').get(admin_controller.getBanners);
+
 };

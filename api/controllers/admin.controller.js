@@ -1,13 +1,16 @@
 // load  các models và thư viện cần thiết
-const product = require('../models/product.model');
 const category = require('../models/category.model');
 const brand = require('../models/brand.model');
 const user = require('../models/user.model');
 const stock = require('../models/stock.model');
 const size = require('../models/size.model');
 const color = require('../models/color.model');
+const promocode = require('../models/promocode.model');
 const size_product = require('../models/size_product');
 const color_product = require('../models/color_product');
+const banner = require('../models/banner.model');
+const product = require('../models/product.model');
+const categoryCtrl = require('./category.controller');
 
 const image_product = require('../models/image_product');
 const stockController = require('../controllers/stock.controller');
@@ -1052,5 +1055,132 @@ module.exports.deleteColor = (req, res) => {
         err
             ? res.status(500).send({ message: err })
             : res.status(200).send({ message: 'delete color success' });
+    });
+};
+
+//add promotion code
+exports.addPromotionCode = async (req, res) => {
+    const exits = await promocode.findOne({ promotion_code: req.body.promotion_code });
+
+    if (exits) {
+        return res.json({ message: 'promotion code exits' });
+    }
+    const newPro = new promocode(req.body);
+
+    newPro.save((err, doc) => {
+        err ? res.status(500).json({ message: err }) : res.status(200).json({ doc });
+    });
+};
+
+//update promotion code
+exports.updatePromoCode = async (req, res) => {
+    promocode.updateOne(
+        { _id: req.body.id },
+        {
+            $set: req.body,
+        },
+        (err, data) => {
+            err
+                ? res.status(500).send({ message: err })
+                : res.status(200).send({ message: 'update promotion code success' });
+        },
+    );
+};
+
+exports.getPromoCodes = async (req, res) => {
+    promocode.find({}, (err, data) => {
+        err ? res.status(500).send({ message: err }) : res.status(200).json(data);
+    });
+};
+
+//add banner
+exports.addBanner = async (req, res) => {
+    let searchIDCatefory = await categoryCtrl.getIDBySearchText(req.body.categoryName);
+    let productFind;
+    try {
+        productFind = await product.find({
+            id_category: searchIDCatefory,
+            // $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
+        });
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+
+    for (let pro of productFind) {
+        product
+            .updateOne(
+                { _id: pro._id },
+                {
+                    $set: {
+                        sellPrice: pro.price - (pro.price * req.body.disCount) / 100,
+                    },
+                },
+                { upsert: true },
+            )
+            .then(err => {
+                // if(err) console.log('');
+            });
+    }
+
+    const newBanner = new banner(req.body);
+
+    newBanner.save((err, doc) => {
+        err
+            ? res.status(500).send({ message: err })
+            : res.status(201).send({ message: 'add banner success' });
+    });
+};
+
+//update banner
+exports.updateBanner = async (req, res) => {
+    let searchIDCatefory = await categoryCtrl.getIDBySearchText(req.body.categoryName);
+    let productFind;
+    try {
+        productFind = await product.find({ id_category: searchIDCatefory });
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+
+    for (let pro of productFind) {
+        product
+            .updateOne(
+                { _id: pro._id },
+                {
+                    $set: {
+                        sellPrice: pro.price - (pro.price * req.body.disCount) / 100,
+                    },
+                },
+                { upsert: true },
+            )
+            .then(err => {
+                // if(err) console.log('');
+            });
+    }
+
+    banner.updateOne({ _id: req.body.id }, { $set: req.body }, (err, data) => {
+        err
+            ? res.status(500).send({ message: 'fail' })
+            : res.status(200).send({ message: 'Update success' });
+    });
+};
+
+//upda
+exports.updateStatus = async (req, res) => {
+    banner.updateOne({ _id: req.params.id }, { status: false }, err => {
+        err
+            ? res.status(500).send({ message: 'fail' })
+            : res.status(200).send({ message: 'Success' });
+    });
+};
+
+exports.getBanner = async (req, res) => {
+    banner.findOne({ _id: req.params.id }, (err, data) => {
+        err ? res.status(404).json({ message: 'Banner not found' }) : res.status(200).json(data);
+    });
+};
+
+exports.getBanners = async (req, res) => {
+    banner.find({}, (err, data) => {
+        err ? res.status(404).json({ message: 'Banners not found' }) : res.status(200).json(data);
     });
 };

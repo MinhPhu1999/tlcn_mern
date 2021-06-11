@@ -3,7 +3,10 @@ const Schema = mongoose.Schema;
 
 const promocode = new Schema({
     promotion_code: String,
-    is_public: Boolean,
+    status: {
+        type: Boolean,
+        default: true,
+    },
 });
 
 module.exports = mongoose.model('promocode', promocode);
