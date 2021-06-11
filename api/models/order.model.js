@@ -5,7 +5,7 @@ const order = new Schema(
         id_user: {
             type: String,
         },
-		promotion_cost: String,
+		promotion_code: String,
         cart: {
             type: [
                 {

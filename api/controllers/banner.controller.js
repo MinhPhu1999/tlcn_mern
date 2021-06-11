@@ -78,3 +78,14 @@ exports.updateStatus = async (req, res) => {
             : res.status(200).send({ message: 'Success' });
     });
 };
+
+exports.getBanner = async (req, res) => {
+    banner.findOne({ _id: req.params.id }, (err, data) => {
+        err ? res.status(404).json({ message: 'Banner not found' }) : res.status(200).json(data);
+    });
+};
+exports.getBanners = async (req, res) => {
+    banner.find({}, (err, data) => {
+        err ? res.status(404).json({ message: 'Banners not found' }) : res.status(200).json(data);
+    });
+};
