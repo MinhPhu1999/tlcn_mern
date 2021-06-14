@@ -7,6 +7,8 @@ const promocode = new Schema({
         type: Boolean,
         default: true,
     },
+    content: String,
+    price_discount: Number,
 });
 
 module.exports = mongoose.model('promocode', promocode);

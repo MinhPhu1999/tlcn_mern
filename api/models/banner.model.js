@@ -7,6 +7,8 @@ const banner = new Schema({
         require: [true, 'không được để trống'],
     },
     categoryName: String,
+    id_category: String,
+    disCount: Number,
     status: Boolean,
 });
 

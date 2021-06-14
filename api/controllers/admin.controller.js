@@ -1095,12 +1095,10 @@ exports.getPromoCodes = async (req, res) => {
 
 //add banner
 exports.addBanner = async (req, res) => {
-    let searchIDCatefory = await categoryCtrl.getIDBySearchText(req.body.categoryName);
     let productFind;
     try {
         productFind = await product.find({
-            id_category: searchIDCatefory,
-            // $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
+            id_category: id_category,
         });
     } catch (err) {
         return res.status(500).send({ message: err });
@@ -1133,10 +1131,9 @@ exports.addBanner = async (req, res) => {
 
 //update banner
 exports.updateBanner = async (req, res) => {
-    let searchIDCatefory = await categoryCtrl.getIDBySearchText(req.body.categoryName);
     let productFind;
     try {
-        productFind = await product.find({ id_category: searchIDCatefory });
+        productFind = await product.find({ id_category: id_category });
     } catch (err) {
         return res.status(500).send({ message: err });
     }
@@ -1164,7 +1161,7 @@ exports.updateBanner = async (req, res) => {
     });
 };
 
-//upda
+//update status banner
 exports.updateStatus = async (req, res) => {
     banner.updateOne({ _id: req.params.id }, { status: false }, err => {
         err
@@ -1173,12 +1170,14 @@ exports.updateStatus = async (req, res) => {
     });
 };
 
+//get banner theo id
 exports.getBanner = async (req, res) => {
     banner.findOne({ _id: req.params.id }, (err, data) => {
         err ? res.status(404).json({ message: 'Banner not found' }) : res.status(200).json(data);
     });
 };
 
+//get all banner
 exports.getBanners = async (req, res) => {
     banner.find({}, (err, data) => {
         err ? res.status(404).json({ message: 'Banners not found' }) : res.status(200).json(data);
