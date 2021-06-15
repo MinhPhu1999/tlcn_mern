@@ -1098,7 +1098,7 @@ exports.addBanner = async (req, res) => {
     let productFind;
     try {
         productFind = await product.find({
-            id_category: id_category,
+            id_category: req.body.id_category,
         });
     } catch (err) {
         return res.status(500).send({ message: err });
@@ -1133,7 +1133,7 @@ exports.addBanner = async (req, res) => {
 exports.updateBanner = async (req, res) => {
     let productFind;
     try {
-        productFind = await product.find({ id_category: id_category });
+        productFind = await product.find({ id_category: req.body.id_category });
     } catch (err) {
         return res.status(500).send({ message: err });
     }
