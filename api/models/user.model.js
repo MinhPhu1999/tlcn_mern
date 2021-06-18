@@ -16,6 +16,17 @@ const user = new Schema(
             lowercase: true,
             match: [/\S+@\S+\.\S+/, 'is invalid'],
         },
+        address: {
+            type: 
+                {
+                    name: String,
+                    phone: String,
+                    city: String,
+                    district: String,
+                    ward: String,
+                    infoDetail: String,
+                },
+        },
         fbEmail: {
             type: String,
         },

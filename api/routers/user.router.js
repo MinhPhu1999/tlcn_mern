@@ -25,4 +25,8 @@ module.exports = app => {
     app.route('/googlelogin').post(user_controller.googleController);
 
     app.route('/facebooklogin').post(user_controller.facebookController);
+
+	app.route('/address/add').post(user_controller.addAddress);
+	
+	app.route('/address/update').put(user_controller.updateAddress);
 };

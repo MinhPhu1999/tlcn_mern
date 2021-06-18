@@ -38,10 +38,18 @@ app.use(cors());
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
+
 // Soketio
 let users = [];
+// io.on('connection', socket => {
+//     console.log(socket.id + 'connected.');
+
+//     socket.on('disconnect', () => {
+//         console.log(socket.id + 'disconnected');
+//     });
+// });
 io.on('connection', socket => {
-    // console.log(socket.id + 'connected');
+    console.log(socket.id + 'connected');
 
     socket.on('joinRoom', id => {
         const user = { userId: socket.id, room: id };
@@ -66,6 +74,7 @@ io.on('connection', socket => {
 
     socket.on('createComment', async msg => {
         const { username, content, product_id, createdAt, rating, send } = msg;
+		console.log('create comment');
 
         const newComment = new Comments({
             username,
@@ -75,7 +84,7 @@ io.on('connection', socket => {
             rating,
         });
 
-        // console.log(newComment);
+    //     // console.log(newComment);
         // await newComment.save();
 
         if (send === 'replyComment') {

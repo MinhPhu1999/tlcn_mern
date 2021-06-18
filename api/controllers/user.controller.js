@@ -74,7 +74,7 @@ exports.register = async (req, res) => {
         return res.status(500).send({ message: err });
     }
     const sendEmail = await nodemailer.sendEmail(email, newUser.token); //gửi mail để verify account
-	console.log(sendEmail);
+    console.log(sendEmail);
     !sendEmail
         ? res.status(500).send({ message: 'Send email fail' })
         : res.status(201).send({ message: 'success' });
@@ -366,7 +366,7 @@ exports.getDataByID = async id_user => {
 
 exports.googleController = async (req, res) => {
     const { idToken } = req.body;
-    console.log(idToken);
+    // console.log(idToken);
     client.verifyIdToken({ idToken, audience: process.env.GOOGLE_API_KEY }).then(response => {
         // console.log('GOOGLE LOGIN RESPONSE',response)
         const { email_verified, name, email } = response.payload;
@@ -484,4 +484,50 @@ exports.facebookController = (req, res) => {
                 });
             })
     );
+};
+
+exports.addAddress = async (req, res) => {
+    try {
+        const userF = await user.findById(req.body.id);
+        if (!user) return res.status(400).json({ message: 'User not found' });
+        if (req.body.address.name.length === 0 || req.body.address.name.length >= 30)
+            return res.status(400).json({ msg: 'Form is not format' });
+        if (req.body.address.phone.length !== 10)
+            return res.status(400).json({ msg: 'Please enter the correct phone number' });
+
+        await user.findOneAndUpdate(
+            { _id: req.body.id },
+            {
+                $set: {
+                    address: req.body.address,
+                },
+            },
+        );
+        return res.status(200).json('Add address');
+    } catch (err) {
+        return res.status(500).json({ msg: error.message });
+    }
+};
+
+exports.updateAddress = async (req, res) => {
+    try {
+        const userF = await user.findById(req.body.id);
+        if (!user) return res.status(400).json({ message: 'User not found' });
+        if (req.body.address.name.length === 0 || req.body.address.name.length >= 30)
+            return res.status(400).json({ msg: 'Form is not format' });
+        if (req.body.address.phone.length !== 10)
+            return res.status(400).json({ msg: 'Please enter the correct phone number' });
+
+        await user.findOneAndUpdate(
+            { _id: req.body.id },
+            {
+                $set: {
+                    address: req.body.address,
+                },
+            },
+        );
+        return res.status(200).json('Update address');
+    } catch (err) {
+        return res.status(500).json({ msg: err.message });
+    }
 };

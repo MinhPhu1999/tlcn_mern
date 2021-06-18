@@ -29,12 +29,6 @@ exports.addOrder = async (req, res) => {
     //khai báo các biến cần thiết
     const { id_user, city, name, address, phone, payment, shiping, order_subtotal } = req.body;
 
-    // if(!validate.isValidPhone(phone)){
-    // 	return res.status(422).send({message: 'Số điện thoại không hợp lệ'});
-    // }
-    // if(!validate.isValidPosteCode(posteCode)){
-    // 	return res.status(422).send({message: 'PosteCode không hợp lệ'})
-    // }
     let paymentStatus = 'pending';
     if (payment === 'Paypal') {
         paymentStatus = 'paid';
@@ -176,7 +170,7 @@ exports.getOrderByMonth = async (req, res) => {
 
     const { month, year } = req.body;
     const byMonth = `${year}${month}`;
-    console.log(typeof byMonth, byMonth);
+    // console.log(typeof byMonth, byMonth);
 
     let orderFind = null;
     try {
@@ -196,7 +190,7 @@ exports.getOrderByMonth = async (req, res) => {
         : res.status(404).json({ message: 'order not found' });
 
     let t1 = performance.now();
-    console.log(t1 - t0);
+    // console.log(t1 - t0);
 };
 
 ///redis
@@ -213,7 +207,7 @@ exports.redisGetOrderByYear = async (req, res) => {
         }
     });
     let t1 = performance.now();
-    console.log(t1 - t0);
+    // console.log(t1 - t0);
 };
 exports.getOrderByYear = async (req, res) => {
     let t0 = performance.now();
@@ -253,7 +247,7 @@ exports.getOrderByYear = async (req, res) => {
     client.setex(byYear, 8080, JSON.stringify(arrOr));
     res.status(200).json({ arrOr });
     let t1 = performance.now();
-    console.log(t1 - t0);
+    // console.log(t1 - t0);
 };
 
 ///redis
@@ -270,7 +264,7 @@ exports.redisGetQuantityByYear = async (req, res) => {
         }
     });
     let t1 = performance.now();
-    console.log(t1 - t0);
+    // console.log(t1 - t0);
 };
 exports.getQuantityByYear = async (req, res) => {
     // let t0 = performance.now();
@@ -418,7 +412,7 @@ exports.redisGetQuantityOrderByYearAndCategory = async (req, res) => {
         }
     });
     let t1 = performance.now();
-    console.log(t1 - t0);
+    // console.log(t1 - t0);
 };
 exports.getQuantityOrderByYearAndCategory = async (req, res) => {
     var t0 = performance.now();
@@ -488,7 +482,7 @@ exports.getQuantityOrderByYearAndCategory = async (req, res) => {
     res.status(200).json({ arrOr });
 
     var t1 = performance.now();
-    console.log(t1 - t0);
+    // console.log(t1 - t0);
 };
 
 exports.checkCanComment = async (req, res) => {
@@ -513,7 +507,7 @@ exports.checkCanComment = async (req, res) => {
         let lenCart = orderFind[i].cart.length;
         for (let j = 0; j < lenCart; j++) {
             let index = orderFind[i].cart.findIndex(element => id_product === element.id);
-            console.log(index);
+            // console.log(index);
             if (index >= 0) {
                 return res.status(200).send({ message: 'true' });
             }
