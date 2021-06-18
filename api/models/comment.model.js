@@ -6,7 +6,6 @@ const commentSchema = new mongoose.Schema(
         content: String,
         user_id: String,
         product_id: String,
-		createdAt: String,
         status: {
             type: Boolean,
             default: true,

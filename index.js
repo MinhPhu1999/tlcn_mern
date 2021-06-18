@@ -76,7 +76,7 @@ io.on('connection', socket => {
         });
 
         // console.log(newComment);
-        await newComment.save();
+        // await newComment.save();
 
         if (send === 'replyComment') {
             const { _id, username, content, product_id, createdAt, rating } = newComment;
