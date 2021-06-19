@@ -173,6 +173,7 @@ exports.getUser = async (req, res) => {
             //trả về email và name của user
             email: email,
             name: userFind.name,
+			address: userFind.address
         },
     });
 };
@@ -489,7 +490,7 @@ exports.facebookController = (req, res) => {
 exports.addAddress = async (req, res) => {
     try {
         const userF = await user.findById(req.body.id);
-        if (!user) return res.status(400).json({ message: 'User not found' });
+        if (!userF) return res.status(400).json({ message: 'User not found' });
         if (req.body.address.name.length === 0 || req.body.address.name.length >= 30)
             return res.status(400).json({ msg: 'Form is not format' });
         if (req.body.address.phone.length !== 10)

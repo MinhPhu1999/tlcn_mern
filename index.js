@@ -36,7 +36,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const io = require('socket.io')(http, {
+	cors: {
+		origin: '*'
+	}
+});
 
 
 // Soketio
@@ -49,7 +53,7 @@ let users = [];
 //     });
 // });
 io.on('connection', socket => {
-    console.log(socket.id + 'connected');
+    // console.log(socket.id + 'connected');
 
     socket.on('joinRoom', id => {
         const user = { userId: socket.id, room: id };
@@ -74,7 +78,7 @@ io.on('connection', socket => {
 
     socket.on('createComment', async msg => {
         const { username, content, product_id, createdAt, rating, send } = msg;
-		console.log('create comment');
+		// console.log('create comment');
 
         const newComment = new Comments({
             username,
