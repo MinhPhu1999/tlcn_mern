@@ -27,7 +27,17 @@ exports.addOrder = async (req, res) => {
         return res.status(422).send({ message: 'Invalid data' });
     }
     //khai báo các biến cần thiết
-    const { id_user, city, name, address, phone, payment, shiping, order_subtotal } = req.body;
+    const {
+        id_user,
+        city,
+        name,
+        address,
+        phone,
+        payment,
+        shiping,
+        order_subtotal,
+        promotion_code,
+    } = req.body;
 
     let paymentStatus = 'pending';
     if (payment === 'Paypal') {
@@ -74,6 +84,7 @@ exports.addOrder = async (req, res) => {
         paymentStatus: paymentStatus,
         payment: payment,
         orderStatus: orderStatus,
+        promotion_code: promotion_code,
     });
 
     try {
