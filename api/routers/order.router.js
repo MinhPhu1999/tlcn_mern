@@ -5,7 +5,7 @@ module.exports = app => {
 
     app.route('/orders').get(order_controller.orders);
 
-    app.route('/order/detail/:id').get(auth.authLogin, order_controller.getOrderDetail);
+    app.route('/order/detail/:id').get(/*auth.authLogin,*/ order_controller.getOrderDetail);
 
     app.route('/order/admindetail/:id').get(order_controller.getOrderDetail);
 

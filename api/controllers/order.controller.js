@@ -870,7 +870,18 @@ exports.getOrderDetail = async (req, res) => {
     }
     let orderFind;
     try {
-        orderFind = await order.find({ _id: req.params.id });
+        // orderFind = await order.find({ _id: req.params.id });
+        orderFind = await order
+            .findOne({ _id: req.params.id })
+            .populate({
+                path: 'cart.color',
+                select: 'name',
+            })
+            .populate('cart.size')
+            .populate({
+                path: 'cart.size',
+                select: 'name',
+            });
     } catch (err) {
         return res.status(500).send('Order not found');
     }
