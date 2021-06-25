@@ -171,39 +171,26 @@ function escapeRegex(text) {
 }
 
 exports.searchProduct = async (req, res) => {
-    if (typeof req.query.name === 'undefined' || typeof req.query.page === 'undefined') {
+    if (typeof req.query.name === 'undefined') {
         return res.status(402).send({ message: 'Data invalid' });
     }
 
-    const { name, page } = req.query;
-
     let regex1;
-    if (Array.isArray(escapeRegex(name))) {
-        regex1 = new RegExp('.' + escapeRegex(name)[1], 'i');
+    if (Array.isArray(escapeRegex(req.query.name))) {
+        regex1 = new RegExp('.' + escapeRegex(req.query.name)[1], 'i');
     } else {
-        regex1 = new RegExp('.' + escapeRegex(name), 'i');
+        regex1 = new RegExp('.' + escapeRegex(req.query.name), 'i');
     }
-    const regex2 = new RegExp('^' + escapeRegex(name), 'i');
-
-    let count;
-    try {
-        count = await product.countDocuments({
-            $or: [{ name : { $in: [ regex1,regex2] }, status: true }],
-        });
-    } catch (err) {
-        return res.status(500).send({ message: 'products not found' });
-    }
-    const totalPage = parseInt((count - 1) / 2 + 1);
+    const regex2 = new RegExp('^' + escapeRegex(req.query.name), 'i');
 
     product
         .find({
-            $or: [{ name : { $in: [ regex1,regex2] }, status: true }],
+            $or: [{ name: { $in: [regex1, regex2] }, status: true }],
         })
-        .skip(2 * (parseInt(page) - 1))
         .exec((err, docs) => {
             err
                 ? res.status(404).send({ message: 'products not found' })
-                : res.send({ data: docs, totalPage });
+                : res.send({ data: docs });
         });
 };
 
