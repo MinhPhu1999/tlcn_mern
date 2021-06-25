@@ -14,7 +14,7 @@ exports.sortProduct = async (req, res) => {
     });
     sortListProduct
         ? res.status(200).send(sortListProduct)
-        : res.status(404).send({ message: 'product not found' });
+        : res.status(404).send({ message: 'products not found' });
 };
 
 exports.getProductByID = async (req, res) => {
@@ -162,38 +162,47 @@ exports.getAllProduct = async (req, res) => {
     const productFind = await product.find({ status: true });
     productFind
         ? res.status(200).send(productFind)
-        : res.status(404).send({ message: 'product not found' });
+        : res.status(404).send({ message: 'products not found' });
 };
 
+function escapeRegex(text) {
+    if (text.indexOf(' ') != -1) return text.split(' ');
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, ' ');
+}
+
 exports.searchProduct = async (req, res) => {
-    if (
-        typeof req.query.name === 'undefined' ||
-        typeof req.query.page === 'undefined' ||
-        typeof req.query.limit === 'undefined'
-    ) {
+    if (typeof req.query.name === 'undefined' || typeof req.query.page === 'undefined') {
         return res.status(402).send({ message: 'Data invalid' });
     }
 
-    const { name, page, limit } = req.query;
+    const { name, page } = req.query;
+
+    let regex1;
+    if (Array.isArray(escapeRegex(name))) {
+        regex1 = new RegExp('.' + escapeRegex(name)[1], 'i');
+    } else {
+        regex1 = new RegExp('.' + escapeRegex(name), 'i');
+    }
+    const regex2 = new RegExp('^' + escapeRegex(name), 'i');
+
     let count;
     try {
         count = await product.countDocuments({
-            $or: [{ name: new RegExp(name, 'i'), status: true }],
+            $or: [{ name : { $in: [ regex1,regex2] }, status: true }],
         });
     } catch (err) {
-        return res.status(500).send({ message: 'product not found' });
+        return res.status(500).send({ message: 'products not found' });
     }
     const totalPage = parseInt((count - 1) / 2 + 1);
 
     product
         .find({
-            $or: [{ name: new RegExp(name, 'i'), status: true }],
+            $or: [{ name : { $in: [ regex1,regex2] }, status: true }],
         })
         .skip(2 * (parseInt(page) - 1))
-        .limit(parseInt(limit))
         .exec((err, docs) => {
             err
-                ? res.status(404).send({ message: 'product not found' })
+                ? res.status(404).send({ message: 'products not found' })
                 : res.send({ data: docs, totalPage });
         });
 };
@@ -211,11 +220,11 @@ exports.getProductByBrand = async (req, res) => {
             $or: [{ id_brand: new RegExp(searchIDBrand, 'i') }],
         });
     } catch (err) {
-        return res.status(500).send({ message: 'product not found' });
+        return res.status(500).send({ message: 'products not found' });
     }
     productFind
         ? res.status(200).send(productFind)
-        : res.status(404).send({ message: 'product not found' });
+        : res.status(404).send({ message: 'products not found' });
 };
 
 exports.getProductByCategory = async (req, res) => {
