@@ -226,7 +226,6 @@ exports.getProductByCategory = async (req, res) => {
     try {
         productFind = await product.find({
             id_category: searchIDCategory,
-            // $or: [{ id_category: new RegExp(searchIDCatefory, 'i') }],
         });
     } catch (err) {
         return res.status(500).send({ message: 'products not found' });
