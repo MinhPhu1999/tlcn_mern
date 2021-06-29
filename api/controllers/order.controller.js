@@ -329,6 +329,44 @@ exports.getQuantityByYear = async (req, res) => {
     // console.log(t1 - t0);
 };
 
+exports.getOrderSubTotalByYear = async (req, res) => {
+    if (typeof req.params.year === 'undefined') {
+        return res.status(402).send({ message: '!invalid' });
+    }
+
+    const { year } = req.params;
+
+    let getOrder;
+    try {
+        getOrder = await order.find({ paymentStatus: 'paid' });
+    } catch (err) {
+        return res.status(500).json({ message: 'orders not found' });
+    }
+    let index = 0;
+    let dem = 0;
+    let orderFind;
+    let arrOr = [];
+    let lenOrder = getOrder.length;
+
+    for (let i = 1; i < 13; i++) {
+        orderFind = 0;
+        dem = 0;
+        while (index < lenOrder) {
+            if (
+                getOrder[index].order_date >= new Date(parseInt(year), i - 1, 1) &&
+                getOrder[index].order_date < new Date(parseInt(year), i, 1)
+            ) {
+				orderFind += getOrder[index].order_subtotal;
+                dem++;
+            }
+            index++;
+        }
+        arrOr.push(orderFind);
+        index = dem;
+    }
+    res.status(200).json({ arrOr });
+};
+
 ///redis
 exports.redisGetQuantityByYearAndCategory = (req, res) => {
     // let t0 = performance.now();
