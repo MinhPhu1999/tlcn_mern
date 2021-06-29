@@ -61,7 +61,8 @@ module.exports = app => {
     app.route('/admin/order/quantitybyyear/:year').get(order_controller.getQuantityByYear);
 
 	app.route('/admin/order/subtotal/:year').get(order_controller.getOrderSubTotalByYear);
-	app.route('/admin/order/subtotalcategory/:year').post(order_controller.getOrderSubTotalByYearAndCategory);
+	
+	app.route('/admin/order/subtotalcategory').post(order_controller.getOrderSubTotalByYearAndCategory);
 
     app.route('/admin/order/yearandcategory').post(order_controller.getQuantityByYearAndCategory);
 
