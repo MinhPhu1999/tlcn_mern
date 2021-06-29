@@ -356,11 +356,67 @@ exports.getOrderSubTotalByYear = async (req, res) => {
                 getOrder[index].order_date >= new Date(parseInt(year), i - 1, 1) &&
                 getOrder[index].order_date < new Date(parseInt(year), i, 1)
             ) {
-				orderFind += getOrder[index].order_subtotal;
+                orderFind += getOrder[index].order_subtotal;
                 dem++;
             }
             index++;
         }
+        arrOr.push(orderFind);
+        index = dem;
+    }
+    res.status(200).json({ arrOr });
+};
+
+exports.getOrderSubTotalByYearAndCategory = async (req, res) => {
+    if (typeof req.body.year === 'undefined' || typeof req.body.categoryName === 'undefined') {
+        return res.status(402).send({ message: '!invalid' });
+    }
+
+    const { year, categoryName } = req.body;
+    let searchIDCatefory = await categoryController.getIDBySearchText(categoryName);
+    let productFind;
+    try {
+        productFind = await product.find({ id_category: searchIDCatefory });
+    } catch (err) {
+        return res.status(500).json({ message: 'products not found' });
+    }
+	
+    const getOrder = await order.find({ paymentStatus: 'paid' });
+    let index = 0;
+    let dem = 0;
+    let orderFind;
+    let count;
+    let arrOr = [];
+    const lenOrder = getOrder.length;
+    const lenProduct = productFind.length;
+
+    for (let i = 1; i < 13; i++) {
+        orderFind = 0;
+        dem = 0;
+        count = 0;
+        while (index < lenOrder) {
+			const lenCart = getOrder[index].cart.length;
+            if (
+                getOrder[index].order_date >= new Date(parseInt(year), i - 1, 1) &&
+                getOrder[index].order_date < new Date(parseInt(year), i, 1)
+            ) {
+                for (let j = 0; j < lenCart; j++) {
+                    for (let lenP = 0; lenP < lenProduct; lenP++) {
+                        if (String(getOrder[index].cart[j].id) === String(productFind[lenP]._id)) {
+                            count++;
+                            orderFind += getOrder[index].order_subtotal;
+                            break;
+                        }
+                    }
+                    if (count > 0) {
+                        break;
+                    }
+                }
+                dem++;
+            }
+            index++;
+        }
+
         arrOr.push(orderFind);
         index = dem;
     }
