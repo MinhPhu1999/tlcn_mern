@@ -20,11 +20,11 @@ exports.sendEmail = async (email, token) => {
         subject: 'Account Verification Token', // Subject line
         text: 'Hello my friend',
         html:
-            '<b>verify your account</b>' +
+            '<b>Verify your account</b>' +
             ' <br/>' +
             '<span>Please verify your account by clicking the link</span>' +
             '<br/>' +
-            '<span>http://localhost:3000/confirm/' +
+            '<span>https://estore-kltn.herokuapp.com/confirm/' +
             token +
             '</span>',
     };
@@ -70,7 +70,7 @@ exports.sendMailConfirmPayment = async (email, token) => {
             ' <br/>' +
             '<span>Please verify your account by clicking the link</span>' +
             '<br/>' +
-            '<span>http://localhost:3000/payment/' +
+            '<span>https://estore-kltn.herokuapp.com/payment/' +
             token +
             '</span>',
     };
