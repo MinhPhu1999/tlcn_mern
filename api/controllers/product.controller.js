@@ -358,3 +358,54 @@ exports.getProductTop10 = async (req, res) => {
         data: arrProduct.length > 10 ? arrProduct.slice(0, 10) : arrProduct,
     });
 };
+
+exports.getProductCategory = async(req, res) =>{
+	// kiểm tra tham số truyền vào có hay không
+    if (typeof req.query.page === 'undefined') {
+        return res.status(402).send({ message: 'Data invalid' });
+    }
+
+    let count = null;
+
+    try {
+        count = await product.countDocuments({id_category: req.query.id, status: true}); // đém sản phẩm có bao nhiêu
+    } catch (err) {
+        return res.status(500).send({ message: err });
+    }
+
+    const totalPage = parseInt((count - 1) / 2 + 1); // từ số lượng sản phẩm sẽ tính ra số trang
+    const { page } = req.query;
+    if (parseInt(page) < 1 || parseInt(page) > totalPage) {
+        return res.status(200).send({ data: [], message: 'Invalid page', totalPage });
+    }
+
+    product
+        .find({id_category: req.query.id, status: true})
+        .populate('colorProducts')
+        .populate({
+            path: 'colorProducts',
+            populate: {
+                path: 'colorProduct',
+                populate: {
+                    path: '_id',
+                },
+            },
+        })
+        .populate('sizeProducts')
+        .populate({
+            path: 'sizeProducts',
+            populate: {
+                path: 'sizeProduct',
+                populate: {
+                    path: '_id',
+                },
+            },
+        })
+        .skip(2 * (parseInt(page) - 1))
+        .limit(2) // giới hạn hiển thị sản phẩm mỗi trang
+        .exec((err, docs) => {
+            err
+                ? res.status(404).send({ message: err })
+                : res.status(200).send({ data: docs, totalPage });
+        });
+}

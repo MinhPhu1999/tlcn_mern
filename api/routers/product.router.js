@@ -20,4 +20,6 @@ module.exports = app => {
     app.route('/product/sort/:inc').get(product_controller.sortProduct);
 
     app.route('/product/banchay/top10').get(product_controller.getProductTop10);
+
+	app.route('/product/category/cate').get(product_controller.getProductCategory);
 };
