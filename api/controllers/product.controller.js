@@ -373,7 +373,7 @@ exports.getProductCategory = async(req, res) =>{
         return res.status(500).send({ message: err });
     }
 
-    const totalPage = parseInt((count - 1) / 2 + 1); // từ số lượng sản phẩm sẽ tính ra số trang
+    const totalPage = parseInt((count - 1) / 8 + 1); // từ số lượng sản phẩm sẽ tính ra số trang
     const { page } = req.query;
     if (parseInt(page) < 1 || parseInt(page) > totalPage) {
         return res.status(200).send({ data: [], message: 'Invalid page', totalPage });
@@ -401,8 +401,8 @@ exports.getProductCategory = async(req, res) =>{
                 },
             },
         })
-        .skip(2 * (parseInt(page) - 1))
-        .limit(2) // giới hạn hiển thị sản phẩm mỗi trang
+        .skip(8 * (parseInt(page) - 1))
+        .limit(8) // giới hạn hiển thị sản phẩm mỗi trang
         .exec((err, docs) => {
             err
                 ? res.status(404).send({ message: err })
