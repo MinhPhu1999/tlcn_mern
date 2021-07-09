@@ -165,6 +165,9 @@ exports.getAllProduct = async (req, res) => {
         : res.status(404).send({ message: 'products not found' });
 };
 
+const fullTextSearch = require('fulltextsearch');
+var fullTextSearchVi = fullTextSearch.vi;
+
 function escapeRegex(text) {
     if (text.indexOf(' ') != -1) return text.split(' ');
     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, ' ');
@@ -175,23 +178,37 @@ exports.searchProduct = async (req, res) => {
         return res.status(402).send({ message: 'Data invalid' });
     }
 
-    let regex1;
-    if (Array.isArray(escapeRegex(req.query.name))) {
-        regex1 = new RegExp('.' + escapeRegex(req.query.name)[1], 'i');
-    } else {
-        regex1 = new RegExp('.' + escapeRegex(req.query.name), 'i');
-    }
-    const regex2 = new RegExp('^' + escapeRegex(req.query.name), 'i');
+    let regex = new RegExp(fullTextSearchVi(req.query.name), 'i');
+
+    console.log(regex);
 
     product
         .find({
-            $or: [{ name: { $in: [regex1, regex2] }, status: true }],
+            $or: [{ name: { $in: [regex] }, status: true }],
         })
         .exec((err, docs) => {
             err
                 ? res.status(404).send({ message: 'products not found' })
                 : res.send({ data: docs });
         });
+
+    // let regex1;
+    // if (Array.isArray(escapeRegex(req.query.name))) {
+    //     regex1 = new RegExp('.' + escapeRegex(req.query.name)[1], 'i');
+    // } else {
+    //     regex1 = new RegExp('.' + escapeRegex(req.query.name), 'i');
+    // }
+    // const regex2 = new RegExp('^' + escapeRegex(req.query.name), 'i');
+
+    // product
+    //     .find({
+    //         $or: [{ name: { $in: [regex1, regex2] }, status: true }],
+    //     })
+    //     .exec((err, docs) => {
+    //         err
+    //             ? res.status(404).send({ message: 'products not found' })
+    //             : res.send({ data: docs });
+    //     });
 };
 
 exports.getProductByBrand = async (req, res) => {
@@ -359,8 +376,8 @@ exports.getProductTop10 = async (req, res) => {
     });
 };
 
-exports.getProductCategory = async(req, res) =>{
-	// kiểm tra tham số truyền vào có hay không
+exports.getProductCategory = async (req, res) => {
+    // kiểm tra tham số truyền vào có hay không
     if (typeof req.query.page === 'undefined') {
         return res.status(402).send({ message: 'Data invalid' });
     }
@@ -368,7 +385,7 @@ exports.getProductCategory = async(req, res) =>{
     let count = null;
 
     try {
-        count = await product.countDocuments({id_category: req.query.id, status: true}); // đém sản phẩm có bao nhiêu
+        count = await product.countDocuments({ id_category: req.query.id, status: true }); // đém sản phẩm có bao nhiêu
     } catch (err) {
         return res.status(500).send({ message: err });
     }
@@ -380,7 +397,7 @@ exports.getProductCategory = async(req, res) =>{
     }
 
     product
-        .find({id_category: req.query.id, status: true})
+        .find({ id_category: req.query.id, status: true })
         .populate('colorProducts')
         .populate({
             path: 'colorProducts',
@@ -408,4 +425,4 @@ exports.getProductCategory = async(req, res) =>{
                 ? res.status(404).send({ message: err })
                 : res.status(200).send({ data: docs, totalPage });
         });
-}
+};

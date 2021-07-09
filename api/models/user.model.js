@@ -17,15 +17,14 @@ const user = new Schema(
             match: [/\S+@\S+\.\S+/, 'is invalid'],
         },
         address: {
-            type: 
-                {
-                    name: String,
-                    phone: String,
-                    city: String,
-                    district: String,
-                    ward: String,
-                    infoDetail: String,
-                },
+            type: {
+                name: String,
+                phone: String,
+                city: String,
+                district: String,
+                ward: String,
+                infoDetail: String,
+            },
         },
         fbEmail: {
             type: String,

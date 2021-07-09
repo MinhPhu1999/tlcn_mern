@@ -3,10 +3,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 exports.verify = async (req, res) => {
-    if (
-        typeof req.body.token === 'undefined' ||
-        typeof req.body.email === 'undefined'
-    ) {
+    if (typeof req.body.token === 'undefined' || typeof req.body.email === 'undefined') {
         res.status(422).send({ message: 'Invalid data' });
         return;
     }
@@ -32,7 +29,7 @@ exports.authLogin = (req, res, next) => {
         const token = req.header('Authorization').replace('Bearer ', '');
         const data = jwt.verify(token, process.env.JWT_KEY);
         user.findOne({ _id: data._id, token: token })
-            .then((user) => {
+            .then(user => {
                 if (!user) {
                     return res.status(401).send({
                         message: 'Please login',
@@ -41,7 +38,7 @@ exports.authLogin = (req, res, next) => {
                 req.user = user;
                 next();
             })
-            .catch((err) => {
+            .catch(err => {
                 return res.status(401).send({
                     message: 'Not authorized to access this resource',
                 });

@@ -1,6 +1,6 @@
 const comment_controller = require('../controllers/comment.controller');
 
-module.exports = (app) => {
+module.exports = app => {
     app.route('/comment/:id').get(comment_controller.getComment);
 
     app.route('/comment').put(comment_controller.updateComment);

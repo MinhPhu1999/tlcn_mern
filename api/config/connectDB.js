@@ -9,7 +9,7 @@ const connectDB = async () => {
             useFindAndModify: false,
             useUnifiedTopology: true,
         })
-        .catch((error) => console.log(error.reason));
+        .catch(error => console.log(error.reason));
 };
 
 module.exports = connectDB;

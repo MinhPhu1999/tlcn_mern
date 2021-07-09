@@ -21,5 +21,5 @@ module.exports = app => {
 
     app.route('/product/banchay/top10').get(product_controller.getProductTop10);
 
-	app.route('/product/category/cate').get(product_controller.getProductCategory);
+    app.route('/product/category/cate').get(product_controller.getProductCategory);
 };

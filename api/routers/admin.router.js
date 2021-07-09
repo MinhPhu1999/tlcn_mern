@@ -60,9 +60,11 @@ module.exports = app => {
 
     app.route('/admin/order/quantitybyyear/:year').get(order_controller.getQuantityByYear);
 
-	app.route('/admin/order/subtotal/:year').get(order_controller.getOrderSubTotalByYear);
-	
-	app.route('/admin/order/subtotalcategory').post(order_controller.getOrderSubTotalByYearAndCategory);
+    app.route('/admin/order/subtotal/:year').get(order_controller.getOrderSubTotalByYear);
+
+    app.route('/admin/order/subtotalcategory').post(
+        order_controller.getOrderSubTotalByYearAndCategory,
+    );
 
     app.route('/admin/order/yearandcategory').post(order_controller.getQuantityByYearAndCategory);
 
@@ -108,7 +110,6 @@ module.exports = app => {
     app.route('/admin/banners/update').put(admin_controller.updateBanner);
 
     app.route('/admin/banners/:id').get(admin_controller.getBanner);
-	
-    app.route('/admin/banners').get(admin_controller.getBanners);
 
+    app.route('/admin/banners').get(admin_controller.getBanners);
 };

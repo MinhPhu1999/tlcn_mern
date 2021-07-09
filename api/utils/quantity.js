@@ -1,7 +1,7 @@
 const product = require('../models/product.model');
 
 exports.changeQuantity = async (id_product, quantity) => {
-    let productFind = await product.findOne({_id: id_product});
+    let productFind = await product.findOne({ _id: id_product });
     productFind.quantity -= quantity;
     productFind.save();
 };

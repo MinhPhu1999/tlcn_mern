@@ -26,7 +26,7 @@ const cart = new Schema({
     },
     status: {
         type: Boolean,
-		default: true
+        default: true,
     },
     date_cart: {
         type: Date,
@@ -46,8 +46,7 @@ cart.methods.updateCountProduct = async function () {
 };
 
 cart.methods.minusQuantity = async function (id_size, res) {
-	const cart=this;
-
+    const cart = this;
 };
 
 cart.methods.plusProduct = async function (id_product) {
