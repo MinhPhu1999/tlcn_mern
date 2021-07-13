@@ -28,14 +28,14 @@ exports.register = async (req, res) => {
     //         message: 'Mật khẩu có độ dài từ 8-12 kí tự phải chứa số,chữ thường và chữ hoa ',
     //     });
     // }
-    if (password.length < 6) {
+    if (password.trim().length < 6) {
         return res.status(422).send({ message: 'Mật khẩu phải có đồ dài ít nhất 6 kí tự' });
     }
     //kiểm tra tên có hợp lệ không
     // if (!validate.isValidName(name)) {
     //     return res.status(422).send({ message: 'Nhập đầy đủ họ và tên' });
     // }
-    if (name.length < 6) {
+    if (name.trim().length < 6) {
         return res.status(422).send({ message: 'Tên phải có độ dài ít nhất là 6 kí tự' });
     }
     //kiểm tra điều kiện email và password
@@ -44,7 +44,7 @@ exports.register = async (req, res) => {
     }
     //nếu password và repassword khác nhau
     if (password != repassword) {
-        return res.status(422).send({ message: 'password incorect' });
+        return res.status(422).send({ message: 'Password incorect' });
     }
     let userFind = null;
     try {
@@ -74,10 +74,11 @@ exports.register = async (req, res) => {
         return res.status(500).send({ message: err });
     }
     const sendEmail = await nodemailer.sendEmail(email, newUser.token); //gửi mail để verify account
-    console.log(sendEmail);
-    !sendEmail
-        ? res.status(500).send({ message: 'Send email fail' })
-        : res.status(201).send({ message: 'success' });
+    if (!sendEmail) {
+        await newUser.remove();
+        return res.status(500).send({ message: 'Send email fail' });
+    }
+    res.status(201).send({ message: 'Register success' });
 };
 
 exports.verifyAccount = async (req, res) => {
@@ -173,7 +174,7 @@ exports.getUser = async (req, res) => {
             //trả về email và name của user
             email: email,
             name: userFind.name,
-			address: userFind.address
+            address: userFind.address,
         },
     });
 };
@@ -288,6 +289,11 @@ exports.updateInfor = async (req, res) => {
     }
     //khai báo các biến cần thiết
     const { email, name, id } = req.body;
+
+    if (name.trim().length < 6) {
+        return res.status(400).send({ message: 'Invalid name' });
+    }
+
     let newUser = await user.findById(id);
     //tìm kiếm user theo email
     let userFind = await user.findOne({ email: email });
@@ -301,7 +307,7 @@ exports.updateInfor = async (req, res) => {
     try {
         await newUser.save(); //lưu các thay đổi
     } catch (err) {
-        return res.status(500).send({ message: err });
+        return res.status(500).send({ message: 'Invalid email' });
     }
     //thông báo update infor thành công
     res.status(200).send({
@@ -326,27 +332,32 @@ exports.updatePassword = async (req, res) => {
     }
     //khai báo các biến cần thiết
     let { id, oldpassword, newpassword } = req.body;
+    if (oldpassword === newpassword) {
+        return res
+            .status(422)
+            .send({ message: 'The new password must not be the same as the old password' });
+    }
     let userFind = null;
     try {
-        userFind = await user.findById(id); //tìm kiếm user theo id
+        userFind = await user.findOne({ _id: id }); //tìm kiếm user theo id
     } catch (err) {
         return res.send({ message: 'user not found' });
     }
-    if (userFind === null) {
+    if (!userFind) {
         //trường hợp không có user trong db
-        return res.status(422).send({ message: 'Invalid data' });
+        return res.status(422).send({ message: 'User not found' });
     }
     //trường hợp nhập mật khẩu cũ không khớp
     if (!bcrypt.compareSync(oldpassword, userFind.password)) {
-        return res.status(422).send({ message: 'Invalid data' });
+        return res.status(422).send({ message: 'Password wrong' });
     }
     //hash newpassword
     userFind.password = bcrypt.hashSync(newpassword, 10);
     try {
         userFind.save(err => {
             err
-                ? res.status(500).send({ message: 'fail' })
-                : res.status(200).send({ message: 'success' });
+                ? res.status(500).send({ message: 'Update password fail' })
+                : res.status(200).send({ message: 'Update password success' });
         }); //lưu các thay đổi
     } catch (err) {
         return res.status(500).send({ message: err });
@@ -424,7 +435,6 @@ exports.googleController = async (req, res) => {
 };
 
 exports.facebookController = (req, res) => {
-    console.log('FACEBOOK LOGIN REQ BODY', req.body);
     const { userID, accessToken } = req.body;
 
     const url = `https://graph.facebook.com/v2.11/${userID}/?fields=id,name,email&access_token=${accessToken}`;

@@ -61,7 +61,7 @@ exports.addToCart = async (req, res) => {
 };
 
 exports.getCart = async (req, res) => {
-	try {
+    try {
         const data = await cart
             .findOne({ id_user: req.params.id_user })
             .populate('products.color')
@@ -77,9 +77,7 @@ exports.getCart = async (req, res) => {
 
         if (data) {
             return res.status(200).json(data.products);
-        }
-		else
-        	return res.status(404).json({ message: 'Fail' });
+        } else return res.status(404).json({ message: 'Fail' });
     } catch (err) {
         return res.status(404).json({ message: 'Fail 2' });
     }
@@ -252,7 +250,6 @@ exports.deleteProductInCart = async (req, res) => {
     }
     //khai báo các biến cần thiết
     const { id_user, id_product, size, color } = req.body;
-    let quanP;
 
     let cartFind = await cart.findOne({ id_user: id_user, status: true }); //tìm kiếm cart theo id_user và status
 
@@ -268,27 +265,29 @@ exports.deleteProductInCart = async (req, res) => {
     //     if (result) return res.status(200).send({ message: 'delete cart success 1' });
     //     // await cartFind.save().then(cartFind.plusProduct(id_product));
     // } else {
-        for (let len in cartFind.products) {
-            if (quantityP.valid(cartFind.products[len], id_product, size, color)) {
-                quanP = cartFind.products[len].quantity;
-                cartFind.grandTotal -= quantityP.calPrice(
-                    cartFind.products[len].price,
-                    cartFind.products[len].quantity,
-                );
-                cartFind.products.splice(len, 1); //xóa sản phẩm trong cart
-            }
-        }
 
-        try {
-            //lưu lại các thay đổi
-            cartFind.save((err, data) => {
-                if (err) return res.status(500).send('remove cart fail 1');
-                quantityP.changeQuantity(id_product, -1);
-                res.status(200).send({ message: 'remove cart success 1' });
-            });
-        } catch (err) {
-            //xuất ra lỗi nếu xóa sản phẩm trong cart fail
-            res.status(500).send({ message: err });
+    let qty = 1;
+    for (let len in cartFind.products) {
+        if (quantityP.valid(cartFind.products[len], id_product, size, color)) {
+            qty = cartFind.products[len].quantity;
+            cartFind.grandTotal -= quantityP.calPrice(
+                cartFind.products[len].price,
+                cartFind.products[len].quantity,
+            );
+            cartFind.products.splice(len, 1); //xóa sản phẩm trong cart
         }
+    }
+
+    try {
+        //lưu lại các thay đổi
+        cartFind.save((err, data) => {
+            if (err) return res.status(500).send('remove cart fail 1');
+            quantityP.changeQuantity(id_product, -qty);
+            res.status(200).send({ message: 'remove cart success 1' });
+        });
+    } catch (err) {
+        //xuất ra lỗi nếu xóa sản phẩm trong cart fail
+        res.status(500).send({ message: err });
+    }
     // }
 };
