@@ -332,6 +332,11 @@ exports.updatePassword = async (req, res) => {
     }
     //khai báo các biến cần thiết
     let { id, oldpassword, newpassword } = req.body;
+
+    if (newpassword.trim().length < 6) {
+        return res.status(422).send({ message: 'mật khẩu phải có độ dài ít nhất 6 kí tự' });
+    }
+
     if (oldpassword === newpassword) {
         return res
             .status(422)
