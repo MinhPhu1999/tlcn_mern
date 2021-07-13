@@ -29,14 +29,14 @@ exports.register = async (req, res) => {
     //     });
     // }
     if (password.trim().length < 6) {
-        return res.status(422).send({ message: 'Mật khẩu phải có đồ dài ít nhất 6 kí tự' });
+        return res.status(422).send({ message: 'Password must be at least 6 characters long' });
     }
     //kiểm tra tên có hợp lệ không
     // if (!validate.isValidName(name)) {
     //     return res.status(422).send({ message: 'Nhập đầy đủ họ và tên' });
     // }
     if (name.trim().length < 6) {
-        return res.status(422).send({ message: 'Tên phải có độ dài ít nhất là 6 kí tự' });
+        return res.status(422).send({ message: 'Name must be at least 6 characters long' });
     }
     //kiểm tra điều kiện email và password
     if (email.indexOf('@') === -1 && email.indexOf('.') === -1) {
@@ -334,7 +334,7 @@ exports.updatePassword = async (req, res) => {
     let { id, oldpassword, newpassword } = req.body;
 
     if (newpassword.trim().length < 6) {
-        return res.status(422).send({ message: 'mật khẩu phải có độ dài ít nhất 6 kí tự' });
+        return res.status(422).send({ message: 'Password must be at least 6 characters long' });
     }
 
     if (oldpassword === newpassword) {

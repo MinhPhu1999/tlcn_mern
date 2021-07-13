@@ -69,7 +69,7 @@ exports.deleteComment = async (req, res) => {
     //tìm kiếm theo id và user_id trong model comment
     const commentFind = await comment.find({ id: id, user_id: user_id });
     if (commentFind === null)
-        return res.status(404).send({ message: 'Bạn không thể xóa comment của người khác' });
+        return res.status(404).send({ message: 'You cannot delete other people\'s comments' });
 
     //update lại status của comment
     comment
