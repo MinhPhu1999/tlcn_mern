@@ -26,7 +26,7 @@ exports.register = async (req, res) => {
     if (!validate.isValidPassWord(password) || password.trim().length < 8) {
         return res.status(422).send({
             message:
-                'Passwords with a length of 8-12 characters must contain numbers, lowercase letters and uppercase letters ',
+                'Passwords with a length of 8-16 characters must contain numbers, lowercase letters and uppercase letters ',
         });
     }
 
@@ -266,7 +266,7 @@ exports.forgotPassword = async (req, res) => {
     if (!validate.isValidPassWord(newPassword) || newPassword.trim().length < 8) {
         return res.status(422).send({
             message:
-                'Passwords with a length of 8-12 characters must contain numbers, lowercase letters and uppercase letters ',
+                'Passwords with a length of 8-16 characters must contain numbers, lowercase letters and uppercase letters ',
         });
     }
 
@@ -338,10 +338,6 @@ exports.updatePassword = async (req, res) => {
     //khai báo các biến cần thiết
     let { id, oldpassword, newpassword } = req.body;
 
-    if (newpassword.trim().length < 6) {
-        return res.status(422).send({ message: 'Password must be at least 6 characters long' });
-    }
-
     if (oldpassword === newpassword) {
         return res
             .status(422)
@@ -365,7 +361,7 @@ exports.updatePassword = async (req, res) => {
     if (!validate.isValidPassWord(newpassword) || newpassword.trim().length < 8) {
         return res.status(422).send({
             message:
-                'Passwords with a length of 8-12 characters must contain numbers, lowercase letters and uppercase letters ',
+                'Passwords with a length of 8-16 characters must contain numbers, lowercase letters and uppercase letters ',
         });
     }
 
