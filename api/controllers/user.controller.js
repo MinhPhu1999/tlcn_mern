@@ -23,21 +23,18 @@ exports.register = async (req, res) => {
     //khai báo các biến cần thiết
     let { email, password, name, repassword } = req.body;
     //kiểm tra điều kiện password hợp lệ
-    // if (!validate.isValidPassWord(password)) {
-    //     return res.status(422).send({
-    //         message: 'Mật khẩu có độ dài từ 8-12 kí tự phải chứa số,chữ thường và chữ hoa ',
-    //     });
-    // }
-    if (password.trim().length < 6) {
-        return res.status(422).send({ message: 'Password must be at least 6 characters long' });
+    if (!validate.isValidPassWord(password) || password.trim().length < 8) {
+        return res.status(422).send({
+            message:
+                'Passwords with a length of 8-12 characters must contain numbers, lowercase letters and uppercase letters ',
+        });
     }
+
     //kiểm tra tên có hợp lệ không
-    // if (!validate.isValidName(name)) {
-    //     return res.status(422).send({ message: 'Nhập đầy đủ họ và tên' });
-    // }
-    if (name.trim().length < 6) {
+    if (name.trim().length < 6 || !validate.isValidName(name)) {
         return res.status(422).send({ message: 'Name must be at least 6 characters long' });
     }
+
     //kiểm tra điều kiện email và password
     if (email.indexOf('@') === -1 && email.indexOf('.') === -1) {
         return res.status(422).send({ message: 'Invalid data' });
@@ -61,7 +58,7 @@ exports.register = async (req, res) => {
     //tạo mới user
     const newUser = new user({
         email: email,
-        name: name,
+        name: name.trim(),
         password: password,
     });
     try {
@@ -194,7 +191,7 @@ exports.requestForgotPassword = async (req, res) => {
     }
     if (userFind === null) {
         //trường hợp không có user trong db
-        return res.status(422).send({ message: 'Invalid data' });
+        return res.status(422).send({ message: 'Email not exist in database' });
     }
     if (!userFind.is_verify) {
         //trường hợp account chưa verify
@@ -230,7 +227,7 @@ exports.verifyForgotPassword = async (req, res) => {
     const { email, otp } = req.body;
     let userFind = null;
     try {
-        userFind = await user.findOne({ otp: otp }); //tìm kiếm user theo email
+        userFind = await user.findOne({ email: email, otp: otp }); //tìm kiếm user theo email
     } catch (err) {
         return res.send({ message: 'user not found' });
     }
@@ -265,6 +262,14 @@ exports.forgotPassword = async (req, res) => {
     if (userFind.otp != otp) {
         return res.status(422).send({ message: 'OTP fail' });
     }
+
+    if (!validate.isValidPassWord(newPassword) || newPassword.trim().length < 8) {
+        return res.status(422).send({
+            message:
+                'Passwords with a length of 8-12 characters must contain numbers, lowercase letters and uppercase letters ',
+        });
+    }
+
     //hash password
     userFind.password = bcrypt.hashSync(newPassword, 10);
     try {
@@ -290,8 +295,8 @@ exports.updateInfor = async (req, res) => {
     //khai báo các biến cần thiết
     const { email, name, id } = req.body;
 
-    if (name.trim().length < 6) {
-        return res.status(400).send({ message: 'Invalid name' });
+    if (name.trim().length < 6 || !validate.isValidName(name)) {
+        return res.status(422).send({ message: 'Name must be at least 6 characters long' });
     }
 
     let newUser = await user.findById(id);
@@ -302,7 +307,7 @@ exports.updateInfor = async (req, res) => {
         return res.status(422).send({ message: 'Email already exist' });
     }
     //cập nhật thay đổi
-    newUser.name = name;
+    newUser.name = name.trim();
     newUser.email = email;
     try {
         await newUser.save(); //lưu các thay đổi
@@ -356,6 +361,14 @@ exports.updatePassword = async (req, res) => {
     if (!bcrypt.compareSync(oldpassword, userFind.password)) {
         return res.status(422).send({ message: 'Password wrong' });
     }
+
+    if (!validate.isValidPassWord(newpassword) || newpassword.trim().length < 8) {
+        return res.status(422).send({
+            message:
+                'Passwords with a length of 8-12 characters must contain numbers, lowercase letters and uppercase letters ',
+        });
+    }
+
     //hash newpassword
     userFind.password = bcrypt.hashSync(newpassword, 10);
     try {
