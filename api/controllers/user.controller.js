@@ -256,19 +256,19 @@ exports.forgotPassword = async (req, res) => {
     }
     if (userFind === null) {
         //trường hợp không có user trong db
-        return res.status(422).send({ message: 'Invalid data' });
+        return res.status(422).send({ message: 'User not found in database' });
     }
     //trường hợp kiểm tra otp nhập vào khác với otp trong db
     if (userFind.otp != otp) {
         return res.status(422).send({ message: 'OTP fail' });
     }
 
-    if (!validate.isValidPassWord(newPassword) || newPassword.trim().length < 8) {
-        return res.status(422).send({
-            message:
-                'Passwords with a length of 8-16 characters must contain numbers, lowercase letters and uppercase letters ',
-        });
-    }
+    // if (!validate.isValidPassWord(newPassword) || newPassword.trim().length < 8) {
+    //     return res.status(422).send({
+    //         message:
+    //             'Passwords with a length of 8-16 characters must contain numbers, lowercase letters and uppercase letters ',
+    //     });
+    // }
 
     //hash password
     userFind.password = bcrypt.hashSync(newPassword, 10);
@@ -295,9 +295,9 @@ exports.updateInfor = async (req, res) => {
     //khai báo các biến cần thiết
     const { email, name, id } = req.body;
 
-    if (name.trim().length < 6 || !validate.isValidName(name)) {
-        return res.status(422).send({ message: 'Name must be at least 6 characters long' });
-    }
+    // if (name.trim().length < 6 || !validate.isValidName(name)) {
+    //     return res.status(422).send({ message: 'Name must be at least 6 characters long' });
+    // }
 
     let newUser = await user.findById(id);
     //tìm kiếm user theo email
@@ -307,7 +307,7 @@ exports.updateInfor = async (req, res) => {
         return res.status(422).send({ message: 'Email already exist' });
     }
     //cập nhật thay đổi
-    newUser.name = name.trim();
+    newUser.name = name;
     newUser.email = email;
     try {
         await newUser.save(); //lưu các thay đổi
